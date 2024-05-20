@@ -36,7 +36,10 @@ public class CoflWebsocketClient {
                 System.out.println("Failed to connect to backup websocket. Quitting flipper");
             }
         }
-        RealtimeEventRegistry.registerEvent("entityJoinWorldEvent", event -> entityJoinWorldEvent((EntityJoinWorldEvent) event), System.currentTimeMillis());
+        RealtimeEventRegistry.registerEvent("entityJoinWorldEvent", event -> {
+            entityJoinWorldEvent((EntityJoinWorldEvent) event);
+            return false;
+        });
     }
 
     public CoflWebsocketClient() {

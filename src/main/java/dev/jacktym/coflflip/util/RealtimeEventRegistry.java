@@ -8,35 +8,41 @@ import net.minecraftforge.fml.common.eventhandler.Event;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
 
-import java.util.function.Consumer;
+import java.util.function.Function;
 
 public class RealtimeEventRegistry {
-    public static Multimap<String, Consumer<Event>> eventMap = ArrayListMultimap.create();
+    public static Multimap<String, Function<Event, Boolean>> eventMap = ArrayListMultimap.create();
 
-    public static Multimap<Long, Consumer<Event>> timeRegistry = ArrayListMultimap.create();
+    //public static Multimap<Long, Consumer<Event>> timeRegistry = ArrayListMultimap.create();
 
     @SubscribeEvent
     public void clientTickEvent(TickEvent.ClientTickEvent event) {
-        eventMap.get("clientTickEvent").forEach(consumer -> consumer.accept(event));
+        handleEvent("clientTickEvent", event);
     }
 
     @SubscribeEvent
     public void entityJoinWorldEvent(EntityJoinWorldEvent event) {
-        eventMap.get("entityJoinWorldEvent").forEach(consumer -> consumer.accept(event));
+        handleEvent("entityJoinWorldEvent", event);
     }
 
     @SubscribeEvent
     public void guiOpenEvent(GuiOpenEvent event) {
-        eventMap.get("guiOpenEvent").forEach(consumer -> consumer.accept(event));
+        handleEvent("guiOpenEvent", event);
     }
 
-    public static void registerEvent(String event, Consumer<Event> consumer, Long registryId) {
+    private void handleEvent(String eventString, Event event) {
+        eventMap.get(eventString).forEach(function -> {
+            if (function.apply(event)) {
+                removeEvent(eventString, function);
+            }
+        });
+    }
+
+    public static void registerEvent(String event, Function<Event, Boolean> consumer) {
         eventMap.put(event, consumer);
-        timeRegistry.put(registryId, consumer);
     }
 
-    public static void removeEvent(String event, Long registryId) {
-        eventMap.remove(event, timeRegistry.get(registryId));
-        timeRegistry.removeAll(registryId);
+    public static void removeEvent(String eventString, Function<Event, Boolean> event) {
+        eventMap.remove(eventString, event);
     }
 }
