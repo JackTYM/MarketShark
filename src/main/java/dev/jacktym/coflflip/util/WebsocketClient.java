@@ -11,6 +11,7 @@ public class WebsocketClient extends WebSocketClient {
     private final Consumer<String> onMessage;
     private final Consumer<String> onClose;
     private final Consumer<Exception> onError;
+    private boolean isOpen;
 
     public WebsocketClient(URI serverUri, Consumer<ServerHandshake> onOpen, Consumer<String> onMessage, Consumer<String> onClose, Consumer<Exception> onError) {
         super(serverUri);
@@ -18,34 +19,44 @@ public class WebsocketClient extends WebSocketClient {
         this.onMessage = onMessage;
         this.onClose = onClose;
         this.onError = onError;
-        this.connect();
+        this.isOpen = true;
     }
 
     @Override
     public void onOpen(ServerHandshake handshakedata) {
-        if (onOpen != null) {
+        if (onOpen != null && isOpen) {
             onOpen.accept(handshakedata);
         }
     }
 
     @Override
     public void onMessage(String message) {
-        if (onMessage != null) {
+        if (onMessage != null && isOpen) {
             onMessage.accept(message);
         }
     }
 
     @Override
     public void onClose(int code, String reason, boolean remote) {
-        if (onClose != null) {
+        if (onClose != null && isOpen) {
             onClose.accept(reason);
         }
     }
 
     @Override
     public void onError(Exception ex) {
-        if (onError != null) {
+        if (onError != null && isOpen) {
             onError.accept(ex);
         }
+    }
+
+    @Override
+    public void close() {
+        try {
+            super.closeBlocking();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        isOpen = false;
     }
 }

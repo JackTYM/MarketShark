@@ -36,10 +36,10 @@ public class FlipConfig extends Vigilant {
             name = "Reset Session",
             description = "Resets your CoflNet session. You will need to login again after pressing"
     )
-    public static void resetSession() {
+    public final void resetSession() {
         SId = "";
         sessionExpiresIn = "";
-        Main.coflWebsocketClient.websocketClient.reconnect();
+        Main.coflWebsocketClient.reconnect();
     }
     @Property(
             type = PropertyType.BUTTON,
@@ -47,8 +47,8 @@ public class FlipConfig extends Vigilant {
             name = "Reconnect COFL",
             description = "Reconnects your CoflNet session"
     )
-    public static void reconnectCofl() {
-        Main.coflWebsocketClient.websocketClient.reconnect();
+    public final void reconnectCofl() {
+        Main.coflWebsocketClient.reconnect();
     }
 
     public FlipConfig() {
