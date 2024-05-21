@@ -2,6 +2,7 @@ package dev.jacktym.coflflip.macros;
 
 import dev.jacktym.coflflip.Main;
 import dev.jacktym.coflflip.config.FlipConfig;
+import dev.jacktym.coflflip.util.ChatUtils;
 import dev.jacktym.coflflip.util.RealtimeEventRegistry;
 import net.minecraft.client.gui.inventory.GuiChest;
 import net.minecraft.init.Items;
@@ -28,7 +29,7 @@ public class AutoBuy {
             IInventory chest = ((ContainerChest) ((GuiChest) event.gui).inventorySlots).getLowerChestInventory();
             ItemStack item = chest.getStackInSlot(13);
 
-            if (chest.getDisplayName().toString().contains("BIN Auction View")) {
+            if (chest.getDisplayName().getUnformattedText().equals("BIN Auction View")) {
                 ItemStack buyItem = chest.getStackInSlot(31);
                 if (buyItem == null) {
                     return false;
@@ -39,6 +40,7 @@ public class AutoBuy {
                         System.out.println("Flip Purchased! Leaving Menu");
                     }
                     Main.mc.thePlayer.closeScreen();
+                    AutoOpen.openAuction();
                     return true;
                 } else if (buyItem.getItem().equals(Items.bed)) {
                     // Buy bed Here
@@ -47,11 +49,12 @@ public class AutoBuy {
                     RealtimeEventRegistry.registerEvent("guiScreenEvent", guiScreenEvent -> confirmPurchase((GuiScreenEvent) guiScreenEvent, item));
                     Main.mc.playerController.windowClick(Main.mc.thePlayer.openContainer.windowId, 31, 0, 0, Main.mc.thePlayer);
                 }
-            } else if (chest.getDisplayName().toString().contains("BIN Auction View")) {
+            } else if (chest.getDisplayName().getUnformattedText().equals("Auction View")) {
                 if (FlipConfig.debug) {
                     System.out.println("BID Auction! Leaving Menu");
                 }
                 Main.mc.thePlayer.closeScreen();
+                AutoOpen.openAuction();
                 return true;
             }
         }
@@ -67,7 +70,7 @@ public class AutoBuy {
         if (event.gui instanceof GuiChest) {
             IInventory chest = ((ContainerChest) ((GuiChest) event.gui).inventorySlots).getLowerChestInventory();
 
-            if (chest.getDisplayName().toString().contains("Confirm Purchase")) {
+            if (chest.getDisplayName().getUnformattedText().equals("Confirm Purchase")) {
                 if (chest.getStackInSlot(11) == null) {
                     return false;
                 }
@@ -81,14 +84,14 @@ public class AutoBuy {
     }
 
     public static boolean waitForBuyMessage(ClientChatReceivedEvent event, Long expiryTime, ItemStack item) {
-        if (expiryTime > System.currentTimeMillis()) {
+        if (expiryTime < System.currentTimeMillis()) {
             return true;
         }
 
-        System.out.println(item.getDisplayName());
-        String message = event.message.toString();
+        System.out.println(ChatUtils.stripColor(item.getDisplayName()));
+        String message = event.message.getUnformattedText();
         System.out.println(message);
-        if (message.startsWith("You Purchased") && message.contains(item.getDisplayName())) {
+        if (message.startsWith("You purchased") && message.contains(ChatUtils.stripColor(item.getDisplayName()))) {
             AutoClaim.claim(item);
             return true;
         }

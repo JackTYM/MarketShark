@@ -18,6 +18,8 @@ import org.java_websocket.handshake.ServerHandshake;
 import org.jetbrains.annotations.NotNull;
 
 import java.net.URI;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 import java.util.function.Consumer;
 
@@ -25,6 +27,7 @@ public class CoflWebsocketClient {
     public static WebsocketClient websocketClient;
     public static String URL;
     private boolean connected = false;
+    public static List<String> auctionQueue = new ArrayList<>();
 
     public CoflWebsocketClient(boolean usServers) {
         URL = "/modsocket?player=" + Minecraft.getMinecraft().getSession().getUsername() + "&version=1.5.5-Alpha&SId=" + getSessionID();
@@ -119,8 +122,11 @@ public class CoflWebsocketClient {
                 ChatUtils.addChatMessage(chatMessage);
                 String onClick = messages.get(0).getAsJsonObject().get("onClick").toString().replace("\"", "");
                 if (onClick.contains("/viewauction")) {
+                    if (!auctionQueue.contains(onClick)) {
+                        auctionQueue.add(0, onClick);
+                    }
                     System.out.println(onClick);
-                    AutoOpen.openAuction(onClick);
+                    AutoOpen.openAuction();
                 }
                 break;
             case "flip":
@@ -133,8 +139,11 @@ public class CoflWebsocketClient {
                 ChatUtils.addChatMessage(flipMessage);
                 String onClickFlip = flip.get(0).getAsJsonObject().get("onClick").toString().replace("\"", "");
                 if (onClickFlip.contains("/viewauction")) {
+                    if (!auctionQueue.contains(onClickFlip)) {
+                        auctionQueue.add(0, onClickFlip);
+                    }
                     System.out.println(onClickFlip);
-                    AutoOpen.openAuction(onClickFlip);
+                    AutoOpen.openAuction();
                 }
                 break;
         }

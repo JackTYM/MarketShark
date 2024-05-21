@@ -15,15 +15,16 @@ public class AutoClaim {
         if (!FlipConfig.autoClaim) {
             return;
         }
-        Main.mc.thePlayer.sendChatMessage("/ah");
         RealtimeEventRegistry.registerEvent("guiScreenEvent", guiScreenEvent -> openBids((GuiScreenEvent) guiScreenEvent, item));
+        Main.mc.thePlayer.sendChatMessage("/ah");
     }
 
     public static boolean openBids(GuiScreenEvent event, ItemStack item) {
         if (Main.mc.currentScreen instanceof GuiChest) {
             IInventory chest = ((ContainerChest) ((GuiChest) Main.mc.currentScreen).inventorySlots).getLowerChestInventory();
 
-            if (chest.getDisplayName().toString().equals("Co-op Auction House")) {
+            System.out.println("\"" + chest.getDisplayName().getUnformattedText() + "\"");
+            if (chest.getDisplayName().getUnformattedText().equals("Co-op Auction House")) {
                 Main.mc.playerController.windowClick(Main.mc.thePlayer.openContainer.windowId, 13, 0, 0, Main.mc.thePlayer);
                 RealtimeEventRegistry.registerEvent("guiScreenEvent", guiScreenEvent -> claimItem((GuiScreenEvent) guiScreenEvent, item));
                 return true;
@@ -36,7 +37,7 @@ public class AutoClaim {
         if (Main.mc.currentScreen instanceof GuiChest) {
             IInventory chest = ((ContainerChest) ((GuiChest) Main.mc.currentScreen).inventorySlots).getLowerChestInventory();
 
-            if (chest.getDisplayName().toString().equals("Your Bids")) {
+            if (chest.getDisplayName().getUnformattedText().equals("Your Bids")) {
                 for (int i = 10; i <= 16; i++) {
                     if (chest.getStackInSlot(i).getDisplayName().equals(item.getDisplayName())) {
                         Main.mc.playerController.windowClick(Main.mc.thePlayer.openContainer.windowId, i, 0, 0, Main.mc.thePlayer);
@@ -56,7 +57,7 @@ public class AutoClaim {
         if (Main.mc.currentScreen instanceof GuiChest) {
             IInventory chest = ((ContainerChest) ((GuiChest) Main.mc.currentScreen).inventorySlots).getLowerChestInventory();
 
-            if (chest.getDisplayName().toString().equals("BIN Auction View")) {
+            if (chest.getDisplayName().getUnformattedText().equals("BIN Auction View")) {
                 Main.mc.playerController.windowClick(Main.mc.thePlayer.openContainer.windowId, 31, 0, 0, Main.mc.thePlayer);
                 RealtimeEventRegistry.registerEvent("clientChatReceivedEvent", clientChatReceivedEvent -> waitForClaimMessage((ClientChatReceivedEvent) clientChatReceivedEvent, System.currentTimeMillis() + 10000, item));
                 return true;

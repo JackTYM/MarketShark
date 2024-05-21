@@ -10,43 +10,39 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
 
 import java.util.ConcurrentModificationException;
-import java.util.Iterator;
 import java.util.function.Function;
 
 public class RealtimeEventRegistry {
     public static Multimap<String, Function<Event, Boolean>> eventMap = ArrayListMultimap.create();
 
-    //public static Multimap<Long, Consumer<Event>> timeRegistry = ArrayListMultimap.create();
-
     @SubscribeEvent
     public void clientTickEvent(TickEvent.ClientTickEvent event) {
-        handleEvent("clientTickEvent", event);
+        handleEvent("clientTickEvent", event, 0);
     }
 
     @SubscribeEvent
     public void entityJoinWorldEvent(EntityJoinWorldEvent event) {
-        handleEvent("entityJoinWorldEvent", event);
+        handleEvent("entityJoinWorldEvent", event, 0);
     }
 
     @SubscribeEvent
     public void guiScreenEvent(GuiScreenEvent event) {
-        handleEvent("guiScreenEvent", event);
+        handleEvent("guiScreenEvent", event, 0);
     }
 
     @SubscribeEvent
-    public void clientChatReceivedEvent(ClientChatReceivedEvent event) { handleEvent("clientChatReceivedEvent", event); }
+    public void clientChatReceivedEvent(ClientChatReceivedEvent event) { handleEvent("clientChatReceivedEvent", event, 0); }
 
-    private void handleEvent(String eventString, Event event) {
+    private void handleEvent(String eventString, Event event, int i) {
+        if (i > 10) {
+            System.out.println("ConcurrentModification StackOverflow. Clearing events!");
+            eventMap.clear();
+            return;
+        }
         try {
-            Iterator<Function<Event, Boolean>> iterator = eventMap.get(eventString).iterator();
-            while (iterator.hasNext()) {
-                Function<Event, Boolean> function = iterator.next();
-                if (function.apply(event)) {
-                    iterator.remove();
-                }
-            }
+            eventMap.get(eventString).removeIf(function -> function.apply(event));
         } catch (ConcurrentModificationException e) {
-            handleEvent(eventString, event);
+            handleEvent(eventString, event, i+1);
         }
     }
 

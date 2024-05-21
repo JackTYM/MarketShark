@@ -23,7 +23,7 @@ public class AutoList {
         if (Main.mc.currentScreen instanceof GuiChest) {
             IInventory chest = ((ContainerChest) ((GuiChest) Main.mc.currentScreen).inventorySlots).getLowerChestInventory();
 
-            if (chest.getDisplayName().toString().equals("Co-op Auction House")) {
+            if (chest.getDisplayName().getUnformattedText().equals("Co-op Auction House")) {
                 Main.mc.playerController.windowClick(Main.mc.thePlayer.openContainer.windowId, 15, 0, 0, Main.mc.thePlayer);
                 RealtimeEventRegistry.registerEvent("guiScreenEvent", guiScreenEvent -> openCreateAuction((GuiScreenEvent) guiScreenEvent, item));
                 return true;
@@ -36,11 +36,11 @@ public class AutoList {
         if (Main.mc.currentScreen instanceof GuiChest) {
             IInventory chest = ((ContainerChest) ((GuiChest) Main.mc.currentScreen).inventorySlots).getLowerChestInventory();
 
-            if (chest.getDisplayName().toString().equals("Create Auction")) {
+            if (chest.getDisplayName().getUnformattedText().equals("Create Auction")) {
                 Main.mc.playerController.windowClick(Main.mc.thePlayer.openContainer.windowId, 48, 0, 0, Main.mc.thePlayer);
                 RealtimeEventRegistry.registerEvent("guiScreenEvent", guiScreenEvent -> openCreateAuction((GuiScreenEvent) guiScreenEvent, item));
                 return false;
-            } else if (chest.getDisplayName().toString().equals("Create BIN Auction")) {
+            } else if (chest.getDisplayName().getUnformattedText().equals("Create BIN Auction")) {
                 System.out.println("Inventory Length: " + Main.mc.thePlayer.getInventory().length);
                 return true;
             }
