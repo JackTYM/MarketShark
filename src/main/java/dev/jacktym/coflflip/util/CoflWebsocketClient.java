@@ -1,5 +1,6 @@
 package dev.jacktym.coflflip.util;
 
+import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
@@ -14,6 +15,7 @@ import net.minecraft.util.ChatStyle;
 import net.minecraft.util.IChatComponent;
 import net.minecraftforge.event.entity.EntityJoinWorldEvent;
 import org.java_websocket.handshake.ServerHandshake;
+import org.jetbrains.annotations.NotNull;
 
 import java.net.URI;
 import java.util.UUID;
@@ -48,7 +50,11 @@ public class CoflWebsocketClient {
 
     public void setWebsocketClient(URI serverUri, Consumer<ServerHandshake> onOpen, Consumer<String> onMessage, Consumer<String> onClose, Consumer<Exception> onError) {
         if (websocketClient != null && websocketClient.isOpen()) {
-            websocketClient.close();
+            try {
+                websocketClient.closeBlocking();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
         websocketClient = new WebsocketClient(serverUri, onOpen, onMessage, onClose, onError);
     }
@@ -61,24 +67,32 @@ public class CoflWebsocketClient {
     }
 
     public void onMessage(String message) {
+        System.out.println(message);
         JsonObject jsonObject = new JsonParser().parse(message).getAsJsonObject();
         String type = jsonObject.get("type").toString().replace("\"", "");
         String dataStr = jsonObject.get("data").toString();
         String strippedData = dataStr
                 .substring(1, dataStr.length() - 1)
-                .replace("\\\"", "\"");
+                .replace("\\\"", "\"")
+                .replace("\":\"\\\\n", "\":\"")
+                .replace("\\\\n", "\n")
+                .replace("\\n", "\n");
 
         JsonElement data = new JsonParser().parse(strippedData);
 
         if (FlipConfig.debug) {
             StringBuilder dataString = new StringBuilder();
             dataString.append("[").append(type).append("] ");
-            if (data.isJsonArray()) {
-                for (JsonElement element : data.getAsJsonArray()) {
-                    dataString.append(ChatUtils.stripColor(element.getAsJsonObject().get("text").toString())).append(" ");
+            if (data.toString().startsWith("{\"text\":")) {
+                if (data.isJsonArray()) {
+                    for (JsonElement element : data.getAsJsonArray()) {
+                        dataString.append(ChatUtils.stripColor(element.getAsJsonObject().get("text").toString())).append(" ");
+                    }
+                } else {
+                    dataString.append(ChatUtils.stripColor(data.getAsJsonObject().get("text").toString()));
                 }
             } else {
-                dataString.append(ChatUtils.stripColor(data.getAsJsonObject().get("text").toString()));
+                dataString.append(data);
             }
             System.out.println(dataString);
         }
@@ -91,24 +105,36 @@ public class CoflWebsocketClient {
             websocketClient.send(json.toString());
         }
 
-
-        System.out.println(type);
         switch (type) {
             case "writeToChat":
-                System.out.println(data);
                 ChatUtils.addChatMessage(handleMessage(data.getAsJsonObject()));
                 break;
             case "chatMessage":
-            case "flip":
-                System.out.println(data.getAsJsonArray());
+                JsonArray messages = data.getAsJsonArray();
                 IChatComponent chatMessage = new ChatComponentText("");
-                for (JsonElement element : data.getAsJsonArray()) {
+                for (JsonElement element : messages) {
                     chatMessage.appendSibling(handleMessage(element.getAsJsonObject()));
+                    System.out.println(element.getAsJsonObject().toString());
                 }
                 ChatUtils.addChatMessage(chatMessage);
-                String onClick = data.getAsJsonArray().get(0).getAsJsonObject().get("onClick").toString().replace("\"", "");
+                String onClick = messages.get(0).getAsJsonObject().get("onClick").toString().replace("\"", "");
                 if (onClick.contains("/viewauction")) {
+                    System.out.println(onClick);
                     AutoOpen.openAuction(onClick);
+                }
+                break;
+            case "flip":
+                JsonArray flip = data.getAsJsonObject().get("messages").getAsJsonArray();
+                System.out.println(flip);
+                IChatComponent flipMessage = new ChatComponentText("");
+                for (JsonElement element : flip) {
+                    flipMessage.appendSibling(handleMessage(element.getAsJsonObject()));
+                }
+                ChatUtils.addChatMessage(flipMessage);
+                String onClickFlip = flip.get(0).getAsJsonObject().get("onClick").toString().replace("\"", "");
+                if (onClickFlip.contains("/viewauction")) {
+                    System.out.println(onClickFlip);
+                    AutoOpen.openAuction(onClickFlip);
                 }
                 break;
         }
@@ -155,6 +181,12 @@ public class CoflWebsocketClient {
         String text = data.get("text").toString().replace("\"", "");
         String onClick = data.get("onClick").toString().replace("\"", "");
         String hover = data.get("hover").toString().replace("\"", "");
+        ChatStyle style = getChatStyle(onClick, hover);
+        return new ChatComponentText("§7" + text).setChatStyle(style);
+    }
+
+    @NotNull
+    private static ChatStyle getChatStyle(String onClick, String hover) {
         ChatStyle style = new ChatStyle();
 
         if (!onClick.equals("null")) {
@@ -167,7 +199,7 @@ public class CoflWebsocketClient {
         if (!hover.equals("null")) {
             style.setChatHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ChatComponentText(hover)));
         }
-        return new ChatComponentText("§7" + text).setChatStyle(style);
+        return style;
     }
 
     public void entityJoinWorldEvent(EntityJoinWorldEvent event) {

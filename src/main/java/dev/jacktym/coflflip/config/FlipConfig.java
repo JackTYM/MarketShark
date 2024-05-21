@@ -9,6 +9,69 @@ import gg.essential.vigilance.data.PropertyType;
 import java.io.File;
 
 public class FlipConfig extends Vigilant {
+
+    @Property(
+            type = PropertyType.CHECKBOX,
+            category = "Macros",
+            name = "Auto Open",
+            description = "Auto Opens all Cofl Relay Flips"
+    )
+    public static boolean autoOpen = false;
+    @Property(
+            type = PropertyType.CHECKBOX,
+            category = "Macros",
+            name = "Auto Buy",
+            description = "Auto Buys Cofl Relay Flips"
+    )
+    public static boolean autoBuy = false;
+    @Property(
+            type = PropertyType.CHECKBOX,
+            category = "Macros",
+            name = "Auto Claim",
+            description = "Auto Claims all Cofl Relay Flips"
+    )
+    public static boolean autoClaim = false;
+    @Property(
+            type = PropertyType.CHECKBOX,
+            category = "Macros",
+            name = "Auto Sell",
+            description = "Auto Sells all Cofl Relay Flips"
+    )
+    public static boolean autoSell = false;
+    @Property(
+            type = PropertyType.SELECTOR,
+            category = "Macros",
+            name = "Auto Relist",
+            description = "Auto Relists Expired Auctions",
+            options = {
+                    "Disabled",
+                    "Same Price",
+                    "New Value"
+            }
+    )
+    public static int autoRelist = 0;
+    @Property(
+            type = PropertyType.TEXT,
+            category = "Macros",
+            name = "Bed Spam Delay",
+            description = "How quickly to spam buy bed auctions (Default 100)"
+    )
+    public static String bedSpamDelay = "100";
+
+
+    @Property(
+            type = PropertyType.TEXT,
+            category = "Failsafes",
+            name = "Auto Close Menu Delay",
+            description = "How many MS before auto closing a buy menu (Default 5000)",
+            options = {
+                    "Disabled",
+                    "Same Price",
+                    "New Value"
+            }
+    )
+    public static String autoCloseMenuDelay = "5000";
+
     @Property(
             type = PropertyType.CHECKBOX,
             category = "Developer Menu",

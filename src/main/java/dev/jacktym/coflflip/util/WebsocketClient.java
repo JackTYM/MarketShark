@@ -52,11 +52,7 @@ public class WebsocketClient extends WebSocketClient {
 
     @Override
     public void close() {
-        try {
-            super.closeBlocking();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        super.close();
         isOpen = false;
     }
 }
