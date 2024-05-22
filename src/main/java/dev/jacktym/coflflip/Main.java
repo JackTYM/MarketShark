@@ -3,8 +3,7 @@ package dev.jacktym.coflflip;
 import dev.jacktym.coflflip.commands.CoflFlip;
 import dev.jacktym.coflflip.commands.CoflReRoute;
 import dev.jacktym.coflflip.config.FlipConfig;
-import dev.jacktym.coflflip.macros.AutoBuy;
-import dev.jacktym.coflflip.macros.AutoOpen;
+import dev.jacktym.coflflip.macros.AutoClaimSold;
 import dev.jacktym.coflflip.util.CoflWebsocketClient;
 import dev.jacktym.coflflip.util.RealtimeEventRegistry;
 import net.minecraft.client.Minecraft;
@@ -33,8 +32,7 @@ public class Main {
 
         List<Object> registry = new ArrayList<>();
         registry.add(new RealtimeEventRegistry());
-        registry.add(new AutoOpen());
-        registry.add(new AutoBuy());
+        registry.add(new AutoClaimSold());
         registry.forEach(MinecraftForge.EVENT_BUS::register);
     }
 }

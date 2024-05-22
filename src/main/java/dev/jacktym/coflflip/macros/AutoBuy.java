@@ -3,6 +3,7 @@ package dev.jacktym.coflflip.macros;
 import dev.jacktym.coflflip.Main;
 import dev.jacktym.coflflip.config.FlipConfig;
 import dev.jacktym.coflflip.util.ChatUtils;
+import dev.jacktym.coflflip.util.GuiUtil;
 import dev.jacktym.coflflip.util.RealtimeEventRegistry;
 import net.minecraft.client.gui.inventory.GuiChest;
 import net.minecraft.init.Items;
@@ -26,7 +27,10 @@ public class AutoBuy {
             return false;
         }
         if (event.gui instanceof GuiChest) {
-            IInventory chest = ((ContainerChest) ((GuiChest) event.gui).inventorySlots).getLowerChestInventory();
+            IInventory chest = GuiUtil.getInventory(event.gui);
+            if (chest.getStackInSlot(0) == null) {
+                return false;
+            }
             ItemStack item = chest.getStackInSlot(13);
 
             if (chest.getDisplayName().getUnformattedText().equals("BIN Auction View")) {
@@ -44,10 +48,21 @@ public class AutoBuy {
                     return true;
                 } else if (buyItem.getItem().equals(Items.bed)) {
                     // Buy bed Here
+                    if (FlipConfig.debug) {
+                        System.out.println("BED Auction! Leaving Menu");
+                    }
+                    Main.mc.thePlayer.closeScreen();
+                    AutoOpen.openAuction();
                     return true;
                 } else if (buyItem.getItem().equals(Items.gold_nugget)) {
                     RealtimeEventRegistry.registerEvent("guiScreenEvent", guiScreenEvent -> confirmPurchase((GuiScreenEvent) guiScreenEvent, item));
-                    Main.mc.playerController.windowClick(Main.mc.thePlayer.openContainer.windowId, 31, 0, 0, Main.mc.thePlayer);
+                    GuiUtil.tryClick(31);
+                } else {
+                    if (FlipConfig.debug) {
+                        System.out.println("Unknown Buy Item! May be users own auction!");
+                    }
+                    Main.mc.thePlayer.closeScreen();
+                    AutoOpen.openAuction();
                 }
             } else if (chest.getDisplayName().getUnformattedText().equals("Auction View")) {
                 if (FlipConfig.debug) {
@@ -69,6 +84,9 @@ public class AutoBuy {
 
         if (event.gui instanceof GuiChest) {
             IInventory chest = ((ContainerChest) ((GuiChest) event.gui).inventorySlots).getLowerChestInventory();
+            if (chest.getStackInSlot(0) == null) {
+                return false;
+            }
 
             if (chest.getDisplayName().getUnformattedText().equals("Confirm Purchase")) {
                 if (chest.getStackInSlot(11) == null) {
@@ -76,7 +94,7 @@ public class AutoBuy {
                 }
                 RealtimeEventRegistry.registerEvent("clientChatReceivedEvent", clientChatReceivedEvent -> waitForBuyMessage((ClientChatReceivedEvent) clientChatReceivedEvent, System.currentTimeMillis() + 10000, item));
 
-                Main.mc.playerController.windowClick(Main.mc.thePlayer.openContainer.windowId, 11, 0, 0, Main.mc.thePlayer);
+                GuiUtil.tryClick(11);
                 return true;
             }
         }
@@ -88,9 +106,7 @@ public class AutoBuy {
             return true;
         }
 
-        System.out.println(ChatUtils.stripColor(item.getDisplayName()));
         String message = event.message.getUnformattedText();
-        System.out.println(message);
         if (message.startsWith("You purchased") && message.contains(ChatUtils.stripColor(item.getDisplayName()))) {
             AutoClaim.claim(item);
             return true;

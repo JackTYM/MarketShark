@@ -12,7 +12,9 @@ public class AutoOpen {
         }
         if (Main.mc.thePlayer != null && !(Main.mc.currentScreen instanceof GuiChest)) {
             AutoBuy.autoBuy();
-            Main.mc.thePlayer.sendChatMessage(CoflWebsocketClient.auctionQueue.get(0));
+            String auction = CoflWebsocketClient.auctionQueue.get(0);
+            Main.mc.thePlayer.sendChatMessage(auction);
+            CoflWebsocketClient.auctionQueue.remove(auction);
         }
     }
 }

@@ -2,9 +2,11 @@ package dev.jacktym.coflflip.macros;
 
 import dev.jacktym.coflflip.Main;
 import dev.jacktym.coflflip.config.FlipConfig;
+import dev.jacktym.coflflip.util.ChatUtils;
+import dev.jacktym.coflflip.util.DelayUtils;
+import dev.jacktym.coflflip.util.GuiUtil;
 import dev.jacktym.coflflip.util.RealtimeEventRegistry;
 import net.minecraft.client.gui.inventory.GuiChest;
-import net.minecraft.inventory.ContainerChest;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.client.event.ClientChatReceivedEvent;
@@ -20,13 +22,23 @@ public class AutoClaim {
     }
 
     public static boolean openBids(GuiScreenEvent event, ItemStack item) {
-        if (Main.mc.currentScreen instanceof GuiChest) {
-            IInventory chest = ((ContainerChest) ((GuiChest) Main.mc.currentScreen).inventorySlots).getLowerChestInventory();
+        if (!(event instanceof GuiScreenEvent.DrawScreenEvent.Post)) {
+            // GUI not initialized yet
+            return false;
+        }
+        if (event.gui instanceof GuiChest) {
+            IInventory chest = GuiUtil.getInventory(event.gui);
+            if (chest.getStackInSlot(0) == null) {
+                return false;
+            }
 
             System.out.println("\"" + chest.getDisplayName().getUnformattedText() + "\"");
             if (chest.getDisplayName().getUnformattedText().equals("Co-op Auction House")) {
-                Main.mc.playerController.windowClick(Main.mc.thePlayer.openContainer.windowId, 13, 0, 0, Main.mc.thePlayer);
-                RealtimeEventRegistry.registerEvent("guiScreenEvent", guiScreenEvent -> claimItem((GuiScreenEvent) guiScreenEvent, item));
+                System.out.println("Clicking");
+                DelayUtils.delayAction(300, () -> {
+                    RealtimeEventRegistry.registerEvent("guiScreenEvent", guiScreenEvent -> claimItem((GuiScreenEvent) guiScreenEvent, item));
+                    GuiUtil.tryClick(13);
+                });
                 return true;
             }
         }
@@ -34,14 +46,27 @@ public class AutoClaim {
     }
 
     public static boolean claimItem(GuiScreenEvent event, ItemStack item) {
-        if (Main.mc.currentScreen instanceof GuiChest) {
-            IInventory chest = ((ContainerChest) ((GuiChest) Main.mc.currentScreen).inventorySlots).getLowerChestInventory();
+        if (!(event instanceof GuiScreenEvent.DrawScreenEvent.Post)) {
+            // GUI not initialized yet
+            return false;
+        }
+        if (event.gui instanceof GuiChest) {
+            IInventory chest = GuiUtil.getInventory(event.gui);
+            if (chest.getStackInSlot(0) == null) {
+                return false;
+            }
 
             if (chest.getDisplayName().getUnformattedText().equals("Your Bids")) {
                 for (int i = 10; i <= 16; i++) {
+                    if (chest.getStackInSlot(i) == null) {
+                        return false;
+                    }
                     if (chest.getStackInSlot(i).getDisplayName().equals(item.getDisplayName())) {
-                        Main.mc.playerController.windowClick(Main.mc.thePlayer.openContainer.windowId, i, 0, 0, Main.mc.thePlayer);
-                        RealtimeEventRegistry.registerEvent("guiScreenEvent", guiScreenEvent -> confirmClaim((GuiScreenEvent) guiScreenEvent, item));
+                        int finalI = i;
+                        DelayUtils.delayAction(300, () -> {
+                            RealtimeEventRegistry.registerEvent("guiScreenEvent", guiScreenEvent -> confirmClaim((GuiScreenEvent) guiScreenEvent, item));
+                            GuiUtil.tryClick(finalI);
+                        });
                         return true;
                     }
                 }
@@ -54,12 +79,22 @@ public class AutoClaim {
     }
 
     public static boolean confirmClaim(GuiScreenEvent event, ItemStack item) {
-        if (Main.mc.currentScreen instanceof GuiChest) {
-            IInventory chest = ((ContainerChest) ((GuiChest) Main.mc.currentScreen).inventorySlots).getLowerChestInventory();
+        if (!(event instanceof GuiScreenEvent.DrawScreenEvent.Post)) {
+            // GUI not initialized yet
+            return false;
+        }
+        if (event.gui instanceof GuiChest) {
+            IInventory chest = GuiUtil.getInventory(event.gui);
+            if (chest.getStackInSlot(0) == null) {
+                return false;
+            }
 
             if (chest.getDisplayName().getUnformattedText().equals("BIN Auction View")) {
-                Main.mc.playerController.windowClick(Main.mc.thePlayer.openContainer.windowId, 31, 0, 0, Main.mc.thePlayer);
-                RealtimeEventRegistry.registerEvent("clientChatReceivedEvent", clientChatReceivedEvent -> waitForClaimMessage((ClientChatReceivedEvent) clientChatReceivedEvent, System.currentTimeMillis() + 10000, item));
+                DelayUtils.delayAction(300, () -> {
+                    System.out.println("Claiming");
+                    RealtimeEventRegistry.registerEvent("clientChatReceivedEvent", clientChatReceivedEvent -> waitForClaimMessage((ClientChatReceivedEvent) clientChatReceivedEvent, System.currentTimeMillis() + 10000, item));
+                    GuiUtil.tryClick(31);
+                });
                 return true;
             }
         }
@@ -67,12 +102,14 @@ public class AutoClaim {
     }
 
     public static boolean waitForClaimMessage(ClientChatReceivedEvent event, Long expiryTime, ItemStack item) {
-        if (expiryTime > System.currentTimeMillis()) {
+        if (expiryTime < System.currentTimeMillis()) {
             return true;
         }
 
-        String message = event.message.toString();
-        if (message.startsWith("You claimed") && message.contains(item.getDisplayName())) {
+        String message = event.message.getUnformattedText();
+        System.out.println(message);
+        System.out.println(ChatUtils.stripColor(item.getDisplayName()));
+        if (message.startsWith("You claimed") && message.contains(ChatUtils.stripColor(item.getDisplayName()))) {
             AutoList.listItem(item, true);
             return true;
         }

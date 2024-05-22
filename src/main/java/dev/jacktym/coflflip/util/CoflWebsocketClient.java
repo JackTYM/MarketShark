@@ -165,8 +165,6 @@ public class CoflWebsocketClient {
     }
 
     public void reconnect() {
-        FlipConfig.SId = "";
-        FlipConfig.sessionExpiresIn = "";
         URL = "/modsocket?player=" + Minecraft.getMinecraft().getSession().getUsername() + "&version=1.5.5-Alpha&SId=" + getSessionID();
         System.out.println("wss://sky.coflnet.com" + URL);
         try {

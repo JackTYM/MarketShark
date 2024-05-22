@@ -1,7 +1,9 @@
 package dev.jacktym.coflflip.commands;
 
 import dev.jacktym.coflflip.Main;
+import dev.jacktym.coflflip.macros.AutoList;
 import dev.jacktym.coflflip.util.ChatUtils;
+import dev.jacktym.coflflip.util.RealtimeEventRegistry;
 import gg.essential.api.utils.GuiUtil;
 import net.minecraft.command.CommandBase;
 import net.minecraft.command.CommandException;
@@ -36,6 +38,20 @@ public class CoflFlip extends CommandBase {
                     case "help": {
                         ChatUtils.printColoredChat("CoflFlip Help Menu", EnumChatFormatting.GOLD);
                         ChatUtils.printUnmarkedChat("/coflflip - Displays Config GUI");
+                        break;
+                    }
+                    case "list": {
+                        AutoList.listItem(Main.mc.thePlayer.inventory.getCurrentItem(), true);
+                        break;
+                    }
+                    case "listinv": {
+                        AutoList.listInventory();
+                        break;
+                    }
+                    case "reset": {
+                        RealtimeEventRegistry.eventMap.clear();
+                        AutoList.finishCurrentListing();
+                        break;
                     }
                 }
             }

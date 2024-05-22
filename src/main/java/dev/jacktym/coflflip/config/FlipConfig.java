@@ -28,7 +28,7 @@ public class FlipConfig extends Vigilant {
             type = PropertyType.CHECKBOX,
             category = "Macros",
             name = "Auto Claim",
-            description = "Auto Claims all Cofl Relay Flips"
+            description = "Auto Claims all Cofl Relay Flip Items"
     )
     public static boolean autoClaim = false;
     @Property(
@@ -38,6 +38,13 @@ public class FlipConfig extends Vigilant {
             description = "Auto Sells all Cofl Relay Flips"
     )
     public static boolean autoSell = false;
+    @Property(
+            type = PropertyType.CHECKBOX,
+            category = "Macros",
+            name = "Auto Claim Sold",
+            description = "Auto Claims all Sold Auctions"
+    )
+    public static boolean autoClaimSold = false;
     @Property(
             type = PropertyType.SELECTOR,
             category = "Macros",
