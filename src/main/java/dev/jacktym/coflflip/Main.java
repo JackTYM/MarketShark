@@ -14,6 +14,7 @@ import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 @Mod(modid = "coflflip", name = "CoflFlip", version = "1.0.0")
 public class Main {
@@ -34,5 +35,7 @@ public class Main {
         registry.add(new RealtimeEventRegistry());
         registry.add(new AutoClaimSold());
         registry.forEach(MinecraftForge.EVENT_BUS::register);
+
+        Locale.setDefault(new Locale("en", "US"));
     }
 }
