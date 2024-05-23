@@ -69,15 +69,15 @@ public class FlipConfig extends Vigilant {
     @Property(
             type = PropertyType.TEXT,
             category = "Failsafes",
-            name = "Auto Close Menu Delay",
-            description = "How many MS before auto closing a buy menu (Default 5000)",
+            name = "Stuck Menu Delay",
+            description = "How many MS before auto closing a gui (Default 15000)",
             options = {
                     "Disabled",
                     "Same Price",
                     "New Value"
             }
     )
-    public static String autoCloseMenuDelay = "5000";
+    public static String autoCloseMenuDelay = "15000";
 
     @Property(
             type = PropertyType.CHECKBOX,

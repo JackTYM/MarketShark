@@ -33,7 +33,6 @@ public class CoflReRoute extends CommandBase {
             JsonObject json = new JsonObject();
             json.addProperty("type", args[0]);
             json.addProperty("data", command);
-            System.out.println(json.toString());
             CoflWebsocketClient.websocketClient.send(json.toString());
         } else {
             ChatUtils.printMarkedChat("Cofl Routing Enabled");

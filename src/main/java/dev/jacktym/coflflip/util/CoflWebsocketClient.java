@@ -65,7 +65,6 @@ public class CoflWebsocketClient {
     }
 
     public void onMessage(String message) {
-        System.out.println(message);
         JsonObject jsonObject = new JsonParser().parse(message).getAsJsonObject();
         String type = jsonObject.get("type").toString().replace("\"", "");
         String dataStr = jsonObject.get("data").toString();
@@ -92,11 +91,9 @@ public class CoflWebsocketClient {
             } else {
                 dataString.append(data);
             }
-            System.out.println(dataString);
         }
 
         if (data.toString().contains("What do you want to do?") && data.toString().contains("always ah flip")) {
-            System.out.println("Starting");
             JsonObject json = new JsonObject();
             json.addProperty("type", "flip");
             json.addProperty("data", "/cofl flip");
@@ -120,7 +117,6 @@ public class CoflWebsocketClient {
                 break;
             case "flip":
                 JsonArray flip = data.getAsJsonObject().get("messages").getAsJsonArray();
-                System.out.println(flip);
                 IChatComponent flipMessage = new ChatComponentText("");
                 for (JsonElement element : flip) {
                     flipMessage.appendSibling(handleMessage(element.getAsJsonObject()));

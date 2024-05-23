@@ -2,6 +2,7 @@ package dev.jacktym.coflflip.util;
 
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
+import dev.jacktym.coflflip.config.FlipConfig;
 import net.minecraftforge.client.event.ClientChatReceivedEvent;
 import net.minecraftforge.client.event.GuiScreenEvent;
 import net.minecraftforge.event.entity.EntityJoinWorldEvent;
@@ -38,7 +39,9 @@ public class RealtimeEventRegistry {
 
     private void handleEvent(String eventString, Event event, int i) {
         if (i > 10) {
-            System.out.println("ConcurrentModification StackOverflow. Clearing events!");
+            if (FlipConfig.debug) {
+                System.out.println("ConcurrentModification StackOverflow. Clearing events!");
+            }
             eventMap.clear();
             return;
         }
@@ -55,7 +58,9 @@ public class RealtimeEventRegistry {
     }
 
     public static void clearClazzMap(String clazz) {
-        classMap.get(clazz).forEach(entry -> eventMap.remove(entry.getKey(), entry.getValue()));
-        classMap.removeAll(clazz);
+        if (classMap.containsKey(clazz)) {
+            classMap.get(clazz).forEach(entry -> eventMap.remove(entry.getKey(), entry.getValue()));
+            classMap.removeAll(clazz);
+        }
     }
 }

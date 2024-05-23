@@ -13,6 +13,7 @@ import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.client.event.ClientChatReceivedEvent;
 import net.minecraftforge.client.event.GuiScreenEvent;
+import net.minecraftforge.fml.common.gameevent.TickEvent;
 
 public class AutoBuy {
     public static void autoBuy() {
@@ -24,6 +25,8 @@ public class AutoBuy {
             RealtimeEventRegistry.registerEvent("guiScreenEvent", guiScreenEvent -> startBuy((GuiScreenEvent) guiScreenEvent), "AutoBuy");
             long expiryTime = System.currentTimeMillis() + 20000;
             RealtimeEventRegistry.registerEvent("clientChatReceivedEvent", clientChatReceivedEvent -> notEnoughCoinsFailsafe((ClientChatReceivedEvent) clientChatReceivedEvent, expiryTime), "AutoBuy");
+            long closeTime = System.currentTimeMillis() + Long.parseLong(FlipConfig.autoCloseMenuDelay);
+            RealtimeEventRegistry.registerEvent("clientTickEvent", clientTickEvent -> Failsafes.closeGuiFailsafe((TickEvent.ClientTickEvent) clientTickEvent, closeTime, "AutoBuy"), "AutoBuy");
         });
     }
 
@@ -97,7 +100,7 @@ public class AutoBuy {
                 long expiryTime = System.currentTimeMillis() + 10000;
                 RealtimeEventRegistry.registerEvent("clientChatReceivedEvent", clientChatReceivedEvent -> waitForBuyMessage((ClientChatReceivedEvent) clientChatReceivedEvent, expiryTime, item), "AutoBuy");
 
-                GuiUtil.tryClick(11);
+                GuiUtil.singleClick(11);
                 return true;
             }
         }
@@ -111,17 +114,19 @@ public class AutoBuy {
             return true;
         }
 
-        String message = event.message.getUnformattedText();
+        String message = ChatUtils.stripColor(event.message.getUnformattedText());
+        System.out.println(message);
+        System.out.println(ChatUtils.stripColor(item.getDisplayName()));
         if (message.startsWith("Putting coins in escrow")) {
             Main.mc.thePlayer.closeScreen();
-            QueueUtil.finishAction();
-            RealtimeEventRegistry.clearClazzMap("AutoBuy");
+            long closeTime = System.currentTimeMillis() + 2000L;
+            RealtimeEventRegistry.registerEvent("clientTickEvent", clientTickEvent -> Failsafes.closeGuiFailsafe((TickEvent.ClientTickEvent) clientTickEvent, closeTime, "AutoBuy"), "AutoBuy");
             return false;
-        } else if (message.contains(ChatUtils.stripColor(item.getDisplayName()))) {
+        } else if (message.startsWith("You purchased") && message.contains(ChatUtils.stripColor(item.getDisplayName()))) {
             AutoClaim.claim(item);
+            RealtimeEventRegistry.clearClazzMap("AutoBuy");
             return true;
         }
-
         return false;
     }
 

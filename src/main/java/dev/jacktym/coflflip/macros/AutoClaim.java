@@ -8,6 +8,7 @@ import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.client.event.ClientChatReceivedEvent;
 import net.minecraftforge.client.event.GuiScreenEvent;
+import net.minecraftforge.fml.common.gameevent.TickEvent;
 
 public class AutoClaim {
     public static void claim(ItemStack item) {
@@ -18,6 +19,8 @@ public class AutoClaim {
         QueueUtil.addToQueue(() -> {
             RealtimeEventRegistry.registerEvent("guiScreenEvent", guiScreenEvent -> openBids((GuiScreenEvent) guiScreenEvent, item), "AutoClaim");
             Main.mc.thePlayer.sendChatMessage("/ah");
+            long closeTime = System.currentTimeMillis() + Long.parseLong(FlipConfig.autoCloseMenuDelay);
+            RealtimeEventRegistry.registerEvent("clientTickEvent", clientTickEvent -> Failsafes.closeGuiFailsafe((TickEvent.ClientTickEvent) clientTickEvent, closeTime, "AutoClaim"), "AutoClaim");
         });
     }
 
@@ -32,9 +35,7 @@ public class AutoClaim {
                 return false;
             }
 
-            System.out.println("\"" + chest.getDisplayName().getUnformattedText() + "\"");
             if (chest.getDisplayName().getUnformattedText().equals("Co-op Auction House")) {
-                System.out.println("Clicking");
                 DelayUtils.delayAction(300, () -> {
                     RealtimeEventRegistry.registerEvent("guiScreenEvent", guiScreenEvent -> claimItem((GuiScreenEvent) guiScreenEvent, item), "AutoClaim");
                     GuiUtil.tryClick(13);
