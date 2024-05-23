@@ -19,9 +19,10 @@ import java.util.concurrent.locks.ReentrantLock;
 
 public class AutoList {
     private static boolean currentlyListing = false;
-    private static boolean listingInv = false;
+    public static boolean listingInv = false;
     private static final Lock lock = new ReentrantLock();
     private static final Condition listingCondition = lock.newCondition();
+
     public static void listInventory() {
         if (currentlyListing) {
             return;
@@ -82,9 +83,11 @@ public class AutoList {
             return;
         }
 
-        currentlyListing = true;
-        Main.mc.thePlayer.sendChatMessage("/ah");
-        RealtimeEventRegistry.registerEvent("guiScreenEvent", guiScreenEvent -> openManageAuctions((GuiScreenEvent) guiScreenEvent, item));
+        QueueUtil.addToQueue(() -> {
+            currentlyListing = true;
+            Main.mc.thePlayer.sendChatMessage("/ah");
+            RealtimeEventRegistry.registerEvent("guiScreenEvent", guiScreenEvent -> openManageAuctions((GuiScreenEvent) guiScreenEvent, item));
+        });
     }
 
     public static boolean openManageAuctions(GuiScreenEvent event, ItemStack item) {
@@ -187,7 +190,6 @@ public class AutoList {
                 System.out.println("Item not found in inventory. Leaving Menu");
                 Main.mc.thePlayer.closeScreen();
                 finishCurrentListing();
-                AutoOpen.openAuction();
                 return true;
             }
         }
@@ -369,6 +371,7 @@ public class AutoList {
                 DelayUtils.delayAction(300, () -> {
                     Main.mc.thePlayer.closeScreen();
                     finishCurrentListing();
+                    QueueUtil.finishAction();
                 });
                 return true;
             }

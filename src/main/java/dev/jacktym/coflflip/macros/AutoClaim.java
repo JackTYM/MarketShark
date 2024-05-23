@@ -2,10 +2,7 @@ package dev.jacktym.coflflip.macros;
 
 import dev.jacktym.coflflip.Main;
 import dev.jacktym.coflflip.config.FlipConfig;
-import dev.jacktym.coflflip.util.ChatUtils;
-import dev.jacktym.coflflip.util.DelayUtils;
-import dev.jacktym.coflflip.util.GuiUtil;
-import dev.jacktym.coflflip.util.RealtimeEventRegistry;
+import dev.jacktym.coflflip.util.*;
 import net.minecraft.client.gui.inventory.GuiChest;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
@@ -17,8 +14,11 @@ public class AutoClaim {
         if (!FlipConfig.autoClaim) {
             return;
         }
-        RealtimeEventRegistry.registerEvent("guiScreenEvent", guiScreenEvent -> openBids((GuiScreenEvent) guiScreenEvent, item));
-        Main.mc.thePlayer.sendChatMessage("/ah");
+
+        QueueUtil.addToQueue(() -> {
+            RealtimeEventRegistry.registerEvent("guiScreenEvent", guiScreenEvent -> openBids((GuiScreenEvent) guiScreenEvent, item));
+            Main.mc.thePlayer.sendChatMessage("/ah");
+        });
     }
 
     public static boolean openBids(GuiScreenEvent event, ItemStack item) {
@@ -103,6 +103,7 @@ public class AutoClaim {
 
     public static boolean waitForClaimMessage(ClientChatReceivedEvent event, Long expiryTime, ItemStack item) {
         if (expiryTime < System.currentTimeMillis()) {
+            QueueUtil.finishAction();
             return true;
         }
 
@@ -111,6 +112,7 @@ public class AutoClaim {
         System.out.println(ChatUtils.stripColor(item.getDisplayName()));
         if (message.startsWith("You claimed") && message.contains(ChatUtils.stripColor(item.getDisplayName()))) {
             AutoList.listItem(item, true);
+            QueueUtil.finishAction();
             return true;
         }
 

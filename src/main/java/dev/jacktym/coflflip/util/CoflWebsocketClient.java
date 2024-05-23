@@ -18,8 +18,6 @@ import org.java_websocket.handshake.ServerHandshake;
 import org.jetbrains.annotations.NotNull;
 
 import java.net.URI;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.UUID;
 import java.util.function.Consumer;
 
@@ -27,7 +25,7 @@ public class CoflWebsocketClient {
     public static WebsocketClient websocketClient;
     public static String URL;
     private boolean connected = false;
-    public static List<String> auctionQueue = new ArrayList<>();
+    public static String auctionUuids = "";
 
     public CoflWebsocketClient(boolean usServers) {
         URL = "/modsocket?player=" + Minecraft.getMinecraft().getSession().getUsername() + "&version=1.5.5-Alpha&SId=" + getSessionID();
@@ -121,13 +119,7 @@ public class CoflWebsocketClient {
                 }
                 ChatUtils.addChatMessage(chatMessage);
                 String onClick = messages.get(0).getAsJsonObject().get("onClick").toString().replace("\"", "");
-                if (onClick.contains("/viewauction")) {
-                    if (!auctionQueue.contains(onClick)) {
-                        auctionQueue.add(0, onClick);
-                    }
-                    System.out.println(onClick);
-                    AutoOpen.openAuction();
-                }
+                tryAddAuction(onClick);
                 break;
             case "flip":
                 JsonArray flip = data.getAsJsonObject().get("messages").getAsJsonArray();
@@ -138,14 +130,22 @@ public class CoflWebsocketClient {
                 }
                 ChatUtils.addChatMessage(flipMessage);
                 String onClickFlip = flip.get(0).getAsJsonObject().get("onClick").toString().replace("\"", "");
-                if (onClickFlip.contains("/viewauction")) {
-                    if (!auctionQueue.contains(onClickFlip)) {
-                        auctionQueue.add(0, onClickFlip);
-                    }
-                    System.out.println(onClickFlip);
-                    AutoOpen.openAuction();
-                }
+                tryAddAuction(onClickFlip);
                 break;
+        }
+    }
+
+    private void tryAddAuction(String onClick) {
+        if (onClick.contains("/viewauction")) {
+            if (!auctionUuids.contains(onClick)) {
+                auctionUuids += onClick;
+                QueueUtil.addToQueue(() -> {
+                    if (FlipConfig.debug) {
+                        System.out.println("Attemtping Open: " + onClick);
+                    }
+                    AutoOpen.openAuction(onClick);
+                });
+            }
         }
     }
 

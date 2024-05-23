@@ -50,6 +50,7 @@ public class CoflFlip extends CommandBase {
                     }
                     case "reset": {
                         RealtimeEventRegistry.eventMap.clear();
+                        AutoList.listingInv = false;
                         AutoList.finishCurrentListing();
                         break;
                     }

@@ -4,6 +4,7 @@ import dev.jacktym.coflflip.Main;
 import dev.jacktym.coflflip.config.FlipConfig;
 import dev.jacktym.coflflip.util.DelayUtils;
 import dev.jacktym.coflflip.util.GuiUtil;
+import dev.jacktym.coflflip.util.QueueUtil;
 import dev.jacktym.coflflip.util.RealtimeEventRegistry;
 import net.minecraft.client.gui.inventory.GuiChest;
 import net.minecraft.inventory.IInventory;
@@ -19,13 +20,15 @@ public class AutoClaimSold {
             return;
         }
 
-        String message = event.message.getUnformattedText();
+        QueueUtil.addToQueue(() -> {
+            String message = event.message.getUnformattedText();
 
-        if (message.startsWith("§6[Auction]") && message.contains("bought")) {
-            RealtimeEventRegistry.registerEvent("guiScreenEvent", guiScreenEvent -> claimAuction((GuiScreenEvent) guiScreenEvent));
-            Main.mc.thePlayer.sendChatMessage(event.message.getChatStyle().getChatClickEvent().getValue());
-            System.out.println(event.message.getChatStyle().getChatClickEvent().getValue());
-        }
+            if (message.startsWith("§6[Auction]") && message.contains("bought")) {
+                RealtimeEventRegistry.registerEvent("guiScreenEvent", guiScreenEvent -> claimAuction((GuiScreenEvent) guiScreenEvent));
+                Main.mc.thePlayer.sendChatMessage(event.message.getChatStyle().getChatClickEvent().getValue());
+                System.out.println(event.message.getChatStyle().getChatClickEvent().getValue());
+            }
+        });
     }
 
     public static boolean claimAuction(GuiScreenEvent event) {
@@ -47,6 +50,7 @@ public class AutoClaimSold {
             if (chest.getDisplayName().getUnformattedText().equals("BIN Auction View")) {
                 DelayUtils.delayAction(300, () -> {
                     GuiUtil.tryClick(31);
+                    QueueUtil.finishAction();
                 });
                 return true;
             }

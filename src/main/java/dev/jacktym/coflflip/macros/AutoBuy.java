@@ -4,6 +4,7 @@ import dev.jacktym.coflflip.Main;
 import dev.jacktym.coflflip.config.FlipConfig;
 import dev.jacktym.coflflip.util.ChatUtils;
 import dev.jacktym.coflflip.util.GuiUtil;
+import dev.jacktym.coflflip.util.QueueUtil;
 import dev.jacktym.coflflip.util.RealtimeEventRegistry;
 import net.minecraft.client.gui.inventory.GuiChest;
 import net.minecraft.init.Items;
@@ -18,7 +19,11 @@ public class AutoBuy {
         if (!FlipConfig.autoBuy) {
             return;
         }
-        RealtimeEventRegistry.registerEvent("guiScreenEvent", guiScreenEvent -> startBuy((GuiScreenEvent) guiScreenEvent));
+
+        QueueUtil.addToQueue(() -> {
+            RealtimeEventRegistry.registerEvent("guiScreenEvent", guiScreenEvent -> startBuy((GuiScreenEvent) guiScreenEvent));
+            RealtimeEventRegistry.registerEvent("clientChatReceivedEvent", clientChatReceivedEvent -> notEnoughCoinsFailsafe((ClientChatReceivedEvent) clientChatReceivedEvent, System.currentTimeMillis() + 20000));
+        });
     }
 
     public static boolean startBuy(GuiScreenEvent event) {
@@ -44,7 +49,6 @@ public class AutoBuy {
                         System.out.println("Flip Purchased! Leaving Menu");
                     }
                     Main.mc.thePlayer.closeScreen();
-                    AutoOpen.openAuction();
                     return true;
                 } else if (buyItem.getItem().equals(Items.bed)) {
                     // Buy bed Here
@@ -52,7 +56,6 @@ public class AutoBuy {
                         System.out.println("BED Auction! Leaving Menu");
                     }
                     Main.mc.thePlayer.closeScreen();
-                    AutoOpen.openAuction();
                     return true;
                 } else if (buyItem.getItem().equals(Items.gold_nugget)) {
                     RealtimeEventRegistry.registerEvent("guiScreenEvent", guiScreenEvent -> confirmPurchase((GuiScreenEvent) guiScreenEvent, item));
@@ -62,14 +65,12 @@ public class AutoBuy {
                         System.out.println("Unknown Buy Item! May be users own auction!");
                     }
                     Main.mc.thePlayer.closeScreen();
-                    AutoOpen.openAuction();
                 }
             } else if (chest.getDisplayName().getUnformattedText().equals("Auction View")) {
                 if (FlipConfig.debug) {
                     System.out.println("BID Auction! Leaving Menu");
                 }
                 Main.mc.thePlayer.closeScreen();
-                AutoOpen.openAuction();
                 return true;
             }
         }
@@ -103,15 +104,35 @@ public class AutoBuy {
 
     public static boolean waitForBuyMessage(ClientChatReceivedEvent event, Long expiryTime, ItemStack item) {
         if (expiryTime < System.currentTimeMillis()) {
+            QueueUtil.finishAction();
             return true;
         }
 
         String message = event.message.getUnformattedText();
-        if (message.startsWith("You purchased") && message.contains(ChatUtils.stripColor(item.getDisplayName()))) {
+        if (message.startsWith("Putting coins in escrow")) {
+            Main.mc.thePlayer.closeScreen();
+            QueueUtil.finishAction();
+            return false;
+        } else if (message.contains(ChatUtils.stripColor(item.getDisplayName()))) {
             AutoClaim.claim(item);
             return true;
         }
 
+        return false;
+    }
+
+    public static boolean notEnoughCoinsFailsafe(ClientChatReceivedEvent event, long expiryTime) {
+        if (expiryTime < System.currentTimeMillis()) {
+            return true;
+        }
+
+        if (event.message.getUnformattedText().contains("You don't have enough coins to afford this bid!")) {
+            if (QueueUtil.doingAction) {
+                Main.mc.thePlayer.closeScreen();
+                QueueUtil.finishAction();
+            }
+            return true;
+        }
         return false;
     }
 }
