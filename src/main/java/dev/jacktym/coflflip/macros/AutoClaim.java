@@ -16,7 +16,7 @@ public class AutoClaim {
         }
 
         QueueUtil.addToQueue(() -> {
-            RealtimeEventRegistry.registerEvent("guiScreenEvent", guiScreenEvent -> openBids((GuiScreenEvent) guiScreenEvent, item));
+            RealtimeEventRegistry.registerEvent("guiScreenEvent", guiScreenEvent -> openBids((GuiScreenEvent) guiScreenEvent, item), "AutoClaim");
             Main.mc.thePlayer.sendChatMessage("/ah");
         });
     }
@@ -36,7 +36,7 @@ public class AutoClaim {
             if (chest.getDisplayName().getUnformattedText().equals("Co-op Auction House")) {
                 System.out.println("Clicking");
                 DelayUtils.delayAction(300, () -> {
-                    RealtimeEventRegistry.registerEvent("guiScreenEvent", guiScreenEvent -> claimItem((GuiScreenEvent) guiScreenEvent, item));
+                    RealtimeEventRegistry.registerEvent("guiScreenEvent", guiScreenEvent -> claimItem((GuiScreenEvent) guiScreenEvent, item), "AutoClaim");
                     GuiUtil.tryClick(13);
                 });
                 return true;
@@ -64,7 +64,7 @@ public class AutoClaim {
                     if (chest.getStackInSlot(i).getDisplayName().equals(item.getDisplayName())) {
                         int finalI = i;
                         DelayUtils.delayAction(300, () -> {
-                            RealtimeEventRegistry.registerEvent("guiScreenEvent", guiScreenEvent -> confirmClaim((GuiScreenEvent) guiScreenEvent, item));
+                            RealtimeEventRegistry.registerEvent("guiScreenEvent", guiScreenEvent -> confirmClaim((GuiScreenEvent) guiScreenEvent, item), "AutoClaim");
                             GuiUtil.tryClick(finalI);
                         });
                         return true;
@@ -92,7 +92,8 @@ public class AutoClaim {
             if (chest.getDisplayName().getUnformattedText().equals("BIN Auction View")) {
                 DelayUtils.delayAction(300, () -> {
                     System.out.println("Claiming");
-                    RealtimeEventRegistry.registerEvent("clientChatReceivedEvent", clientChatReceivedEvent -> waitForClaimMessage((ClientChatReceivedEvent) clientChatReceivedEvent, System.currentTimeMillis() + 10000, item));
+                    long expiryTime = System.currentTimeMillis() + 10000;
+                    RealtimeEventRegistry.registerEvent("clientChatReceivedEvent", clientChatReceivedEvent -> waitForClaimMessage((ClientChatReceivedEvent) clientChatReceivedEvent, expiryTime, item), "AutoClaim");
                     GuiUtil.tryClick(31);
                 });
                 return true;
@@ -102,8 +103,11 @@ public class AutoClaim {
     }
 
     public static boolean waitForClaimMessage(ClientChatReceivedEvent event, Long expiryTime, ItemStack item) {
+        System.out.println(expiryTime);
+        System.out.println(System.currentTimeMillis());
         if (expiryTime < System.currentTimeMillis()) {
             QueueUtil.finishAction();
+            RealtimeEventRegistry.clearClazzMap("AutoClaim");
             return true;
         }
 
@@ -113,6 +117,7 @@ public class AutoClaim {
         if (message.startsWith("You claimed") && message.contains(ChatUtils.stripColor(item.getDisplayName()))) {
             AutoList.listItem(item, true);
             QueueUtil.finishAction();
+            RealtimeEventRegistry.clearClazzMap("AutoClaim");
             return true;
         }
 

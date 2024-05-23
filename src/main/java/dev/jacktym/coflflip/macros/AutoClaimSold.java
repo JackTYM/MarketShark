@@ -24,7 +24,7 @@ public class AutoClaimSold {
             String message = event.message.getUnformattedText();
 
             if (message.startsWith("§6[Auction]") && message.contains("bought")) {
-                RealtimeEventRegistry.registerEvent("guiScreenEvent", guiScreenEvent -> claimAuction((GuiScreenEvent) guiScreenEvent));
+                RealtimeEventRegistry.registerEvent("guiScreenEvent", guiScreenEvent -> claimAuction((GuiScreenEvent) guiScreenEvent), "AutoClaimSold");
                 Main.mc.thePlayer.sendChatMessage(event.message.getChatStyle().getChatClickEvent().getValue());
                 System.out.println(event.message.getChatStyle().getChatClickEvent().getValue());
             }
@@ -51,6 +51,7 @@ public class AutoClaimSold {
                 DelayUtils.delayAction(300, () -> {
                     GuiUtil.tryClick(31);
                     QueueUtil.finishAction();
+                    RealtimeEventRegistry.clearClazzMap("AutoClaimSold");
                 });
                 return true;
             }

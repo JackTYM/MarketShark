@@ -9,11 +9,14 @@ import net.minecraftforge.fml.common.eventhandler.Event;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
 
+import java.util.AbstractMap;
 import java.util.ConcurrentModificationException;
+import java.util.Map;
 import java.util.function.Function;
 
 public class RealtimeEventRegistry {
     public static Multimap<String, Function<Event, Boolean>> eventMap = ArrayListMultimap.create();
+    public static Multimap<String, Map.Entry<String, Function<Event, Boolean>>> classMap = ArrayListMultimap.create();
 
     @SubscribeEvent
     public void clientTickEvent(TickEvent.ClientTickEvent event) {
@@ -46,11 +49,13 @@ public class RealtimeEventRegistry {
         }
     }
 
-    public static void registerEvent(String event, Function<Event, Boolean> consumer) {
+    public static void registerEvent(String event, Function<Event, Boolean> consumer, String clazz) {
         eventMap.put(event, consumer);
+        classMap.put(clazz, new AbstractMap.SimpleEntry<>(event, consumer));
     }
 
-    public static void removeEvent(String eventString, Function<Event, Boolean> event) {
-        eventMap.remove(eventString, event);
+    public static void clearClazzMap(String clazz) {
+        classMap.get(clazz).forEach(entry -> eventMap.remove(entry.getKey(), entry.getValue()));
+        classMap.removeAll(clazz);
     }
 }

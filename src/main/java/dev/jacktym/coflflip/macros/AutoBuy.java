@@ -21,8 +21,9 @@ public class AutoBuy {
         }
 
         QueueUtil.addToQueue(() -> {
-            RealtimeEventRegistry.registerEvent("guiScreenEvent", guiScreenEvent -> startBuy((GuiScreenEvent) guiScreenEvent));
-            RealtimeEventRegistry.registerEvent("clientChatReceivedEvent", clientChatReceivedEvent -> notEnoughCoinsFailsafe((ClientChatReceivedEvent) clientChatReceivedEvent, System.currentTimeMillis() + 20000));
+            RealtimeEventRegistry.registerEvent("guiScreenEvent", guiScreenEvent -> startBuy((GuiScreenEvent) guiScreenEvent), "AutoBuy");
+            long expiryTime = System.currentTimeMillis() + 20000;
+            RealtimeEventRegistry.registerEvent("clientChatReceivedEvent", clientChatReceivedEvent -> notEnoughCoinsFailsafe((ClientChatReceivedEvent) clientChatReceivedEvent, expiryTime), "AutoBuy");
         });
     }
 
@@ -58,7 +59,7 @@ public class AutoBuy {
                     Main.mc.thePlayer.closeScreen();
                     return true;
                 } else if (buyItem.getItem().equals(Items.gold_nugget)) {
-                    RealtimeEventRegistry.registerEvent("guiScreenEvent", guiScreenEvent -> confirmPurchase((GuiScreenEvent) guiScreenEvent, item));
+                    RealtimeEventRegistry.registerEvent("guiScreenEvent", guiScreenEvent -> confirmPurchase((GuiScreenEvent) guiScreenEvent, item), "AutoBuy");
                     GuiUtil.tryClick(31);
                 } else {
                     if (FlipConfig.debug) {
@@ -93,7 +94,8 @@ public class AutoBuy {
                 if (chest.getStackInSlot(11) == null) {
                     return false;
                 }
-                RealtimeEventRegistry.registerEvent("clientChatReceivedEvent", clientChatReceivedEvent -> waitForBuyMessage((ClientChatReceivedEvent) clientChatReceivedEvent, System.currentTimeMillis() + 10000, item));
+                long expiryTime = System.currentTimeMillis() + 10000;
+                RealtimeEventRegistry.registerEvent("clientChatReceivedEvent", clientChatReceivedEvent -> waitForBuyMessage((ClientChatReceivedEvent) clientChatReceivedEvent, expiryTime, item), "AutoBuy");
 
                 GuiUtil.tryClick(11);
                 return true;
@@ -105,6 +107,7 @@ public class AutoBuy {
     public static boolean waitForBuyMessage(ClientChatReceivedEvent event, Long expiryTime, ItemStack item) {
         if (expiryTime < System.currentTimeMillis()) {
             QueueUtil.finishAction();
+            RealtimeEventRegistry.clearClazzMap("AutoBuy");
             return true;
         }
 
@@ -112,6 +115,7 @@ public class AutoBuy {
         if (message.startsWith("Putting coins in escrow")) {
             Main.mc.thePlayer.closeScreen();
             QueueUtil.finishAction();
+            RealtimeEventRegistry.clearClazzMap("AutoBuy");
             return false;
         } else if (message.contains(ChatUtils.stripColor(item.getDisplayName()))) {
             AutoClaim.claim(item);
@@ -130,6 +134,7 @@ public class AutoBuy {
             if (QueueUtil.doingAction) {
                 Main.mc.thePlayer.closeScreen();
                 QueueUtil.finishAction();
+                RealtimeEventRegistry.clearClazzMap("AutoBuy");
             }
             return true;
         }

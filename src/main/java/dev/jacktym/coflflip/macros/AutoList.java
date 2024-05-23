@@ -40,7 +40,7 @@ public class AutoList {
                     if (inventory[i] != null) {
                         Main.mc.thePlayer.sendChatMessage("/ah");
                         int finalI = i;
-                        RealtimeEventRegistry.registerEvent("guiScreenEvent", guiScreenEvent -> openManageAuctions((GuiScreenEvent) guiScreenEvent, inventory[finalI]));
+                        RealtimeEventRegistry.registerEvent("guiScreenEvent", guiScreenEvent -> openManageAuctions((GuiScreenEvent) guiScreenEvent, inventory[finalI]), "AutoList");
                         waitForListingToFinish();
                         currentlyListing = true;
                         System.out.println(currentlyListing + " | " + listingInv);
@@ -86,7 +86,7 @@ public class AutoList {
         QueueUtil.addToQueue(() -> {
             currentlyListing = true;
             Main.mc.thePlayer.sendChatMessage("/ah");
-            RealtimeEventRegistry.registerEvent("guiScreenEvent", guiScreenEvent -> openManageAuctions((GuiScreenEvent) guiScreenEvent, item));
+            RealtimeEventRegistry.registerEvent("guiScreenEvent", guiScreenEvent -> openManageAuctions((GuiScreenEvent) guiScreenEvent, item), "AutoList");
         });
     }
 
@@ -103,7 +103,7 @@ public class AutoList {
 
             if (chest.getDisplayName().getUnformattedText().equals("Co-op Auction House")) {
                 DelayUtils.delayAction(300, () -> {
-                    RealtimeEventRegistry.registerEvent("guiScreenEvent", guiScreenEvent -> openCreateAuction((GuiScreenEvent) guiScreenEvent, item));
+                    RealtimeEventRegistry.registerEvent("guiScreenEvent", guiScreenEvent -> openCreateAuction((GuiScreenEvent) guiScreenEvent, item), "AutoList");
                     GuiUtil.tryClick(15);
                 });
                 return true;
@@ -124,7 +124,7 @@ public class AutoList {
             }
             if (chest.getDisplayName().getUnformattedText().equals("Manage Auctions")) {
                 DelayUtils.delayAction(300, () -> {
-                    RealtimeEventRegistry.registerEvent("guiScreenEvent", guiScreenEvent -> createAuction((GuiScreenEvent) guiScreenEvent, item));
+                    RealtimeEventRegistry.registerEvent("guiScreenEvent", guiScreenEvent -> createAuction((GuiScreenEvent) guiScreenEvent, item), "AutoList");
                     if (chest.getStackInSlot(24) != null && chest.getStackInSlot(24).getItem().equals(Items.golden_horse_armor)) {
                         GuiUtil.tryClick(24);
                     } else {
@@ -162,7 +162,7 @@ public class AutoList {
 
             if (chest.getDisplayName().getUnformattedText().equals("Create Auction")) {
                 DelayUtils.delayAction(300, () -> {
-                    RealtimeEventRegistry.registerEvent("guiScreenEvent", guiScreenEvent -> openCreateAuction((GuiScreenEvent) guiScreenEvent, item));
+                    RealtimeEventRegistry.registerEvent("guiScreenEvent", guiScreenEvent -> openCreateAuction((GuiScreenEvent) guiScreenEvent, item), "AutoList");
                     GuiUtil.singleClick(48);
                 });
                 return false;
@@ -173,7 +173,7 @@ public class AutoList {
                         if (ChatUtils.stripColor(inventory[i].getDisplayName()).equals(ChatUtils.stripColor(item.getDisplayName()))) {
                             int finalI = i;
                             DelayUtils.delayAction(300, () -> {
-                                RealtimeEventRegistry.registerEvent("guiScreenEvent", guiScreenEvent -> openPrice((GuiScreenEvent) guiScreenEvent, item));
+                                RealtimeEventRegistry.registerEvent("guiScreenEvent", guiScreenEvent -> openPrice((GuiScreenEvent) guiScreenEvent, item), "AutoList");
                                 int clickId = finalI;
                                 if (finalI < 9) {
                                     clickId += 81;
@@ -209,7 +209,7 @@ public class AutoList {
 
             if (chest.getDisplayName().getUnformattedText().equals("Create BIN Auction")) {
                 DelayUtils.delayAction(300, () -> {
-                    RealtimeEventRegistry.registerEvent("guiScreenEvent", guiScreenEvent -> setPrice((GuiScreenEvent) guiScreenEvent, item));
+                    RealtimeEventRegistry.registerEvent("guiScreenEvent", guiScreenEvent -> setPrice((GuiScreenEvent) guiScreenEvent, item), "AutoList");
                     GuiUtil.singleClick(31);
                 });
                 return true;
@@ -235,7 +235,7 @@ public class AutoList {
 
             DelayUtils.delayAction(300, () -> {
                 if (tileEntitySign.signText[0].getUnformattedText().equals(price)) {
-                    RealtimeEventRegistry.registerEvent("guiScreenEvent", guiScreenEvent -> openTime((GuiScreenEvent) guiScreenEvent, item));
+                    RealtimeEventRegistry.registerEvent("guiScreenEvent", guiScreenEvent -> openTime((GuiScreenEvent) guiScreenEvent, item), "AutoList");
                     Main.mc.currentScreen.onGuiClosed();
                 }
             });
@@ -257,7 +257,7 @@ public class AutoList {
 
             if (chest.getDisplayName().getUnformattedText().equals("Create BIN Auction")) {
                 DelayUtils.delayAction(300, () -> {
-                    RealtimeEventRegistry.registerEvent("guiScreenEvent", guiScreenEvent -> setCustomTime((GuiScreenEvent) guiScreenEvent, item));
+                    RealtimeEventRegistry.registerEvent("guiScreenEvent", guiScreenEvent -> setCustomTime((GuiScreenEvent) guiScreenEvent, item), "AutoList");
                     GuiUtil.singleClick(33);
                 });
                 return true;
@@ -279,7 +279,7 @@ public class AutoList {
 
             if (chest.getDisplayName().getUnformattedText().equals("Auction Duration")) {
                 DelayUtils.delayAction(300, () -> {
-                    RealtimeEventRegistry.registerEvent("guiScreenEvent", guiScreenEvent -> setTime((GuiScreenEvent) guiScreenEvent, item));
+                    RealtimeEventRegistry.registerEvent("guiScreenEvent", guiScreenEvent -> setTime((GuiScreenEvent) guiScreenEvent, item), "AutoList");
                     GuiUtil.singleClick(16);
                 });
                 return true;
@@ -303,7 +303,7 @@ public class AutoList {
 
             DelayUtils.delayAction(300, () -> {
                 if (tileEntitySign.signText[0].getUnformattedText().equals("336")) {
-                    RealtimeEventRegistry.registerEvent("guiScreenEvent", guiScreenEvent -> createBINAuction((GuiScreenEvent) guiScreenEvent, item));
+                    RealtimeEventRegistry.registerEvent("guiScreenEvent", guiScreenEvent -> createBINAuction((GuiScreenEvent) guiScreenEvent, item), "AutoList");
                     Main.mc.currentScreen.onGuiClosed();
                 }
             });
@@ -325,7 +325,7 @@ public class AutoList {
 
             if (chest.getDisplayName().getUnformattedText().equals("Create BIN Auction")) {
                 DelayUtils.delayAction(300, () -> {
-                    RealtimeEventRegistry.registerEvent("guiScreenEvent", guiScreenEvent -> confirmAuction((GuiScreenEvent) guiScreenEvent, item));
+                    RealtimeEventRegistry.registerEvent("guiScreenEvent", guiScreenEvent -> confirmAuction((GuiScreenEvent) guiScreenEvent, item), "AutoList");
                     GuiUtil.tryClick(29);
                 });
                 return true;
@@ -347,7 +347,7 @@ public class AutoList {
 
             if (chest.getDisplayName().getUnformattedText().equals("Confirm BIN Auction")) {
                 DelayUtils.delayAction(300, () -> {
-                    RealtimeEventRegistry.registerEvent("guiScreenEvent", guiScreenEvent -> closeAuction((GuiScreenEvent) guiScreenEvent, item));
+                    RealtimeEventRegistry.registerEvent("guiScreenEvent", guiScreenEvent -> closeAuction((GuiScreenEvent) guiScreenEvent, item), "AutoList");
                     GuiUtil.tryClick(11);
                 });
                 return true;
@@ -372,6 +372,7 @@ public class AutoList {
                     Main.mc.thePlayer.closeScreen();
                     finishCurrentListing();
                     QueueUtil.finishAction();
+                    RealtimeEventRegistry.clearClazzMap("AutoList");
                 });
                 return true;
             }
