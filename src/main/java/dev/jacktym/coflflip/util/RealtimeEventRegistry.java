@@ -3,6 +3,7 @@ package dev.jacktym.coflflip.util;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
 import dev.jacktym.coflflip.config.FlipConfig;
+import net.minecraft.network.Packet;
 import net.minecraftforge.client.event.ClientChatReceivedEvent;
 import net.minecraftforge.client.event.GuiScreenEvent;
 import net.minecraftforge.event.entity.EntityJoinWorldEvent;
@@ -18,6 +19,8 @@ import java.util.function.Function;
 public class RealtimeEventRegistry {
     public static Multimap<String, Function<Event, Boolean>> eventMap = ArrayListMultimap.create();
     public static Multimap<String, Map.Entry<String, Function<Event, Boolean>>> classMap = ArrayListMultimap.create();
+    public static Multimap<String, Function<Packet, Boolean>> packetMap = ArrayListMultimap.create();
+    public static Multimap<String, Map.Entry<String, Function<Packet, Boolean>>> packetClassMap = ArrayListMultimap.create();
 
     @SubscribeEvent
     public void clientTickEvent(TickEvent.ClientTickEvent event) {
@@ -52,15 +55,37 @@ public class RealtimeEventRegistry {
         }
     }
 
+    public static void handlePacket(String packetString, Packet packet, int i) {
+        if (i > 10) {
+            if (FlipConfig.debug) {
+                System.out.println("ConcurrentModification StackOverflow. Clearing events!");
+            }
+            packetMap.clear();
+            return;
+        }
+        try {
+            packetMap.get(packetString).removeIf(function -> function.apply(packet));
+        } catch (ConcurrentModificationException e) {
+            handlePacket(packetString, packet, i+1);
+        }
+    }
+
     public static void registerEvent(String event, Function<Event, Boolean> consumer, String clazz) {
         eventMap.put(event, consumer);
         classMap.put(clazz, new AbstractMap.SimpleEntry<>(event, consumer));
+    }
+
+    public static void registerPacket(String packet, Function<Packet, Boolean> consumer, String clazz) {
+        packetMap.put(packet, consumer);
+        packetClassMap.put(clazz, new AbstractMap.SimpleEntry<>(packet, consumer));
     }
 
     public static void clearClazzMap(String clazz) {
         if (classMap.containsKey(clazz)) {
             classMap.get(clazz).forEach(entry -> eventMap.remove(entry.getKey(), entry.getValue()));
             classMap.removeAll(clazz);
+            packetClassMap.get(clazz).forEach(entry -> packetMap.remove(entry.getKey(), entry.getValue()));
+            packetClassMap.removeAll(clazz);
         }
     }
 }

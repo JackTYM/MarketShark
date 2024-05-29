@@ -2,27 +2,31 @@ package dev.jacktym.coflflip.macros;
 
 import dev.jacktym.coflflip.Main;
 import dev.jacktym.coflflip.config.FlipConfig;
-import dev.jacktym.coflflip.util.ChatUtils;
-import dev.jacktym.coflflip.util.GuiUtil;
-import dev.jacktym.coflflip.util.QueueUtil;
-import dev.jacktym.coflflip.util.RealtimeEventRegistry;
-import net.minecraft.client.gui.inventory.GuiChest;
+import dev.jacktym.coflflip.util.*;
+import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
-import net.minecraft.inventory.ContainerChest;
-import net.minecraft.inventory.IInventory;
-import net.minecraft.item.ItemStack;
+import net.minecraft.item.Item;
+import net.minecraft.network.Packet;
+import net.minecraft.network.play.client.C0EPacketClickWindow;
+import net.minecraft.network.play.server.S2DPacketOpenWindow;
+import net.minecraft.network.play.server.S2FPacketSetSlot;
+import net.minecraft.util.EnumChatFormatting;
 import net.minecraftforge.client.event.ClientChatReceivedEvent;
-import net.minecraftforge.client.event.GuiScreenEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
 
 public class AutoBuy {
-    public static void autoBuy() {
+    public static FlipItem item = null;
+    private static int buyWindowId = 0;
+    private static int confirmWindowId = 0;
+
+    public static void autoBuy(FlipItem item) {
         if (!FlipConfig.autoBuy) {
             return;
         }
 
+        AutoBuy.item = item;
+
         QueueUtil.addToQueue(() -> {
-            RealtimeEventRegistry.registerEvent("guiScreenEvent", guiScreenEvent -> startBuy((GuiScreenEvent) guiScreenEvent), "AutoBuy");
             long expiryTime = System.currentTimeMillis() + 20000;
             RealtimeEventRegistry.registerEvent("clientChatReceivedEvent", clientChatReceivedEvent -> notEnoughCoinsFailsafe((ClientChatReceivedEvent) clientChatReceivedEvent, expiryTime), "AutoBuy");
             long closeTime = System.currentTimeMillis() + Long.parseLong(FlipConfig.autoCloseMenuDelay);
@@ -30,84 +34,103 @@ public class AutoBuy {
         });
     }
 
-    public static boolean startBuy(GuiScreenEvent event) {
-        if (!(event instanceof GuiScreenEvent.DrawScreenEvent.Post)) {
-            // GUI not initialized yet
-            return false;
-        }
-        if (event.gui instanceof GuiChest) {
-            IInventory chest = GuiUtil.getInventory(event.gui);
-            if (chest.getStackInSlot(0) == null) {
-                return false;
-            }
-            ItemStack item = chest.getStackInSlot(13);
+    public static void receivePacket(Packet packet) {
+        if (packet instanceof S2DPacketOpenWindow) {
+            S2DPacketOpenWindow p = (S2DPacketOpenWindow) packet;
 
-            if (chest.getDisplayName().getUnformattedText().equals("BIN Auction View")) {
-                ItemStack buyItem = chest.getStackInSlot(31);
-                if (buyItem == null) {
-                    return false;
-                }
-
-                if (buyItem.getItem().equals(Items.potato)) {
-                    if (FlipConfig.debug) {
-                        System.out.println("Flip Purchased! Leaving Menu");
-                    }
-                    Main.mc.thePlayer.closeScreen();
-                    return true;
-                } else if (buyItem.getItem().equals(Items.bed)) {
-                    // Buy bed Here
-                    if (FlipConfig.debug) {
-                        System.out.println("BED Auction! Leaving Menu");
-                    }
-                    Main.mc.thePlayer.closeScreen();
-                    return true;
-                } else if (buyItem.getItem().equals(Items.gold_nugget)) {
-                    RealtimeEventRegistry.registerEvent("guiScreenEvent", guiScreenEvent -> confirmPurchase((GuiScreenEvent) guiScreenEvent, item), "AutoBuy");
-                    GuiUtil.tryClick(31);
-                } else {
-                    if (FlipConfig.debug) {
-                        System.out.println("Unknown Buy Item! May be users own auction!");
-                    }
-                    Main.mc.thePlayer.closeScreen();
-                }
-            } else if (chest.getDisplayName().getUnformattedText().equals("Auction View")) {
+            if (p.getWindowTitle().getUnformattedText().equals("BIN Auction View")) {
+                AutoBuy.item.startTime = System.currentTimeMillis();
+                buyWindowId = p.getWindowId();
+            } else if (p.getWindowTitle().getUnformattedText().equals("Auction View")) {
                 if (FlipConfig.debug) {
                     System.out.println("BID Auction! Leaving Menu");
                 }
                 Main.mc.thePlayer.closeScreen();
-                return true;
+                RealtimeEventRegistry.clearClazzMap("AutoBuy");
+                QueueUtil.finishAction();
+            } else if (p.getWindowTitle().getUnformattedText().equals("Confirm Purchase")) {
+                confirmWindowId = p.getWindowId();
             }
-        }
-        return false;
-    }
+        } else if (packet instanceof S2FPacketSetSlot) {
+            S2FPacketSetSlot p = (S2FPacketSetSlot) packet;
 
-    public static boolean confirmPurchase(GuiScreenEvent event, ItemStack item) {
-        if (!(event instanceof GuiScreenEvent.DrawScreenEvent.Post)) {
-            // GUI not initialized yet
-            return false;
-        }
+            if (p.func_149175_c() == buyWindowId) {
+                if (p.func_149173_d() == 13) {
+                    AutoBuy.item.setItemStack(p.func_149174_e());
+                } else if (p.func_149173_d() == 31) {
+                    if (p.func_149174_e().getItem().equals(Items.potato)) {
+                        if (FlipConfig.debug) {
+                            System.out.println("Flip Purchased! Leaving Menu");
+                        }
+                        Main.mc.thePlayer.closeScreen();
+                        RealtimeEventRegistry.clearClazzMap("AutoBuy");
+                        QueueUtil.finishAction();
+                    } else if (p.func_149174_e().getItem().equals(Items.bed)) {
+                        // Buy bed Here
+                        item.bed = true;
+                        new Thread(() -> {
+                            try {
+                                long bedTime = item.auctionStart + 20000;
 
-        if (event.gui instanceof GuiChest) {
-            IInventory chest = ((ContainerChest) ((GuiChest) event.gui).inventorySlots).getLowerChestInventory();
-            if (chest.getStackInSlot(0) == null) {
-                return false;
-            }
+                                Thread.sleep(bedTime - System.currentTimeMillis());
+                                System.out.println("Spamming in " + (bedTime - System.currentTimeMillis()) / 1000);
 
-            if (chest.getDisplayName().getUnformattedText().equals("Confirm Purchase")) {
-                if (chest.getStackInSlot(11) == null) {
-                    return false;
+                                for (int i = 0; i < 20; i++) {
+                                    Main.mc.thePlayer.sendQueue.addToSendQueue(
+                                            new C0EPacketClickWindow(buyWindowId, 31, 2, 3,
+                                                    p.func_149174_e(),
+                                                    Main.mc.thePlayer.openContainer.getNextTransactionID(Main.mc.thePlayer.inventory)));
+                                    Thread.sleep(50);
+                                }
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                                ChatUtils.printMarkedChat("Exception during bed spam. Report this!");
+                                Main.mc.thePlayer.closeScreen();
+                                RealtimeEventRegistry.clearClazzMap("AutoBuy");
+                                QueueUtil.finishAction();
+                            }
+                        }).start();
+                    } else if (p.func_149174_e().getItem().equals(Items.gold_nugget)) {
+                        Main.mc.thePlayer.sendQueue.addToSendQueue(
+                                new C0EPacketClickWindow(buyWindowId, 31, 2, 3,
+                                        p.func_149174_e(),
+                                        Main.mc.thePlayer.openContainer.getNextTransactionID(Main.mc.thePlayer.inventory)));
+                    } else if (p.func_149174_e().getItem().equals(Item.getItemFromBlock(Blocks.barrier))) {
+                        if (FlipConfig.debug) {
+                            System.out.println("Auction Cancelled! Leaving Menu");
+                        }
+                        Main.mc.thePlayer.closeScreen();
+                        RealtimeEventRegistry.clearClazzMap("AutoBuy");
+                        QueueUtil.finishAction();
+                    } else if (ChatUtils.stripColor(p.func_149174_e().getDisplayName()).equals("Loading...")) {
+                        System.out.println("Flip Loading. Waiting!");
+                    } else {
+                        if (FlipConfig.debug) {
+                            System.out.println("Unknown Buy Item! May be users own auction! Leaving Menu | " + p.func_149174_e().getDisplayName());
+                        }
+                        Main.mc.thePlayer.closeScreen();
+                        RealtimeEventRegistry.clearClazzMap("AutoBuy");
+                        QueueUtil.finishAction();
+                    }
                 }
-                long expiryTime = System.currentTimeMillis() + 10000;
-                RealtimeEventRegistry.registerEvent("clientChatReceivedEvent", clientChatReceivedEvent -> waitForBuyMessage((ClientChatReceivedEvent) clientChatReceivedEvent, expiryTime, item), "AutoBuy");
+            } else if (p.func_149175_c() == confirmWindowId) {
+                if (p.func_149173_d() == 11) {
+                    if (p.func_149174_e().getItem().equals(Item.getItemFromBlock(Blocks.stained_hardened_clay))) {
+                        Main.mc.thePlayer.sendQueue.addToSendQueue(
+                                new C0EPacketClickWindow(confirmWindowId, 11, 2, 3,
+                                        p.func_149174_e(),
+                                        Main.mc.thePlayer.openContainer.getNextTransactionID(Main.mc.thePlayer.inventory)));
 
-                GuiUtil.singleClick(11);
-                return true;
+                        AutoBuy.item.buyPrice = Long.parseLong(ChatUtils.stripColor(p.func_149174_e().getTagCompound().getCompoundTag("display").getTagList("Lore", 8).getStringTagAt(1).split("Cost: ")[1].split(" ")[0].replace(",", "")));
+                        long expiryTime = System.currentTimeMillis() + 10000;
+                        RealtimeEventRegistry.registerEvent("clientChatReceivedEvent", clientChatReceivedEvent -> AutoBuy.waitForBuyMessage((ClientChatReceivedEvent) clientChatReceivedEvent, expiryTime, AutoBuy.item), "AutoBuy");
+                    }
+                }
             }
         }
-        return false;
     }
 
-    public static boolean waitForBuyMessage(ClientChatReceivedEvent event, Long expiryTime, ItemStack item) {
+    public static boolean waitForBuyMessage(ClientChatReceivedEvent event, Long expiryTime, FlipItem item) {
         if (expiryTime < System.currentTimeMillis()) {
             QueueUtil.finishAction();
             RealtimeEventRegistry.clearClazzMap("AutoBuy");
@@ -115,16 +138,21 @@ public class AutoBuy {
         }
 
         String message = ChatUtils.stripColor(event.message.getUnformattedText());
-        System.out.println(message);
-        System.out.println(ChatUtils.stripColor(item.getDisplayName()));
         if (message.startsWith("Putting coins in escrow")) {
+            item.buyTime = System.currentTimeMillis();
+            item.buySpeed = (int) (item.buyTime - item.startTime);
+
             Main.mc.thePlayer.closeScreen();
-            long closeTime = System.currentTimeMillis() + 2000L;
-            RealtimeEventRegistry.registerEvent("clientTickEvent", clientTickEvent -> Failsafes.closeGuiFailsafe((TickEvent.ClientTickEvent) clientTickEvent, closeTime, "AutoBuy"), "AutoBuy");
             return false;
-        } else if (message.startsWith("You purchased") && message.contains(ChatUtils.stripColor(item.getDisplayName()))) {
+        } else if (message.startsWith("You purchased") && message.contains(item.strippedDisplayName)) {
+            ChatUtils.printMarkedChat("Purchased " + EnumChatFormatting.LIGHT_PURPLE + item.strippedDisplayName + EnumChatFormatting.RESET + " for " + EnumChatFormatting.GOLD + ChatUtils.abbreviateNumber(item.buyPrice) + EnumChatFormatting.RESET + " coins in " + EnumChatFormatting.GREEN + item.buySpeed + "ms" + EnumChatFormatting.RESET + " worth " + EnumChatFormatting.GOLD + ChatUtils.abbreviateNumber(item.coflWorth) + EnumChatFormatting.RESET + " coins for a " + EnumChatFormatting.GOLD + ChatUtils.abbreviateNumber(item.coflWorth - item.buyPrice) + EnumChatFormatting.RESET + " coin profit!");
             AutoClaim.claim(item);
             RealtimeEventRegistry.clearClazzMap("AutoBuy");
+            QueueUtil.finishAction();
+
+            if (FlipConfig.boughtWebhooks) {
+                DiscordIntegration.sendToWebsocket("FlipBought", item.serialize().toString());
+            }
             return true;
         }
         return false;
@@ -135,8 +163,8 @@ public class AutoBuy {
             return true;
         }
 
-        if (event.message.getUnformattedText().contains("You don't have enough coins to afford this bid!")) {
-            if (QueueUtil.doingAction) {
+        if (event.message.getUnformattedText().contains("You don't have enough coins to afford this bid!") || event.message.getUnformattedText().contains("This auction wasn't found!")) {
+            if (!QueueUtil.currentAction.isEmpty()) {
                 Main.mc.thePlayer.closeScreen();
                 QueueUtil.finishAction();
                 RealtimeEventRegistry.clearClazzMap("AutoBuy");

@@ -2,10 +2,7 @@ package dev.jacktym.coflflip.macros;
 
 import dev.jacktym.coflflip.Main;
 import dev.jacktym.coflflip.config.FlipConfig;
-import dev.jacktym.coflflip.util.DelayUtils;
-import dev.jacktym.coflflip.util.GuiUtil;
-import dev.jacktym.coflflip.util.QueueUtil;
-import dev.jacktym.coflflip.util.RealtimeEventRegistry;
+import dev.jacktym.coflflip.util.*;
 import net.minecraft.client.gui.inventory.GuiChest;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
@@ -20,17 +17,16 @@ public class AutoClaimSold {
         if (!FlipConfig.autoClaimSold) {
             return;
         }
+        String message = event.message.getUnformattedText();
 
-        QueueUtil.addToQueue(() -> {
-            String message = event.message.getUnformattedText();
-
-            if (message.startsWith("§6[Auction]") && message.contains("bought")) {
+        if (message.startsWith("§6[Auction]") && message.contains("bought")) {
+            QueueUtil.addToQueue(() -> {
                 RealtimeEventRegistry.registerEvent("guiScreenEvent", guiScreenEvent -> claimAuction((GuiScreenEvent) guiScreenEvent), "AutoClaimSold");
                 Main.mc.thePlayer.sendChatMessage(event.message.getChatStyle().getChatClickEvent().getValue());
                 long closeTime = System.currentTimeMillis() + Long.parseLong(FlipConfig.autoCloseMenuDelay);
                 RealtimeEventRegistry.registerEvent("clientTickEvent", clientTickEvent -> Failsafes.closeGuiFailsafe((TickEvent.ClientTickEvent) clientTickEvent, closeTime, "AutoClaimSold"), "AutoClaimSold");
-            }
-        });
+            });
+        }
     }
 
     public static boolean claimAuction(GuiScreenEvent event) {
@@ -54,6 +50,13 @@ public class AutoClaimSold {
                     GuiUtil.tryClick(31);
                     QueueUtil.finishAction();
                     RealtimeEventRegistry.clearClazzMap("AutoClaimSold");
+
+                    if (FlipConfig.soldWebhooks) {
+                        FlipItem item = FlipItem.getItemByUuid(FlipItem.getUuid(soldItem));
+                        if (item != null) {
+                            DiscordIntegration.sendToWebsocket("FlipSold", item.serialize().toString());
+                        }
+                    }
                 });
                 return true;
             }

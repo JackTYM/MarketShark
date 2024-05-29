@@ -1,13 +1,17 @@
 package dev.jacktym.coflflip.macros;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
 import dev.jacktym.coflflip.Main;
 import dev.jacktym.coflflip.config.FlipConfig;
 import dev.jacktym.coflflip.mixins.GuiEditSignAccessor;
 import dev.jacktym.coflflip.util.*;
 import net.minecraft.client.gui.inventory.GuiChest;
 import net.minecraft.client.gui.inventory.GuiEditSign;
+import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
 import net.minecraft.inventory.IInventory;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntitySign;
 import net.minecraft.util.ChatComponentText;
@@ -28,34 +32,68 @@ public class AutoList {
         if (currentlyListing) {
             return;
         }
-        currentlyListing = true;
-        listingInv = true;
-        new Thread(() -> {
-            try {
-                ItemStack[] inventory = Main.mc.thePlayer.inventory.mainInventory;
-                for (int i = 0; i < inventory.length; i++) {
-                    if (i == 8) {
-                        // Skyblock Menu
-                        continue;
-                    }
-                    if (inventory[i] != null) {
-                        Main.mc.thePlayer.sendChatMessage("/ah");
-                        int finalI = i;
-                        RealtimeEventRegistry.registerEvent("guiScreenEvent", guiScreenEvent -> openManageAuctions((GuiScreenEvent) guiScreenEvent, inventory[finalI]), "AutoList");
-                        waitForListingToFinish();
-                        currentlyListing = true;
-                        System.out.println(currentlyListing + " | " + listingInv);
-                        if (!listingInv) {
-                            break;
+        QueueUtil.addToQueue(() -> {
+            currentlyListing = true;
+            listingInv = true;
+            new Thread(() -> {
+                try {
+                    ItemStack[] inventory = Main.mc.thePlayer.inventory.mainInventory;
+                    JsonArray coflPrices = CoflAPIUtil.getCoflPrices(inventory);
+                    if (coflPrices != null) {
+                        for (int i = 0; i < inventory.length; i++) {
+                            if (i == 8) {
+                                // Skyblock Menu
+                                continue;
+                            }
+                            if (inventory[i] != null) {
+                                FlipItem item = FlipItem.getItemByUuid(FlipItem.getUuid(inventory[i]));
+
+                                if (item == null) {
+                                    item = new FlipItem(inventory[i]);
+                                }
+
+                                switch (FlipConfig.autoSellPrice) {
+                                    case 0:
+                                        item.coflWorth = coflPrices.get(i).getAsJsonObject().get("lbin").getAsLong();
+                                        break;
+                                    case 1:
+                                        item.coflWorth = (long) (coflPrices.get(i).getAsJsonObject().get("lbin").getAsLong() * 0.95);
+                                        break;
+                                    case 4:
+                                        if (item.coflWorth != 0) {
+                                            break;
+                                        }
+                                        ChatUtils.printMarkedChat("No Cofl Flip to use. Defaulting to Median Price");
+                                    case 2:
+                                        item.coflWorth = coflPrices.get(i).getAsJsonObject().get("median").getAsLong();
+                                        break;
+                                    case 3:
+                                        item.coflWorth = (long) (coflPrices.get(i).getAsJsonObject().get("median").getAsLong() * 0.95);
+                                        break;
+                                }
+
+                                FlipItem finalItem = item;
+                                RealtimeEventRegistry.registerEvent("guiScreenEvent", guiScreenEvent -> openManageAuctions((GuiScreenEvent) guiScreenEvent, finalItem), "AutoList");
+                                Main.mc.thePlayer.sendChatMessage("/ah");
+                                waitForListingToFinish();
+                                currentlyListing = true;
+                                if (!listingInv) {
+                                    QueueUtil.finishAction();
+                                    break;
+                                }
+                            }
                         }
+                    } else {
+                        ChatUtils.printMarkedChat("Failed to fetch Cofl API. Rate Limited?");
                     }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                } finally {
+                    finishCurrentListing();
+                    QueueUtil.finishAction();
                 }
-            } catch (Exception e) {
-                e.printStackTrace();
-            } finally {
-                finishCurrentListing();
-            }
-        }).start();
+            }).start();
+        });
     }
 
     public static void finishCurrentListing() {
@@ -79,9 +117,33 @@ public class AutoList {
         }
     }
 
-    public static void listItem(ItemStack item, boolean coflValue) {
+    public static void listItem(FlipItem item) {
         if (!FlipConfig.autoSell || item == null || currentlyListing) {
             return;
+        }
+
+        if (FlipConfig.autoSellPrice != 4 || item.coflWorth == 0) {
+            JsonObject coflPrice = CoflAPIUtil.getCoflPrice(item.itemStack);
+            if (coflPrice != null) {
+                switch (FlipConfig.autoSellPrice) {
+                    case 0:
+                        item.coflWorth = coflPrice.get("lbin").getAsLong();
+                        break;
+                    case 1:
+                        item.coflWorth = (long) (coflPrice.get("lbin").getAsLong() * 0.95);
+                        break;
+                    case 4:
+                        ChatUtils.printMarkedChat("No Cofl Flip to use. Defaulting to Median Price");
+                    case 2:
+                        item.coflWorth = coflPrice.get("median").getAsLong();
+                        break;
+                    case 3:
+                        item.coflWorth = (long) (coflPrice.get("median").getAsLong() * 0.95);
+                        break;
+                }
+            } else {
+                ChatUtils.printMarkedChat("Failed to fetch Cofl API. Rate Limited?");
+            }
         }
 
         QueueUtil.addToQueue(() -> {
@@ -94,7 +156,7 @@ public class AutoList {
         });
     }
 
-    public static boolean openManageAuctions(GuiScreenEvent event, ItemStack item) {
+    public static boolean openManageAuctions(GuiScreenEvent event, FlipItem item) {
         if (!(event instanceof GuiScreenEvent.DrawScreenEvent.Post)) {
             // GUI not initialized yet
             return false;
@@ -116,7 +178,7 @@ public class AutoList {
         return false;
     }
 
-    public static boolean openCreateAuction(GuiScreenEvent event, ItemStack item) {
+    public static boolean openCreateAuction(GuiScreenEvent event, FlipItem item) {
         if (!(event instanceof GuiScreenEvent.DrawScreenEvent.Post)) {
             // GUI not initialized yet
             return false;
@@ -138,6 +200,7 @@ public class AutoList {
                             if (FlipConfig.debug) {
                                 System.out.println("Auction House Full!");
                             }
+                            ChatUtils.printMarkedChat("Auction House Full!");
 
                             Main.mc.thePlayer.closeScreen();
                             listingInv = false;
@@ -153,14 +216,14 @@ public class AutoList {
         return false;
     }
 
-    public static boolean createAuction(GuiScreenEvent event, ItemStack item) {
+    public static boolean createAuction(GuiScreenEvent event, FlipItem item) {
         if (!(event instanceof GuiScreenEvent.DrawScreenEvent.Post)) {
             // GUI not initialized yet
             return false;
         }
         if (event.gui instanceof GuiChest) {
             IInventory chest = GuiUtil.getInventory(event.gui);
-            if (chest.getStackInSlot(0) == null) {
+            if (chest.getStackInSlot(0) == null || chest.getStackInSlot(13) == null) {
                 return false;
             }
 
@@ -171,10 +234,20 @@ public class AutoList {
                 });
                 return false;
             } else if (chest.getDisplayName().getUnformattedText().equals("Create BIN Auction")) {
+                if (!chest.getStackInSlot(13).getItem().equals(Item.getItemFromBlock(Blocks.stone_button))) {
+                    GuiUtil.singleClick(13);
+                    ChatUtils.printMarkedChat("Item in slot already! Removing");
+
+                    DelayUtils.delayAction(300, () -> {
+                        RealtimeEventRegistry.registerEvent("guiScreenEvent", guiScreenEvent -> createAuction((GuiScreenEvent) guiScreenEvent, item), "AutoList");
+                    });
+                    return true;
+                }
+
                 ItemStack[] inventory = Main.mc.thePlayer.inventory.mainInventory;
                 for (int i = 0; i < inventory.length; i++) {
                     if (inventory[i] != null) {
-                        if (ChatUtils.stripColor(inventory[i].getDisplayName()).equals(ChatUtils.stripColor(item.getDisplayName()))) {
+                        if (ChatUtils.stripColor(inventory[i].getDisplayName()).equals(item.strippedDisplayName)) {
                             int finalI = i;
                             DelayUtils.delayAction(300, () -> {
                                 RealtimeEventRegistry.registerEvent("guiScreenEvent", guiScreenEvent -> openPrice((GuiScreenEvent) guiScreenEvent, item), "AutoList");
@@ -191,7 +264,10 @@ public class AutoList {
                         }
                     }
                 }
-                System.out.println("Item not found in inventory. Leaving Menu");
+                if (FlipConfig.debug) {
+                    System.out.println("Item not found in inventory. Leaving Menu");
+                }
+                ChatUtils.printMarkedChat("Item not found in inventory. Leaving Menu");
                 Main.mc.thePlayer.closeScreen();
                 finishCurrentListing();
                 return true;
@@ -200,7 +276,7 @@ public class AutoList {
         return false;
     }
 
-    public static boolean openPrice(GuiScreenEvent event, ItemStack item) {
+    public static boolean openPrice(GuiScreenEvent event, FlipItem item) {
         if (!(event instanceof GuiScreenEvent.DrawScreenEvent.Post)) {
             // GUI not initialized yet
             return false;
@@ -222,7 +298,7 @@ public class AutoList {
         return false;
     }
 
-    public static boolean setPrice(GuiScreenEvent event, ItemStack item) {
+    public static boolean setPrice(GuiScreenEvent event, FlipItem item) {
         if (!(event instanceof GuiScreenEvent.DrawScreenEvent.Post)) {
             // GUI not initialized yet
             return false;
@@ -233,12 +309,10 @@ public class AutoList {
                 return false;
             }
 
-            String price = CoflAPIUtil.getCoflPrice(item);
-
-            tileEntitySign.signText[0] = new ChatComponentText(price);
+            tileEntitySign.signText[0] = new ChatComponentText("" + item.coflWorth);
 
             DelayUtils.delayAction(300, () -> {
-                if (tileEntitySign.signText[0].getUnformattedText().equals(price)) {
+                if (tileEntitySign.signText[0].getUnformattedText().equals("" + item.coflWorth)) {
                     RealtimeEventRegistry.registerEvent("guiScreenEvent", guiScreenEvent -> openTime((GuiScreenEvent) guiScreenEvent, item), "AutoList");
                     Main.mc.currentScreen.onGuiClosed();
                 }
@@ -248,7 +322,7 @@ public class AutoList {
         return false;
     }
 
-    public static boolean openTime(GuiScreenEvent event, ItemStack item) {
+    public static boolean openTime(GuiScreenEvent event, FlipItem item) {
         if (!(event instanceof GuiScreenEvent.DrawScreenEvent.Post)) {
             // GUI not initialized yet
             return false;
@@ -270,7 +344,7 @@ public class AutoList {
         return false;
     }
 
-    public static boolean setCustomTime(GuiScreenEvent event, ItemStack item) {
+    public static boolean setCustomTime(GuiScreenEvent event, FlipItem item) {
         if (!(event instanceof GuiScreenEvent.DrawScreenEvent.Post)) {
             // GUI not initialized yet
             return false;
@@ -292,7 +366,7 @@ public class AutoList {
         return false;
     }
 
-    public static boolean setTime(GuiScreenEvent event, ItemStack item) {
+    public static boolean setTime(GuiScreenEvent event, FlipItem item) {
         if (!(event instanceof GuiScreenEvent.DrawScreenEvent.Post)) {
             // GUI not initialized yet
             return false;
@@ -303,10 +377,10 @@ public class AutoList {
                 return false;
             }
 
-            tileEntitySign.signText[0] = new ChatComponentText("336");
+            tileEntitySign.signText[0] = new ChatComponentText(FlipConfig.autoSellTime);
 
             DelayUtils.delayAction(300, () -> {
-                if (tileEntitySign.signText[0].getUnformattedText().equals("336")) {
+                if (tileEntitySign.signText[0].getUnformattedText().equals(FlipConfig.autoSellTime)) {
                     RealtimeEventRegistry.registerEvent("guiScreenEvent", guiScreenEvent -> createBINAuction((GuiScreenEvent) guiScreenEvent, item), "AutoList");
                     Main.mc.currentScreen.onGuiClosed();
                 }
@@ -316,7 +390,7 @@ public class AutoList {
         return false;
     }
 
-    public static boolean createBINAuction(GuiScreenEvent event, ItemStack item) {
+    public static boolean createBINAuction(GuiScreenEvent event, FlipItem item) {
         if (!(event instanceof GuiScreenEvent.DrawScreenEvent.Post)) {
             // GUI not initialized yet
             return false;
@@ -338,7 +412,7 @@ public class AutoList {
         return false;
     }
 
-    public static boolean confirmAuction(GuiScreenEvent event, ItemStack item) {
+    public static boolean confirmAuction(GuiScreenEvent event, FlipItem item) {
         if (!(event instanceof GuiScreenEvent.DrawScreenEvent.Post)) {
             // GUI not initialized yet
             return false;
@@ -360,7 +434,7 @@ public class AutoList {
         return false;
     }
 
-    public static boolean closeAuction(GuiScreenEvent event, ItemStack item) {
+    public static boolean closeAuction(GuiScreenEvent event, FlipItem item) {
         if (!(event instanceof GuiScreenEvent.DrawScreenEvent.Post)) {
             // GUI not initialized yet
             return false;
@@ -374,9 +448,15 @@ public class AutoList {
             if (chest.getDisplayName().getUnformattedText().equals("BIN Auction View")) {
                 DelayUtils.delayAction(300, () -> {
                     Main.mc.thePlayer.closeScreen();
-                    finishCurrentListing();
-                    QueueUtil.finishAction();
                     RealtimeEventRegistry.clearClazzMap("AutoList");
+                    finishCurrentListing();
+                    if (!listingInv) {
+                        QueueUtil.finishAction();
+
+                        if (FlipConfig.listedWebhooks) {
+                            DiscordIntegration.sendToWebsocket("FlipListed", item.serialize().toString());
+                        }
+                    }
                 });
                 return true;
             }

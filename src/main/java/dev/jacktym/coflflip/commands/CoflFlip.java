@@ -2,8 +2,7 @@ package dev.jacktym.coflflip.commands;
 
 import dev.jacktym.coflflip.Main;
 import dev.jacktym.coflflip.macros.AutoList;
-import dev.jacktym.coflflip.util.ChatUtils;
-import dev.jacktym.coflflip.util.RealtimeEventRegistry;
+import dev.jacktym.coflflip.util.*;
 import gg.essential.api.utils.GuiUtil;
 import net.minecraft.command.CommandBase;
 import net.minecraft.command.CommandException;
@@ -41,7 +40,8 @@ public class CoflFlip extends CommandBase {
                         break;
                     }
                     case "list": {
-                        AutoList.listItem(Main.mc.thePlayer.inventory.getCurrentItem(), true);
+                        FlipItem flipItem = new FlipItem(Main.mc.thePlayer.inventory.getCurrentItem());
+                        AutoList.listItem(flipItem);
                         break;
                     }
                     case "listinv": {
@@ -50,9 +50,17 @@ public class CoflFlip extends CommandBase {
                     }
                     case "reset": {
                         RealtimeEventRegistry.eventMap.clear();
+                        RealtimeEventRegistry.classMap.clear();
+                        RealtimeEventRegistry.eventMap.clear();
+                        RealtimeEventRegistry.packetClassMap.clear();
                         AutoList.listingInv = false;
                         AutoList.finishCurrentListing();
+                        QueueUtil.queue.clear();
+                        QueueUtil.finishAction();
                         break;
+                    }
+                    case "discord": {
+                        DiscordIntegration.connectToWebsocket();
                     }
                 }
             }

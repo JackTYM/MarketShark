@@ -1,12 +1,13 @@
 package dev.jacktym.coflflip.config;
 
-import dev.jacktym.coflflip.Main;
 import gg.essential.vigilance.Vigilant;
-import gg.essential.vigilance.data.JVMAnnotationPropertyCollector;
-import gg.essential.vigilance.data.Property;
-import gg.essential.vigilance.data.PropertyType;
+import gg.essential.vigilance.data.*;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Map;
 
 public class FlipConfig extends Vigilant {
 
@@ -25,6 +26,20 @@ public class FlipConfig extends Vigilant {
     )
     public static boolean autoBuy = false;
     @Property(
+            type = PropertyType.TEXT,
+            category = "Macros",
+            name = "Bed Buy Delay",
+            description = "How many ms to wait between bed buy clicks (Default 50)"
+    )
+    public static String bedBuyDelay = "50";
+    @Property(
+            type = PropertyType.TEXT,
+            category = "Macros",
+            name = "Bed Buy Repeats",
+            description = "How many times to click bed buys (Default 20)"
+    )
+    public static String bedBuyRepeats = "20";
+    @Property(
             type = PropertyType.CHECKBOX,
             category = "Macros",
             name = "Auto Claim",
@@ -38,6 +53,27 @@ public class FlipConfig extends Vigilant {
             description = "Auto Sells all Cofl Relay Flips"
     )
     public static boolean autoSell = false;
+    @Property(
+            type = PropertyType.TEXT,
+            category = "Macros",
+            name = "Auto Sell Time",
+            description = "How many time in hours to list items for (Default 48)"
+    )
+    public static String autoSellTime = "48";
+    @Property(
+            type = PropertyType.SELECTOR,
+            category = "Macros",
+            name = "Auto Sell Price",
+            description = "How to base your sell price",
+            options = {
+                    "Cofl LBin",
+                    "Cofl LBin - 5 Percent",
+                    "Cofl Median",
+                    "Cofl Median - 5 Percent",
+                    "Flip Target"
+            }
+    )
+    public static int autoSellPrice = 1;
     @Property(
             type = PropertyType.CHECKBOX,
             category = "Macros",
@@ -81,6 +117,42 @@ public class FlipConfig extends Vigilant {
 
     @Property(
             type = PropertyType.CHECKBOX,
+            category = "Webhooks",
+            name = "Flip Bought",
+            description = "Webhook whenever a flip is purchased by the macro"
+    )
+    public static boolean boughtWebhooks = false;
+    @Property(
+            type = PropertyType.CHECKBOX,
+            category = "Webhooks",
+            name = "Flip Claimed",
+            description = "Webhook whenever a flip is claimed by the macro"
+    )
+    public static boolean claimedWebhooks = false;
+    @Property(
+            type = PropertyType.CHECKBOX,
+            category = "Webhooks",
+            name = "Flip Listed",
+            description = "Webhook whenever a flip is listed by the macro"
+    )
+    public static boolean listedWebhooks = false;
+    @Property(
+            type = PropertyType.CHECKBOX,
+            category = "Webhooks",
+            name = "Flip Sold",
+            description = "Webhook whenever a flip is sold"
+    )
+    public static boolean soldWebhooks = false;
+    @Property(
+            type = PropertyType.CHECKBOX,
+            category = "Webhooks",
+            name = "24H Stats",
+            description = "Sends flip stats every 24 Hours"
+    )
+    public static boolean statsWebhooks = false;
+
+    @Property(
+            type = PropertyType.CHECKBOX,
             category = "Developer Menu",
             name = "Debug Mode",
             description = "Prints Debugging Messages"
@@ -89,40 +161,24 @@ public class FlipConfig extends Vigilant {
     @Property(
             type = PropertyType.TEXT,
             category = "Developer Menu",
-            name = "Session ID",
-            description = "DO NOT TOUCH UNLESS YOU KNOW WHAT YOU ARE DOING PLEASE"
+            name = "Activation Key",
+            description = "Do not change this value unless told to."
     )
-    public static String SId = "";
-    @Property(
-            type = PropertyType.TEXT,
-            category = "Developer Menu",
-            name = "Session Expiry",
-            description = "DO NOT TOUCH UNLESS YOU KNOW WHAT YOU ARE DOING PLEASE"
-    )
-    public static String sessionExpiresIn = "";
-    @Property(
-            type = PropertyType.BUTTON,
-            category = "Developer Menu",
-            name = "Reset Session",
-            description = "Resets your CoflNet session. You will need to login again after pressing"
-    )
-    public final void resetSession() {
-        SId = "";
-        sessionExpiresIn = "";
-        Main.coflWebsocketClient.reconnect();
-    }
-    @Property(
-            type = PropertyType.BUTTON,
-            category = "Developer Menu",
-            name = "Reconnect COFL",
-            description = "Reconnects your CoflNet session"
-    )
-    public final void reconnectCofl() {
-        Main.coflWebsocketClient.reconnect();
-    }
+    public static String activationKey = "";
 
     public FlipConfig() {
-        super(new File("config/coflflip.toml"), "Cofl Flip Config", new JVMAnnotationPropertyCollector());
+        super(new File("config/coflflip.toml"), "Cofl Flip Config", new JVMAnnotationPropertyCollector(), new SortingBehavior() {
+            @NotNull
+            @Override
+            public Comparator<? super Category> getCategoryComparator() {
+                return (Comparator<Category>) (o1, o2) -> 0;
+            }
+
+            @Override
+            public @NotNull Comparator<? super Map.Entry<String, ? extends List<PropertyData>>> getSubcategoryComparator() {
+                return (Comparator<Map.Entry<String, ? extends List<PropertyData>>>) (o1, o2) -> 0;
+            }
+        });
 
         this.preload();
         this.writeData();

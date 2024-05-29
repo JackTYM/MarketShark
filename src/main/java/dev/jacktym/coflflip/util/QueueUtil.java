@@ -5,21 +5,27 @@ import java.util.List;
 
 public class QueueUtil {
     public static List<Runnable> queue = new ArrayList<>();
-    public static boolean doingAction = false;
+    public static String currentAction = "";
 
     public static void finishAction() {
-        doingAction = false;
+        System.out.println("Finished " + currentAction);
+        currentAction = "";
         if (!queue.isEmpty()) {
-            queue.remove(0).run();
-            doingAction = true;
+            Runnable r = queue.remove(0);
+            currentAction = r.getClass().getSimpleName().split("\\$\\$")[0];
+            r.run();
+            System.out.println("Started " + currentAction);
         }
     }
 
     public static void addToQueue(Runnable action) {
-        queue.add(action);
+        queue.add(0, action);
 
-        if (!doingAction) {
-            queue.remove(0).run();
+        if (currentAction.isEmpty()) {
+            Runnable r = queue.remove(0);
+            currentAction = r.getClass().getSimpleName().split("\\$\\$")[0];
+            r.run();
+            System.out.println("Started " + currentAction);
         }
     }
 }

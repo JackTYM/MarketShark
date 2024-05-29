@@ -5,13 +5,12 @@ import dev.jacktym.coflflip.config.FlipConfig;
 import dev.jacktym.coflflip.util.*;
 import net.minecraft.client.gui.inventory.GuiChest;
 import net.minecraft.inventory.IInventory;
-import net.minecraft.item.ItemStack;
 import net.minecraftforge.client.event.ClientChatReceivedEvent;
 import net.minecraftforge.client.event.GuiScreenEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
 
 public class AutoClaim {
-    public static void claim(ItemStack item) {
+    public static void claim(FlipItem item) {
         if (!FlipConfig.autoClaim) {
             return;
         }
@@ -24,7 +23,7 @@ public class AutoClaim {
         });
     }
 
-    public static boolean openBids(GuiScreenEvent event, ItemStack item) {
+    public static boolean openBids(GuiScreenEvent event, FlipItem item) {
         if (!(event instanceof GuiScreenEvent.DrawScreenEvent.Post)) {
             // GUI not initialized yet
             return false;
@@ -46,7 +45,7 @@ public class AutoClaim {
         return false;
     }
 
-    public static boolean claimItem(GuiScreenEvent event, ItemStack item) {
+    public static boolean claimItem(GuiScreenEvent event, FlipItem item) {
         if (!(event instanceof GuiScreenEvent.DrawScreenEvent.Post)) {
             // GUI not initialized yet
             return false;
@@ -62,7 +61,7 @@ public class AutoClaim {
                     if (chest.getStackInSlot(i) == null) {
                         return false;
                     }
-                    if (chest.getStackInSlot(i).getDisplayName().equals(item.getDisplayName())) {
+                    if (chest.getStackInSlot(i).getDisplayName().equals(item.displayName)) {
                         int finalI = i;
                         DelayUtils.delayAction(300, () -> {
                             RealtimeEventRegistry.registerEvent("guiScreenEvent", guiScreenEvent -> confirmClaim((GuiScreenEvent) guiScreenEvent, item), "AutoClaim");
@@ -79,7 +78,7 @@ public class AutoClaim {
         return false;
     }
 
-    public static boolean confirmClaim(GuiScreenEvent event, ItemStack item) {
+    public static boolean confirmClaim(GuiScreenEvent event, FlipItem item) {
         if (!(event instanceof GuiScreenEvent.DrawScreenEvent.Post)) {
             // GUI not initialized yet
             return false;
@@ -92,7 +91,6 @@ public class AutoClaim {
 
             if (chest.getDisplayName().getUnformattedText().equals("BIN Auction View")) {
                 DelayUtils.delayAction(300, () -> {
-                    System.out.println("Claiming");
                     long expiryTime = System.currentTimeMillis() + 10000;
                     RealtimeEventRegistry.registerEvent("clientChatReceivedEvent", clientChatReceivedEvent -> waitForClaimMessage((ClientChatReceivedEvent) clientChatReceivedEvent, expiryTime, item), "AutoClaim");
                     GuiUtil.tryClick(31);
@@ -103,9 +101,7 @@ public class AutoClaim {
         return false;
     }
 
-    public static boolean waitForClaimMessage(ClientChatReceivedEvent event, Long expiryTime, ItemStack item) {
-        System.out.println(expiryTime);
-        System.out.println(System.currentTimeMillis());
+    public static boolean waitForClaimMessage(ClientChatReceivedEvent event, Long expiryTime, FlipItem item) {
         if (expiryTime < System.currentTimeMillis()) {
             QueueUtil.finishAction();
             RealtimeEventRegistry.clearClazzMap("AutoClaim");
@@ -113,12 +109,14 @@ public class AutoClaim {
         }
 
         String message = event.message.getUnformattedText();
-        System.out.println(message);
-        System.out.println(ChatUtils.stripColor(item.getDisplayName()));
-        if (message.startsWith("You claimed") && message.contains(ChatUtils.stripColor(item.getDisplayName()))) {
-            AutoList.listItem(item, true);
+        if (message.startsWith("You claimed") && message.contains(ChatUtils.stripColor(item.displayName))) {
+            AutoList.listItem(item);
             QueueUtil.finishAction();
             RealtimeEventRegistry.clearClazzMap("AutoClaim");
+
+            if (FlipConfig.claimedWebhooks) {
+                DiscordIntegration.sendToWebsocket("FlipClaimed", item.serialize().toString());
+            }
             return true;
         }
 
