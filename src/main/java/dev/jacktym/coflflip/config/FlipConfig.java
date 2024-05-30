@@ -125,13 +125,6 @@ public class FlipConfig extends Vigilant {
     @Property(
             type = PropertyType.CHECKBOX,
             category = "Webhooks",
-            name = "Flip Claimed",
-            description = "Webhook whenever a flip is claimed by the macro"
-    )
-    public static boolean claimedWebhooks = false;
-    @Property(
-            type = PropertyType.CHECKBOX,
-            category = "Webhooks",
             name = "Flip Listed",
             description = "Webhook whenever a flip is listed by the macro"
     )

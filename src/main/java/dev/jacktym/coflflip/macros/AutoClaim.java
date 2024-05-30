@@ -113,10 +113,6 @@ public class AutoClaim {
             AutoList.listItem(item);
             QueueUtil.finishAction();
             RealtimeEventRegistry.clearClazzMap("AutoClaim");
-
-            if (FlipConfig.claimedWebhooks) {
-                DiscordIntegration.sendToWebsocket("FlipClaimed", item.serialize().toString());
-            }
             return true;
         }
 

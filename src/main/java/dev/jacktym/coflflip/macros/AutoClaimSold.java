@@ -21,7 +21,7 @@ public class AutoClaimSold {
 
         if (message.startsWith("§6[Auction]") && message.contains("bought")) {
             QueueUtil.addToQueue(() -> {
-                RealtimeEventRegistry.registerEvent("guiScreenEvent", guiScreenEvent -> claimAuction((GuiScreenEvent) guiScreenEvent), "AutoClaimSold");
+                RealtimeEventRegistry.registerEvent("guiScreenEvent", guiScreenEvent -> claimAuction((GuiScreenEvent) guiScreenEvent, message.split("[Auction] ")[1].split(" bought")[0]), "AutoClaimSold");
                 Main.mc.thePlayer.sendChatMessage(event.message.getChatStyle().getChatClickEvent().getValue());
                 long closeTime = System.currentTimeMillis() + Long.parseLong(FlipConfig.autoCloseMenuDelay);
                 RealtimeEventRegistry.registerEvent("clientTickEvent", clientTickEvent -> Failsafes.closeGuiFailsafe((TickEvent.ClientTickEvent) clientTickEvent, closeTime, "AutoClaimSold"), "AutoClaimSold");
@@ -29,7 +29,7 @@ public class AutoClaimSold {
         }
     }
 
-    public static boolean claimAuction(GuiScreenEvent event) {
+    public static boolean claimAuction(GuiScreenEvent event, String buyer) {
         if (!(event instanceof GuiScreenEvent.DrawScreenEvent.Post)) {
             // GUI not initialized yet
             return false;
@@ -54,6 +54,7 @@ public class AutoClaimSold {
                     if (FlipConfig.soldWebhooks) {
                         FlipItem item = FlipItem.getItemByUuid(FlipItem.getUuid(soldItem));
                         if (item != null) {
+                            item.buyer = buyer;
                             DiscordIntegration.sendToWebsocket("FlipSold", item.serialize().toString());
                         }
                     }

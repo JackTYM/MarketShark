@@ -5,6 +5,8 @@ import dev.jacktym.coflflip.config.FlipConfig;
 import dev.jacktym.coflflip.util.ChatUtils;
 import dev.jacktym.coflflip.util.QueueUtil;
 import dev.jacktym.coflflip.util.RealtimeEventRegistry;
+import net.minecraftforge.client.event.ClientChatReceivedEvent;
+import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
 
 public class Failsafes {
@@ -23,5 +25,12 @@ public class Failsafes {
             return true;
         }
         return false;
+    }
+
+    @SubscribeEvent
+    public void clientChatReceivedEvent(ClientChatReceivedEvent event) {
+        String message = ChatUtils.stripColor(event.message.getUnformattedText());
+
+
     }
 }

@@ -25,6 +25,7 @@ public class FlipItem {
     public String sellerUuid;
     public String skyblockId;
     public boolean bed;
+    public String buyer;
 
     public FlipItem() {
         flipItems.add(this);
@@ -59,6 +60,7 @@ public class FlipItem {
         jsonObject.addProperty("sellerUuid", this.sellerUuid);
         jsonObject.addProperty("skyblockId", this.skyblockId);
         jsonObject.addProperty("bed", this.bed);
+        jsonObject.addProperty("buyer", this.buyer);
         return jsonObject;
     }
 

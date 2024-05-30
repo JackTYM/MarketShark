@@ -5,6 +5,7 @@ import com.google.gson.JsonParser;
 import com.neovisionaries.ws.client.WebSocket;
 import com.neovisionaries.ws.client.WebSocketAdapter;
 import com.neovisionaries.ws.client.WebSocketFactory;
+import com.neovisionaries.ws.client.WebSocketFrame;
 import dev.jacktym.coflflip.config.FlipConfig;
 import net.minecraft.client.Minecraft;
 
@@ -13,10 +14,12 @@ import java.util.Map;
 
 public class DiscordIntegration {
     public static WebSocket ws;
+    public static boolean connected = false;
     public static void connectToWebsocket() {
         try {
             if (ws != null) {
                 ws.disconnect();
+                connected = false;
             }
             ws = new WebSocketFactory().createSocket("wss://cofl.jacktym.dev");
             ws.addListener(new WebSocketAdapter() {
@@ -43,6 +46,20 @@ public class DiscordIntegration {
                 public void onConnected(WebSocket websocket, Map<String, List<String>> headers) throws Exception {
                     super.onConnected(websocket, headers);
                     sendToWebsocket("Activating", "");
+                    connected = true;
+                }
+
+                @Override
+                public void onDisconnected(WebSocket websocket, WebSocketFrame serverCloseFrame, WebSocketFrame clientCloseFrame, boolean closedByServer) throws Exception {
+                    super.onDisconnected(websocket, serverCloseFrame, clientCloseFrame, closedByServer);
+                    connected = false;
+                    System.out.println("Disconnected from Discord Integration! Attempting to Reconnect in 15 seconds!");
+                    ChatUtils.printMarkedChat("Disconnected from Discord Integration! Attempting to Reconnect in 15 seconds!");
+                    DelayUtils.delayAction(15000, () -> {
+                        if (!connected) {
+                            connectToWebsocket();
+                        }
+                    });
                 }
             });
             ws.connect();
