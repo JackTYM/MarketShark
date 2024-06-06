@@ -12,6 +12,7 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
 
 import java.util.AbstractMap;
+import java.util.ArrayList;
 import java.util.ConcurrentModificationException;
 import java.util.Map;
 import java.util.function.Function;
@@ -19,8 +20,10 @@ import java.util.function.Function;
 public class RealtimeEventRegistry {
     public static Multimap<String, Function<Event, Boolean>> eventMap = ArrayListMultimap.create();
     public static Multimap<String, Map.Entry<String, Function<Event, Boolean>>> classMap = ArrayListMultimap.create();
-    public static Multimap<String, Function<Packet, Boolean>> packetMap = ArrayListMultimap.create();
-    public static Multimap<String, Map.Entry<String, Function<Packet, Boolean>>> packetClassMap = ArrayListMultimap.create();
+    public static ArrayList<Function<Packet, Boolean>> packetArray = new ArrayList<>();
+    public static Multimap<String, Function<Packet, Boolean>> packetClassMap = ArrayListMultimap.create();
+    public static Multimap<String, Function<String, Boolean>> messageMap = ArrayListMultimap.create();
+    public static Multimap<String, Map.Entry<String, Function<String, Boolean>>> messageClassMap = ArrayListMultimap.create();
 
     @SubscribeEvent
     public void clientTickEvent(TickEvent.ClientTickEvent event) {
@@ -40,7 +43,7 @@ public class RealtimeEventRegistry {
     @SubscribeEvent
     public void clientChatReceivedEvent(ClientChatReceivedEvent event) { handleEvent("clientChatReceivedEvent", event, 0); }
 
-    private void handleEvent(String eventString, Event event, int i) {
+    public static void handleEvent(String eventString, Event event, int i) {
         if (i > 10) {
             if (FlipConfig.debug) {
                 System.out.println("ConcurrentModification StackOverflow. Clearing events!");
@@ -55,18 +58,33 @@ public class RealtimeEventRegistry {
         }
     }
 
-    public static void handlePacket(String packetString, Packet packet, int i) {
+    public static void handlePacket(Packet packet, int i) {
         if (i > 10) {
             if (FlipConfig.debug) {
                 System.out.println("ConcurrentModification StackOverflow. Clearing events!");
             }
-            packetMap.clear();
+            packetArray.clear();
             return;
         }
         try {
-            packetMap.get(packetString).removeIf(function -> function.apply(packet));
+            packetArray.removeIf(function -> function.apply(packet));
         } catch (ConcurrentModificationException e) {
-            handlePacket(packetString, packet, i+1);
+            handlePacket(packet, i+1);
+        }
+    }
+
+    public static void handleMessage(String messageString, String message, int i) {
+        if (i > 10) {
+            if (FlipConfig.debug) {
+                System.out.println("ConcurrentModification StackOverflow. Clearing events!");
+            }
+            eventMap.clear();
+            return;
+        }
+        try {
+            messageMap.get(messageString).removeIf(function -> function.apply(message));
+        } catch (ConcurrentModificationException e) {
+            handleMessage(messageString, message, i+1);
         }
     }
 
@@ -75,17 +93,24 @@ public class RealtimeEventRegistry {
         classMap.put(clazz, new AbstractMap.SimpleEntry<>(event, consumer));
     }
 
-    public static void registerPacket(String packet, Function<Packet, Boolean> consumer, String clazz) {
-        packetMap.put(packet, consumer);
-        packetClassMap.put(clazz, new AbstractMap.SimpleEntry<>(packet, consumer));
+    public static void registerPacket(Function<Packet, Boolean> consumer, String clazz) {
+        packetArray.add(consumer);
+        packetClassMap.put(clazz, consumer);
+    }
+
+    public static void registerMessage(String message, Function<String, Boolean> consumer, String clazz) {
+        messageMap.put(message, consumer);
+        messageClassMap.put(clazz, new AbstractMap.SimpleEntry<>(message, consumer));
     }
 
     public static void clearClazzMap(String clazz) {
         if (classMap.containsKey(clazz)) {
             classMap.get(clazz).forEach(entry -> eventMap.remove(entry.getKey(), entry.getValue()));
             classMap.removeAll(clazz);
-            packetClassMap.get(clazz).forEach(entry -> packetMap.remove(entry.getKey(), entry.getValue()));
+            packetClassMap.get(clazz).forEach(entry -> packetArray.remove(entry));
             packetClassMap.removeAll(clazz);
+            messageClassMap.get(clazz).forEach(entry -> messageMap.remove(entry.getKey(), entry.getValue()));
+            messageClassMap.removeAll(clazz);
         }
     }
 }

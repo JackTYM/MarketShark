@@ -14,18 +14,19 @@ public class QueueUtil {
             Runnable r = queue.remove(0);
             currentAction = r.getClass().getSimpleName().split("\\$\\$")[0];
             r.run();
-            System.out.println("Started " + currentAction);
+            System.out.println("1 Started " + currentAction);
         }
     }
 
     public static void addToQueue(Runnable action) {
+        System.out.println("Added " + action.getClass().getSimpleName().split("\\$\\$")[0]);
         queue.add(0, action);
 
         if (currentAction.isEmpty()) {
             Runnable r = queue.remove(0);
             currentAction = r.getClass().getSimpleName().split("\\$\\$")[0];
             r.run();
-            System.out.println("Started " + currentAction);
+            System.out.println("2 Started " + currentAction);
         }
     }
 }

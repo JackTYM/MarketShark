@@ -6,9 +6,11 @@
     "defaultRequire": 1
   },
   "mixins": [
-    "NetworkManagerMixin"
+    "NetworkManagerMixin",
+    "WSCommandHandlerMixin"
   ],
-  "client":[
-    "GuiEditSignAccessor"
+  "client": [
+    "GuiEditSignAccessor",
+    "GuiNewChatAccessor"
   ]
 }

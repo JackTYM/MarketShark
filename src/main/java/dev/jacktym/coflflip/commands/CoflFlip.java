@@ -40,7 +40,7 @@ public class CoflFlip extends CommandBase {
                         break;
                     }
                     case "list": {
-                        FlipItem flipItem = new FlipItem(Main.mc.thePlayer.inventory.getCurrentItem());
+                        FlipItem flipItem = FlipItem.getFlipItem(Main.mc.thePlayer.inventory.getCurrentItem());
                         AutoList.listItem(flipItem);
                         break;
                     }
@@ -61,6 +61,13 @@ public class CoflFlip extends CommandBase {
                     }
                     case "discord": {
                         DiscordIntegration.connectToWebsocket();
+                        break;
+                    }
+                    case "flipinfo": {
+                        FlipItem flipItem = FlipItem.getFlipItem(Main.mc.thePlayer.inventory.getCurrentItem());
+
+                        ChatUtils.printMarkedChat("Current Flip Item - Buy Price: " + flipItem.buyPrice + " Cofl Worth: " + flipItem.coflWorth + " Bed: " + flipItem.bed + " Uuid: " + flipItem.uuid);
+                        break;
                     }
                 }
             }

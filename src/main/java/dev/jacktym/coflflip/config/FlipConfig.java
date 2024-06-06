@@ -28,10 +28,10 @@ public class FlipConfig extends Vigilant {
     @Property(
             type = PropertyType.TEXT,
             category = "Macros",
-            name = "Bed Buy Delay",
+            name = "Bed Spam Delay",
             description = "How many ms to wait between bed buy clicks (Default 50)"
     )
-    public static String bedBuyDelay = "50";
+    public static String bedSpamDelay = "50";
     @Property(
             type = PropertyType.TEXT,
             category = "Macros",
@@ -93,14 +93,6 @@ public class FlipConfig extends Vigilant {
             }
     )
     public static int autoRelist = 0;
-    @Property(
-            type = PropertyType.TEXT,
-            category = "Macros",
-            name = "Bed Spam Delay",
-            description = "How quickly to spam buy bed auctions (Default 100)"
-    )
-    public static String bedSpamDelay = "100";
-
 
     @Property(
             type = PropertyType.TEXT,
@@ -114,6 +106,27 @@ public class FlipConfig extends Vigilant {
             }
     )
     public static String autoCloseMenuDelay = "15000";
+    @Property(
+            type = PropertyType.CHECKBOX,
+            category = "Failsafes",
+            name = "Anti Limbo",
+            description = "Brings you back to your skyblock island while in limbo (if macro enabled)"
+    )
+    public static boolean antiLimbo = true;
+    @Property(
+            type = PropertyType.CHECKBOX,
+            category = "Failsafes",
+            name = "Auto Reconnect",
+            description = "Reconnects to Hypixel when kicked (if macro enabled)"
+    )
+    public static boolean autoReconnect = true;
+    @Property(
+            type = PropertyType.CHECKBOX,
+            category = "Failsafes",
+            name = "Auto Island",
+            description = "Reconnects to Island when closed (if macro enabled)"
+    )
+    public static boolean autoIsland = true;
 
     @Property(
             type = PropertyType.CHECKBOX,

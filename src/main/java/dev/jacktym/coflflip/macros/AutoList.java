@@ -46,29 +46,26 @@ public class AutoList {
                                 continue;
                             }
                             if (inventory[i] != null) {
-                                FlipItem item = FlipItem.getItemByUuid(FlipItem.getUuid(inventory[i]));
-
-                                if (item == null) {
-                                    item = new FlipItem(inventory[i]);
-                                }
+                                FlipItem item = FlipItem.getFlipItem(inventory[i]);
 
                                 switch (FlipConfig.autoSellPrice) {
                                     case 0:
-                                        item.coflWorth = coflPrices.get(i).getAsJsonObject().get("lbin").getAsLong();
+                                        item.sellPrice = coflPrices.get(i).getAsJsonObject().get("lbin").getAsLong();
                                         break;
                                     case 1:
-                                        item.coflWorth = (long) (coflPrices.get(i).getAsJsonObject().get("lbin").getAsLong() * 0.95);
+                                        item.sellPrice = (long) (coflPrices.get(i).getAsJsonObject().get("lbin").getAsLong() * 0.95);
                                         break;
                                     case 4:
                                         if (item.coflWorth != 0) {
+                                            item.sellPrice = item.coflWorth;
                                             break;
                                         }
                                         ChatUtils.printMarkedChat("No Cofl Flip to use. Defaulting to Median Price");
                                     case 2:
-                                        item.coflWorth = coflPrices.get(i).getAsJsonObject().get("median").getAsLong();
+                                        item.sellPrice = coflPrices.get(i).getAsJsonObject().get("median").getAsLong();
                                         break;
                                     case 3:
-                                        item.coflWorth = (long) (coflPrices.get(i).getAsJsonObject().get("median").getAsLong() * 0.95);
+                                        item.sellPrice = (long) (coflPrices.get(i).getAsJsonObject().get("median").getAsLong() * 0.95);
                                         break;
                                 }
 
@@ -122,23 +119,25 @@ public class AutoList {
             return;
         }
 
-        if (FlipConfig.autoSellPrice != 4 || item.coflWorth == 0) {
+        if (FlipConfig.autoSellPrice == 4 && item.coflWorth != 0) {
+            item.sellPrice = item.coflWorth;
+        } else {
             JsonObject coflPrice = CoflAPIUtil.getCoflPrice(item.itemStack);
             if (coflPrice != null) {
                 switch (FlipConfig.autoSellPrice) {
                     case 0:
-                        item.coflWorth = coflPrice.get("lbin").getAsLong();
+                        item.sellPrice = coflPrice.get("lbin").getAsLong();
                         break;
                     case 1:
-                        item.coflWorth = (long) (coflPrice.get("lbin").getAsLong() * 0.95);
+                        item.sellPrice = (long) (coflPrice.get("lbin").getAsLong() * 0.95);
                         break;
                     case 4:
                         ChatUtils.printMarkedChat("No Cofl Flip to use. Defaulting to Median Price");
                     case 2:
-                        item.coflWorth = coflPrice.get("median").getAsLong();
+                        item.sellPrice = coflPrice.get("median").getAsLong();
                         break;
                     case 3:
-                        item.coflWorth = (long) (coflPrice.get("median").getAsLong() * 0.95);
+                        item.sellPrice = (long) (coflPrice.get("median").getAsLong() * 0.95);
                         break;
                 }
             } else {
@@ -146,13 +145,26 @@ public class AutoList {
             }
         }
 
+        if (item.sellPrice < item.buyPrice) {
+            ChatUtils.printMarkedChat("Skipped listing item. Worth lower than buy price!");
+
+            RealtimeEventRegistry.clearClazzMap("AutoList");
+            finishCurrentListing();
+            QueueUtil.finishAction();
+
+            if (FlipConfig.listedWebhooks) {
+                DiscordIntegration.sendToWebsocket("ListingSkipped", item.serialize().toString());
+            }
+            return;
+        }
+
         QueueUtil.addToQueue(() -> {
             currentlyListing = true;
             Main.mc.thePlayer.sendChatMessage("/ah");
             RealtimeEventRegistry.registerEvent("guiScreenEvent", guiScreenEvent -> openManageAuctions((GuiScreenEvent) guiScreenEvent, item), "AutoList");
 
-            long closeTime = System.currentTimeMillis() + Long.parseLong(FlipConfig.autoCloseMenuDelay);
-            RealtimeEventRegistry.registerEvent("clientTickEvent", clientTickEvent -> Failsafes.closeGuiFailsafe((TickEvent.ClientTickEvent) clientTickEvent, closeTime, "AutoList"), "AutoList");
+            
+            RealtimeEventRegistry.registerEvent("guiScreenEvent", guiScreenEvent -> Failsafes.closeGuiFailsafe((GuiScreenEvent) guiScreenEvent, "AutoList"), "AutoList");
         });
     }
 
@@ -309,10 +321,10 @@ public class AutoList {
                 return false;
             }
 
-            tileEntitySign.signText[0] = new ChatComponentText("" + item.coflWorth);
+            tileEntitySign.signText[0] = new ChatComponentText("" + item.sellPrice);
 
             DelayUtils.delayAction(800, () -> {
-                if (tileEntitySign.signText[0].getUnformattedText().equals("" + item.coflWorth)) {
+                if (tileEntitySign.signText[0].getUnformattedText().equals("" + item.sellPrice)) {
                     RealtimeEventRegistry.registerEvent("guiScreenEvent", guiScreenEvent -> openTime((GuiScreenEvent) guiScreenEvent, item), "AutoList");
                     Main.mc.currentScreen.onGuiClosed();
                 }

@@ -11,6 +11,7 @@ public class AutoOpen {
         if (!FlipConfig.autoOpen) {
             return;
         }
+        System.out.println("TRY OPEN");
         QueueUtil.addToQueue(() -> {
             if (FlipConfig.debug) {
                 System.out.println("Attempting Open: " + item.auctionId);
