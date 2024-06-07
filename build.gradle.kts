@@ -3,7 +3,7 @@ import org.apache.commons.lang3.SystemUtils
 plugins {
     idea
     java
-    id("gg.essential.loom") version "0.10.0.+"
+    id("gg.essential.loom") version "0.10.0.5"
     id("dev.architectury.architectury-pack200") version "0.1.3"
     id("com.github.johnrengelman.shadow") version "8.1.1"
 }
@@ -77,6 +77,7 @@ dependencies {
     shadowImpl("gg.essential:loader-launchwrapper:1.1.3")
     shadowImpl("org.java-websocket:Java-WebSocket:1.5.2")
     modImplementation("gg.essential:essential-1.8.9-forge:2581")
+    modImplementation(files("libs/CoflMod-1.5.5-alpha.jar"))
 }
 
 // Tasks:

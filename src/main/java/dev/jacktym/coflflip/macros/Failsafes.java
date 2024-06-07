@@ -18,12 +18,11 @@ public class Failsafes {
     public static boolean closeGuiFailsafe(GuiScreenEvent event, String clazz) {
         DelayUtils.delayAction(Long.parseLong(FlipConfig.autoCloseMenuDelay), () -> {
             if (event.gui == Main.mc.currentScreen) {
-                if (FlipConfig.debug) {
-                    System.out.println("Stuck GUI Failsafe Triggered!");
-                }
                 ChatUtils.printMarkedChat("Stuck GUI Failsafe Triggered!");
                 RealtimeEventRegistry.clearClazzMap(clazz);
-                Main.mc.thePlayer.closeScreen();
+                if (Main.mc.thePlayer != null) {
+                    Main.mc.thePlayer.closeScreen();
+                }
                 QueueUtil.finishAction();
 
                 JsonObject response = new JsonObject();

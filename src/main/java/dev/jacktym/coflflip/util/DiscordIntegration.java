@@ -321,7 +321,7 @@ public class DiscordIntegration {
         if (websocketClient.isOpen()) {
             websocketClient.send(jsonObject.toString());
         } else {
-            connectToWebsocket();
+            //connectToWebsocket();
             DelayUtils.delayAction(1000, () -> sendToWebsocket(type, message));
         }
     }
