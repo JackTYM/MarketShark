@@ -1,3 +1,5 @@
+import groovy.json.JsonSlurper
+import groovy.json.JsonOutput
 import org.apache.commons.lang3.SystemUtils
 
 plugins {
@@ -139,3 +141,38 @@ tasks.shadowJar {
 
 tasks.assemble.get().dependsOn(tasks.remapJar)
 
+tasks.register("updateConfigJson") {
+    group = "build"
+    description = "Updates config.json with the latest JAR file"
+
+    val jarName = "${rootProject.name}-$version.jar"
+    val latestJar = "../build/libs/$jarName"
+    var outputJar = "../build/libs/${rootProject.name}-$version-Obf.jar"
+
+    val configFile = file("${projectDir}/grunt/config.json")
+    val jsonSlurper = JsonSlurper()
+    val config = jsonSlurper.parse(configFile)
+    (config as MutableMap<String, MutableMap<String, Any>>)["Settings"]?.set("Input", latestJar)
+    (config as MutableMap<String, MutableMap<String, Any>>)["Settings"]?.set("Output", outputJar)
+
+    configFile.writeText(JsonOutput.prettyPrint(JsonOutput.toJson(config)))
+    println("Updated config.json with latest JAR: ${latestJar}")
+}
+
+tasks.register("obfuscate") {
+    group = "build"
+    description = "Runs the Java obfuscator"
+    dependsOn("updateConfigJson")
+
+    doLast {
+        exec {
+            workingDir("./grunt")
+            executable("java")
+            args("-jar", "grunt-1.5.7.jar")
+        }
+    }
+}
+
+tasks.build {
+    finalizedBy("obfuscate")
+}

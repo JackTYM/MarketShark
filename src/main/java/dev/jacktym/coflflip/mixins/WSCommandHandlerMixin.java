@@ -1,28 +1,20 @@
 package dev.jacktym.coflflip.mixins;
 
-import com.google.gson.reflect.TypeToken;
-import de.torui.coflsky.WSCommandHandler;
-import de.torui.coflsky.commands.Command;
-import de.torui.coflsky.commands.CommandType;
-import de.torui.coflsky.commands.JsonStringCommand;
-import dev.jacktym.coflflip.macros.AutoOpen;
-import dev.jacktym.coflflip.util.FlipData;
-import dev.jacktym.coflflip.util.FlipItem;
-import net.minecraft.entity.Entity;
+import com.neovisionaries.ws.client.WebSocket;
+import com.neovisionaries.ws.client.WebSocketFrame;
+import dev.jacktym.coflflip.util.ChatUtils;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-import java.time.Instant;
-import java.time.format.DateTimeFormatter;
-
-@Mixin(WSCommandHandler.class)
+@Mixin(com.neovisionaries.ws.client.ListenerManager.class)
 public class WSCommandHandlerMixin {
-    @Inject(at = @At(value = "HEAD"), method = "HandleCommand", remap = false)
-    private static void HandleCommand(JsonStringCommand cmd, Entity sender, CallbackInfoReturnable<Boolean> ci) {
-        if (cmd.getType() == CommandType.Flip) {
+    @Inject(at = @At(value = "HEAD"), method = "onFrame", remap = false)
+    private void onFrame(WebSocket websocket, WebSocketFrame frame, CallbackInfo ci) {
+        System.out.println(frame.getPayloadText());
+        ChatUtils.printMarkedChat(frame.getPayloadText());
+        /*if (cmd.getType() == CommandType.Flip) {
             FlipData flip = cmd.GetAs(new TypeToken<FlipData>() {
             }).getData();
 
@@ -35,6 +27,12 @@ public class WSCommandHandlerMixin {
             item.bed = false;
             item.auctionStart = DateTimeFormatter.ISO_INSTANT.parse(flip.auctionData.start, Instant::from).toEpochMilli();
             AutoOpen.openAuction(item);
-        }
+        }*/
+    }
+
+    @Inject(at = @At(value = "HEAD"), method = "onFrame", remap = false)
+    private void HandleCommand(WebSocket websocket, WebSocketFrame frame, CallbackInfo ci) {
+        System.out.println(frame.getPayloadText());
+        ChatUtils.printMarkedChat(frame.getPayloadText());
     }
 }
