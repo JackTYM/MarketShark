@@ -37,44 +37,54 @@ public class Failsafes {
 
     @SubscribeEvent
     public void clientChatReceivedEvent(ClientChatReceivedEvent event) {
-        String message = ChatUtils.stripColor(event.message.getUnformattedText());
+        if (FlipConfig.autoOpen) {
+            String message = ChatUtils.stripColor(event.message.getUnformattedText());
 
-        if (message.equals("You are AFK. Move around to return from AFK.") && FlipConfig.antiLimbo) {
-            Main.mc.thePlayer.sendChatMessage("/l");
+            if (message.equals("You are AFK. Move around to return from AFK.") && FlipConfig.antiLimbo) {
+                ChatUtils.printMarkedChat("In Limbo. Rejoining Skyblock!");
+                Main.mc.thePlayer.sendChatMessage("/l");
 
-            DelayUtils.delayAction(5000, () -> {
-                Main.mc.thePlayer.sendChatMessage("/skyblock");
+                DelayUtils.delayAction(5000, () -> {
+                    Main.mc.thePlayer.sendChatMessage("/skyblock");
 
+                    DelayUtils.delayAction(5000, () -> {
+                        Main.mc.thePlayer.sendChatMessage("/is");
+                    });
+                });
+            } else if (message.startsWith("Evacuating to Hub..") && FlipConfig.autoIsland) {
+                ChatUtils.printMarkedChat("Island closed. Rejoining in 5 Seconds!");
                 DelayUtils.delayAction(5000, () -> {
                     Main.mc.thePlayer.sendChatMessage("/is");
                 });
-            });
+            }
         }
     }
 
     public static boolean receivePacket(Packet packet) {
-        if (FlipConfig.autoReconnect) {
-            if (packet instanceof S40PacketDisconnect) {
-                S40PacketDisconnect disconnect = (S40PacketDisconnect) packet;
+        if (FlipConfig.autoOpen) {
+            if (FlipConfig.autoReconnect) {
+                if (packet instanceof S40PacketDisconnect) {
+                    S40PacketDisconnect disconnect = (S40PacketDisconnect) packet;
 
-                System.out.println(disconnect.getReason().getUnformattedText());
-                String reason = disconnect.getReason().getUnformattedText();
-                if (!reason.contains("Reason: ")) {
-                    ServerData lastServerData = Main.mc.getCurrentServerData();
+                    System.out.println(disconnect.getReason().getUnformattedText());
+                    String reason = disconnect.getReason().getUnformattedText();
+                    if (!reason.contains("Reason: ")) {
+                        ServerData lastServerData = Main.mc.getCurrentServerData();
 
-                    if (lastServerData != null) {
-                        FMLClientHandler.instance().connectToServer(new GuiMainMenu(), lastServerData);
+                        if (lastServerData != null) {
+                            FMLClientHandler.instance().connectToServer(new GuiMainMenu(), lastServerData);
+                        }
                     }
-                }
-            } else if (packet instanceof S00PacketDisconnect) {
-                S00PacketDisconnect disconnect = (S00PacketDisconnect) packet;
+                } else if (packet instanceof S00PacketDisconnect) {
+                    S00PacketDisconnect disconnect = (S00PacketDisconnect) packet;
 
-                String reason = disconnect.func_149603_c().getUnformattedText();
-                if (!reason.contains("Reason: ")) {
-                    ServerData lastServerData = Main.mc.getCurrentServerData();
+                    String reason = disconnect.func_149603_c().getUnformattedText();
+                    if (!reason.contains("Reason: ")) {
+                        ServerData lastServerData = Main.mc.getCurrentServerData();
 
-                    if (lastServerData != null) {
-                        FMLClientHandler.instance().connectToServer(new GuiMainMenu(), lastServerData);
+                        if (lastServerData != null) {
+                            FMLClientHandler.instance().connectToServer(new GuiMainMenu(), lastServerData);
+                        }
                     }
                 }
             }
