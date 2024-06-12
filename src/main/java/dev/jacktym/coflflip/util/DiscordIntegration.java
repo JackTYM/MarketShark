@@ -6,7 +6,6 @@ import com.google.gson.*;
 import dev.jacktym.coflflip.Main;
 import dev.jacktym.coflflip.config.FlipConfig;
 import dev.jacktym.coflflip.macros.AutoClaimSold;
-import dev.jacktym.coflflip.macros.Failsafes;
 import dev.jacktym.coflflip.mixins.GuiNewChatAccessor;
 import net.minecraft.client.gui.ChatLine;
 import net.minecraft.client.gui.inventory.GuiChest;
@@ -23,9 +22,7 @@ import net.minecraft.scoreboard.ScorePlayerTeam;
 import net.minecraft.scoreboard.Scoreboard;
 import net.minecraft.world.WorldSettings;
 import net.minecraftforge.client.ClientCommandHandler;
-import net.minecraftforge.client.event.ClientChatReceivedEvent;
 import net.minecraftforge.client.event.GuiScreenEvent;
-import net.minecraftforge.fml.common.gameevent.TickEvent;
 import org.java_websocket.client.WebSocketClient;
 import org.java_websocket.handshake.ServerHandshake;
 
@@ -183,7 +180,7 @@ public class DiscordIntegration {
 
                 DiscordIntegration.sendToWebsocket("AuctionHouse", response.toString());
                 RealtimeEventRegistry.clearClazzMap("DiscordIntegration");
-                QueueUtil.finishAction();
+                
                 return true;
             } else if (ChatUtils.stripColor(chest.getDisplayName().getUnformattedText()).contains("Create")) {
                 Main.mc.thePlayer.closeScreen();
@@ -194,7 +191,7 @@ public class DiscordIntegration {
 
                 DiscordIntegration.sendToWebsocket("AuctionHouse", response.toString());
                 RealtimeEventRegistry.clearClazzMap("DiscordIntegration");
-                QueueUtil.finishAction();
+                
                 return true;
             }
         }
@@ -203,16 +200,19 @@ public class DiscordIntegration {
 
     public static boolean getPingPacket(Packet packet, long sendTime) {
         if (packet instanceof S37PacketStatistics) {
-            hypixelPing = "" + (System.currentTimeMillis() - sendTime);
+            hypixelPing = "" + (System.currentTimeMillis() - sendTime) + "ms";
             return true;
         }
         return false;
     }
 
     public static boolean getCoflPing(String message) {
+
+        System.out.println("BLA BLA BLA " + ChatUtils.stripColor(message));
+
         message = ChatUtils.stripColor(message);
-        if (message.contains("Your Ping to Coflnet is: ")) {
-            coflPing = message.split("Your Ping to Coflnet is: ")[1];
+        if (message.contains("Your Ping")) {
+            coflPing = message.split("is: ")[1];
             coflPing = coflPing.split("\\.")[0] + "." + coflPing.split("\\.")[1].charAt(0) + "ms";
             return true;
         }
@@ -227,7 +227,9 @@ public class DiscordIntegration {
                 .replace("\\\"", "\"");
 
         strippedData = ChatUtils.stripColor(strippedData);
-        if (strippedData.contains("/cofl captcha ")) {
+        if (strippedData.contains("Click to get a letter captcha to prove you are not.") && !strippedData.contains("You are currently delayed for likely being afk")) {
+            ClientCommandHandler.instance.executeCommand(Main.mc.thePlayer, "/cofl captcha vertical");
+        } else if (strippedData.contains("/cofl captcha ")) {
             JsonArray captcha = new JsonParser().parse(strippedData).getAsJsonArray();
 
             List<String> captchaClicks = new ArrayList<>();
@@ -288,7 +290,7 @@ public class DiscordIntegration {
                 Main.mc.thePlayer.closeScreen();
             }
             RealtimeEventRegistry.clearClazzMap("DiscordIntegration");
-            QueueUtil.finishAction();
+            
         }
     }
 
@@ -355,6 +357,7 @@ public class DiscordIntegration {
             case "IncorrectSession": {
                 System.out.println("Incorrect Session!");
                 sessionId = null;
+                websocketClient.close();
                 connectToWebsocket();
                 break;
             }
@@ -378,7 +381,7 @@ public class DiscordIntegration {
                         long sendPing = System.currentTimeMillis();
                         RealtimeEventRegistry.registerPacket(packet -> getPingPacket(packet, sendPing), "DiscordIntegration");
 
-                        RealtimeEventRegistry.registerMessage("coflJson", DiscordIntegration::getCoflPing, "DiscordIntegration");
+                        RealtimeEventRegistry.registerMessage("coflMessage", DiscordIntegration::getCoflPing, "DiscordIntegration");
                         ClientCommandHandler.instance.executeCommand(Main.mc.thePlayer, "/cofl ping");
 
                         List<String> scoreboard = getScoreboard();
@@ -410,10 +413,11 @@ public class DiscordIntegration {
 
                         } catch (Exception ignored) {
                         }
+
+                        DelayUtils.delayAction(5000, DiscordIntegration::sendStats);
                     });
                 }
 
-                DelayUtils.delayAction(5000, DiscordIntegration::sendStats);
                 break;
             }
             case "Settings": {
@@ -464,30 +468,32 @@ public class DiscordIntegration {
 
             case "SendChat": {
                 if (Main.mc != null && Main.mc.thePlayer != null) {
-                    Main.mc.thePlayer.sendChatMessage(jsonObject.get("message").getAsString());
+                    String send = jsonObject.get("message").getAsString();
+                    if (send.startsWith("/")) {
+                        // Allow client mods to pick up
+                        ClientCommandHandler.instance.executeCommand(Main.mc.thePlayer, send);
+                    } else {
+                        Main.mc.thePlayer.sendChatMessage(send);
+                    }
 
-                    List<String> respMessages = new ArrayList<>();
-                    long startTime = System.currentTimeMillis();
-                    RealtimeEventRegistry.registerEvent("clientChatReceivedEvent", clientChatReceivedEvent -> {
-                        ClientChatReceivedEvent event = (ClientChatReceivedEvent) clientChatReceivedEvent;
+                    int chatLinesIndex = ((GuiNewChatAccessor) Main.mc.ingameGUI.getChatGUI()).getDrawnChatLines().size();
 
-                        // Check if it is not a chat message
-                        if (event.type != 0) {
-                            return false;
+                    DelayUtils.delayAction(5000, () -> {
+                        List<String> messages = new ArrayList<>();
+
+                        List<ChatLine> chatLines = ((GuiNewChatAccessor) Main.mc.ingameGUI.getChatGUI()).getDrawnChatLines();
+
+                        for (int i = chatLines.size() - chatLinesIndex - 1; i >= 0; i--) {
+                            messages.add(ChatUtils.stripColor(chatLines.get(i).getChatComponent().getUnformattedText()));
                         }
-                        respMessages.add(ChatUtils.stripColor(event.message.getUnformattedText()));
+                        JsonObject response = new JsonObject();
+                        response.addProperty("chat", jsonObject.get("message").getAsString());
+                        response.addProperty("messages", new Gson().toJson(messages));
+                        response.addProperty("username", Main.mc.getSession().getUsername());
 
-                        if (startTime + 5000 < System.currentTimeMillis() || respMessages.size() > 10) {
-                            JsonObject response = new JsonObject();
-                            response.addProperty("chat", jsonObject.get("message").getAsString());
-                            response.addProperty("messages", new Gson().toJson(respMessages));
-                            response.addProperty("username", Main.mc.getSession().getUsername());
+                        DiscordIntegration.sendToWebsocket("ChatResponses", response.toString());
 
-                            DiscordIntegration.sendToWebsocket("ChatResponses", response.toString());
-                            return true;
-                        }
-                        return false;
-                    }, "DiscordIntegration");
+                    });
                 }
                 break;
             }
@@ -578,7 +584,6 @@ public class DiscordIntegration {
                     RealtimeEventRegistry.registerEvent("guiScreenEvent", guiScreenEvent -> openManageAuctions((GuiScreenEvent) guiScreenEvent), "DiscordIntegration");
 
                     
-                    RealtimeEventRegistry.registerEvent("guiScreenEvent", guiScreenEvent -> Failsafes.closeGuiFailsafe((GuiScreenEvent) guiScreenEvent, "DiscordIntegration"), "DiscordIntegration");
                 });
                 break;
             }

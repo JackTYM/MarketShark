@@ -7,7 +7,7 @@
   },
   "mixins": [
     "NetworkManagerMixin",
-    "WSCommandHandlerMixin"
+    "ListenerManagerMixin"
   ],
   "client": [
     "GuiEditSignAccessor",

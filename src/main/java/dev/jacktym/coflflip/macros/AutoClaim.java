@@ -17,7 +17,7 @@ public class AutoClaim {
         QueueUtil.addToQueue(() -> {
             RealtimeEventRegistry.registerEvent("guiScreenEvent", guiScreenEvent -> openBids((GuiScreenEvent) guiScreenEvent, item), "AutoClaim");
             Main.mc.thePlayer.sendChatMessage("/ah");
-            RealtimeEventRegistry.registerEvent("guiScreenEvent", guiScreenEvent -> Failsafes.closeGuiFailsafe((GuiScreenEvent) guiScreenEvent, "AutoClaim"), "AutoClaim");
+            
         });
     }
 
@@ -101,7 +101,7 @@ public class AutoClaim {
 
     public static boolean waitForClaimMessage(ClientChatReceivedEvent event, Long expiryTime, FlipItem item) {
         if (expiryTime < System.currentTimeMillis()) {
-            QueueUtil.finishAction();
+            
             RealtimeEventRegistry.clearClazzMap("AutoClaim");
             return true;
         }
@@ -109,7 +109,7 @@ public class AutoClaim {
         String message = event.message.getUnformattedText();
         if (message.startsWith("You claimed") && message.contains(ChatUtils.stripColor(item.displayName))) {
             AutoList.listItem(item);
-            QueueUtil.finishAction();
+            
             RealtimeEventRegistry.clearClazzMap("AutoClaim");
             return true;
         }

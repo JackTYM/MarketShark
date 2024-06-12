@@ -12,7 +12,6 @@ import net.minecraft.nbt.NBTTagList;
 import net.minecraftforge.client.event.ClientChatReceivedEvent;
 import net.minecraftforge.client.event.GuiScreenEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import net.minecraftforge.fml.common.gameevent.TickEvent;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -31,7 +30,7 @@ public class AutoClaimSold {
                 RealtimeEventRegistry.registerEvent("guiScreenEvent", guiScreenEvent -> claimAuction((GuiScreenEvent) guiScreenEvent), "AutoClaimSold");
                 Main.mc.thePlayer.sendChatMessage(event.message.getChatStyle().getChatClickEvent().getValue());
                 
-                RealtimeEventRegistry.registerEvent("guiScreenEvent", guiScreenEvent -> Failsafes.closeGuiFailsafe((GuiScreenEvent) guiScreenEvent, "AutoClaimSold"), "AutoClaimSold");
+                
             });
         }
     }
@@ -100,7 +99,7 @@ public class AutoClaimSold {
             if (chest.getDisplayName().getUnformattedText().equals("BIN Auction View")) {
                 DelayUtils.delayAction(300, () -> {
                     GuiUtil.tryClick(31);
-                    QueueUtil.finishAction();
+                    
                     RealtimeEventRegistry.clearClazzMap("AutoClaimSold");
                 });
                 return true;
@@ -130,20 +129,20 @@ public class AutoClaimSold {
                 consecutiveEmpty = 0;
             }
 
+            if (line.contains("Seller: ")) {
+                seller = line.split("Seller: ")[1].replaceAll("\\[.*?]", "").trim();
+            }
             if (line.contains("Sold for: ")) {
                 item.sellPrice = Long.parseLong(line.split("Sold for: ")[1].split(" coins")[0].replace(",", ""));
             }
             if (line.contains("Buy it now: ")) {
                 binPrice = Long.parseLong(line.split("Buy it now: ")[1].split(" coins")[0].replace(",", ""));
-            }
-            if (line.contains("Buyer: ")) {
-                item.buyer = line.split("Buyer: ")[1].replaceAll("\\[.*?]", "").trim();
-            }
-            if (line.contains("Seller: ")) {
-                seller = line.split("Seller: ")[1].replaceAll("\\[.*?]", "").trim();
                 if (seller.equals(Main.mc.getSession().getUsername()) && binPrice != 0) {
                     item.sellPrice = binPrice;
                 }
+            }
+            if (line.contains("Buyer: ")) {
+                item.buyer = line.split("Buyer: ")[1].replaceAll("\\[.*?]", "").trim();
             }
             if (line.contains("Status: Sold!")) {
                 if (!item.sold && seller.equals(Main.mc.getSession().getUsername())) {

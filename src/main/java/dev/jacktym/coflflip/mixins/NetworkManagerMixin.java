@@ -1,7 +1,5 @@
 package dev.jacktym.coflflip.mixins;
 
-import dev.jacktym.coflflip.macros.AutoBuy;
-import dev.jacktym.coflflip.util.QueueUtil;
 import dev.jacktym.coflflip.util.RealtimeEventRegistry;
 import io.netty.channel.ChannelHandlerContext;
 import net.minecraft.network.NetworkManager;

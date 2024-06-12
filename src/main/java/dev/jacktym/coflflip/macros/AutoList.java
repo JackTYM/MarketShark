@@ -16,7 +16,6 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntitySign;
 import net.minecraft.util.ChatComponentText;
 import net.minecraftforge.client.event.GuiScreenEvent;
-import net.minecraftforge.fml.common.gameevent.TickEvent;
 
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
@@ -46,37 +45,41 @@ public class AutoList {
                                 continue;
                             }
                             if (inventory[i] != null) {
+                                try {
                                 FlipItem item = FlipItem.getFlipItem(inventory[i]);
 
-                                switch (FlipConfig.autoSellPrice) {
-                                    case 0:
-                                        item.sellPrice = coflPrices.get(i).getAsJsonObject().get("lbin").getAsLong();
-                                        break;
-                                    case 1:
-                                        item.sellPrice = (long) (coflPrices.get(i).getAsJsonObject().get("lbin").getAsLong() * 0.95);
-                                        break;
-                                    case 4:
-                                        if (item.coflWorth != 0) {
-                                            item.sellPrice = item.coflWorth;
+                                    switch (FlipConfig.autoSellPrice) {
+                                        case 0:
+                                            item.sellPrice = coflPrices.get(i).getAsJsonObject().get("lbin").getAsLong();
                                             break;
-                                        }
-                                        ChatUtils.printMarkedChat("No Cofl Flip to use. Defaulting to Median Price");
-                                    case 2:
-                                        item.sellPrice = coflPrices.get(i).getAsJsonObject().get("median").getAsLong();
-                                        break;
-                                    case 3:
-                                        item.sellPrice = (long) (coflPrices.get(i).getAsJsonObject().get("median").getAsLong() * 0.95);
-                                        break;
-                                }
+                                        case 1:
+                                            item.sellPrice = (long) (coflPrices.get(i).getAsJsonObject().get("lbin").getAsLong() * 0.95);
+                                            break;
+                                        case 4:
+                                            if (item.coflWorth != 0) {
+                                                item.sellPrice = item.coflWorth;
+                                                break;
+                                            }
+                                            ChatUtils.printMarkedChat("No Cofl Flip to use. Defaulting to Median Price");
+                                        case 2:
+                                            item.sellPrice = coflPrices.get(i).getAsJsonObject().get("median").getAsLong();
+                                            break;
+                                        case 3:
+                                            item.sellPrice = (long) (coflPrices.get(i).getAsJsonObject().get("median").getAsLong() * 0.95);
+                                            break;
+                                    }
 
-                                FlipItem finalItem = item;
-                                RealtimeEventRegistry.registerEvent("guiScreenEvent", guiScreenEvent -> openManageAuctions((GuiScreenEvent) guiScreenEvent, finalItem), "AutoList");
-                                Main.mc.thePlayer.sendChatMessage("/ah");
-                                waitForListingToFinish();
-                                currentlyListing = true;
-                                if (!listingInv) {
-                                    QueueUtil.finishAction();
-                                    break;
+                                    FlipItem finalItem = item;
+                                    RealtimeEventRegistry.registerEvent("guiScreenEvent", guiScreenEvent -> openManageAuctions((GuiScreenEvent) guiScreenEvent, finalItem), "AutoList");
+                                    Main.mc.thePlayer.sendChatMessage("/ah");
+                                    waitForListingToFinish();
+                                    currentlyListing = true;
+                                    if (!listingInv) {
+                                        
+                                        break;
+                                    }
+                                } catch (Exception e) {
+                                    e.printStackTrace();
                                 }
                             }
                         }
@@ -87,7 +90,7 @@ public class AutoList {
                     e.printStackTrace();
                 } finally {
                     finishCurrentListing();
-                    QueueUtil.finishAction();
+                    
                 }
             }).start();
         });
@@ -150,7 +153,7 @@ public class AutoList {
 
             RealtimeEventRegistry.clearClazzMap("AutoList");
             finishCurrentListing();
-            QueueUtil.finishAction();
+            
 
             if (FlipConfig.listedWebhooks) {
                 DiscordIntegration.sendToWebsocket("ListingSkipped", item.serialize().toString());
@@ -164,7 +167,7 @@ public class AutoList {
             RealtimeEventRegistry.registerEvent("guiScreenEvent", guiScreenEvent -> openManageAuctions((GuiScreenEvent) guiScreenEvent, item), "AutoList");
 
             
-            RealtimeEventRegistry.registerEvent("guiScreenEvent", guiScreenEvent -> Failsafes.closeGuiFailsafe((GuiScreenEvent) guiScreenEvent, "AutoList"), "AutoList");
+            
         });
     }
 
@@ -463,8 +466,6 @@ public class AutoList {
                     RealtimeEventRegistry.clearClazzMap("AutoList");
                     finishCurrentListing();
                     if (!listingInv) {
-                        QueueUtil.finishAction();
-
                         if (FlipConfig.listedWebhooks) {
                             DiscordIntegration.sendToWebsocket("FlipListed", item.serialize().toString());
                         }

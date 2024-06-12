@@ -3,7 +3,11 @@
     "Input": "../build/libs/CoflFlip-1.0.0.jar",
     "Output": "../build/libs/CoflFlip-1.0.0-Obf.jar",
     "Libraries": [],
-    "Exclusions": [],
+    "Exclusions": [
+      "gg",
+      "com",
+      "dev/jacktym/coflflip/mixins"
+    ],
     "GenerateRemap": true,
     "RemapOutput": "mappings.json",
     "ParallelProcessing": true,
@@ -128,6 +132,6 @@
   },
   "Watermark": {
     "Enabled": true,
-    "Watermark Message": "Stop tryna crack my shit mann discord.gg/MarketShark"
+    "Watermark Message": "ANTI_CRACK_BY_MARKET_SHARK_discord_gg_MarketShark"
   }
 }

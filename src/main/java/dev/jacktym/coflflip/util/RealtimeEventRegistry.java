@@ -2,7 +2,9 @@ package dev.jacktym.coflflip.util;
 
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
+import dev.jacktym.coflflip.Main;
 import dev.jacktym.coflflip.config.FlipConfig;
+import net.minecraft.client.gui.inventory.GuiChest;
 import net.minecraft.network.Packet;
 import net.minecraftforge.client.event.ClientChatReceivedEvent;
 import net.minecraftforge.client.event.GuiScreenEvent;
@@ -41,7 +43,9 @@ public class RealtimeEventRegistry {
     }
 
     @SubscribeEvent
-    public void clientChatReceivedEvent(ClientChatReceivedEvent event) { handleEvent("clientChatReceivedEvent", event, 0); }
+    public void clientChatReceivedEvent(ClientChatReceivedEvent event) {
+        handleEvent("clientChatReceivedEvent", event, 0);
+    }
 
     public static void handleEvent(String eventString, Event event, int i) {
         if (i > 10) {
@@ -54,7 +58,7 @@ public class RealtimeEventRegistry {
         try {
             eventMap.get(eventString).removeIf(function -> function.apply(event));
         } catch (ConcurrentModificationException e) {
-            handleEvent(eventString, event, i+1);
+            handleEvent(eventString, event, i + 1);
         }
     }
 
@@ -69,7 +73,7 @@ public class RealtimeEventRegistry {
         try {
             packetArray.removeIf(function -> function.apply(packet));
         } catch (ConcurrentModificationException e) {
-            handlePacket(packet, i+1);
+            handlePacket(packet, i + 1);
         }
     }
 
@@ -84,7 +88,7 @@ public class RealtimeEventRegistry {
         try {
             messageMap.get(messageString).removeIf(function -> function.apply(message));
         } catch (ConcurrentModificationException e) {
-            handleMessage(messageString, message, i+1);
+            handleMessage(messageString, message, i + 1);
         }
     }
 
@@ -107,10 +111,18 @@ public class RealtimeEventRegistry {
         if (classMap.containsKey(clazz)) {
             classMap.get(clazz).forEach(entry -> eventMap.remove(entry.getKey(), entry.getValue()));
             classMap.removeAll(clazz);
+        }
+        if (packetClassMap.containsKey(clazz)) {
             packetClassMap.get(clazz).forEach(entry -> packetArray.remove(entry));
             packetClassMap.removeAll(clazz);
+        }
+        if (messageClassMap.containsKey(clazz)) {
             messageClassMap.get(clazz).forEach(entry -> messageMap.remove(entry.getKey(), entry.getValue()));
             messageClassMap.removeAll(clazz);
+        }
+        QueueUtil.finishAction(clazz);
+        if (Main.mc.currentScreen instanceof GuiChest) {
+            Main.mc.thePlayer.closeScreen();
         }
     }
 }

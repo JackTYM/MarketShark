@@ -7,6 +7,12 @@ public class QueueUtil {
     public static List<Runnable> queue = new ArrayList<>();
     public static String currentAction = "";
 
+    public static void finishAction(String action) {
+        if (currentAction.equals(action)) {
+            finishAction();
+        }
+    }
+
     public static void finishAction() {
         System.out.println("Finished " + currentAction);
         currentAction = "";

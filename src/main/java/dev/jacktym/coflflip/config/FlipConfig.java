@@ -26,6 +26,20 @@ public class FlipConfig extends Vigilant {
     )
     public static boolean autoBuy = false;
     @Property(
+            type = PropertyType.CHECKBOX,
+            category = "Macros",
+            name = "Confirm Skip",
+            description = "Skips the AutoBuy Confirm Window"
+    )
+    public static boolean confirmSkip = false;
+    @Property(
+            type = PropertyType.TEXT,
+            category = "Macros",
+            name = "Confirm Skip Delay",
+            description = "Delay to Skips the AutoBuy Confirm Window (Default 10)"
+    )
+    public static String confirmSkipDelay = "10";
+    @Property(
             type = PropertyType.TEXT,
             category = "Macros",
             name = "Bed Spam Delay",
@@ -39,6 +53,13 @@ public class FlipConfig extends Vigilant {
             description = "How many times to click bed buys (Default 20)"
     )
     public static String bedBuyRepeats = "20";
+    @Property(
+            type = PropertyType.TEXT,
+            category = "Macros",
+            name = "Bed Spam Start Delay",
+            description = "How long to start spamming since start of the auction in ms (Default 20000)"
+    )
+    public static String bedSpamStartDelay = "20000";
     @Property(
             type = PropertyType.CHECKBOX,
             category = "Macros",
