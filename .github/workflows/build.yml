@@ -25,6 +25,12 @@ jobs:
       - name: Execute Build All
         run: ./build.sh
 
+      - name: List build directory contents
+        run: ls -R build
+
+      - name: List badjars directory contents
+        run: ls -R build/badjars
+
       - name: Upload built mod JAR
         uses: actions/upload-artifact@v4.3.0
         with:
