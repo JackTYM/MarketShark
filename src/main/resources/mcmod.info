@@ -1,11 +1,11 @@
 [
   {
     "modid": "${modid}",
-    "name": "CoflFlip",
+    "name": "MarketShark",
     "description": "A mod that is used as an example.",
     "version": "${version}",
     "mcversion": "${mcversion}",
-    "url": "https://github.com/JackTYM/CoflFlip/",
+    "url": "https://github.com/JackTYM/MarketShark/",
     "updateUrl": "",
     "authorList": [
       "JackTYM"

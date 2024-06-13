@@ -1,6 +1,6 @@
-package dev.jacktym.coflflip.util;
+package dev.jacktym.marketshark.util;
 
-import dev.jacktym.coflflip.Main;
+import dev.jacktym.marketshark.Main;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.inventory.GuiChest;
 import net.minecraft.inventory.ContainerChest;

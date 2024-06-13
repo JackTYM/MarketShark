@@ -27,4 +27,4 @@ plugins {
 }
 
 
-rootProject.name = "CoflFlip"
+rootProject.name = "MarketShark"

@@ -1,9 +1,9 @@
-package dev.jacktym.coflflip.util;
+package dev.jacktym.marketshark.util;
 
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
-import dev.jacktym.coflflip.Main;
-import dev.jacktym.coflflip.config.FlipConfig;
+import dev.jacktym.marketshark.Main;
+import dev.jacktym.marketshark.config.FlipConfig;
 import net.minecraft.client.gui.inventory.GuiChest;
 import net.minecraft.network.Packet;
 import net.minecraftforge.client.event.ClientChatReceivedEvent;

@@ -1,12 +1,12 @@
-package dev.jacktym.coflflip.util;
+package dev.jacktym.marketshark.util;
 
 import com.google.common.collect.ComparisonChain;
 import com.google.common.collect.Ordering;
 import com.google.gson.*;
-import dev.jacktym.coflflip.Main;
-import dev.jacktym.coflflip.config.FlipConfig;
-import dev.jacktym.coflflip.macros.AutoClaimSold;
-import dev.jacktym.coflflip.mixins.GuiNewChatAccessor;
+import dev.jacktym.marketshark.Main;
+import dev.jacktym.marketshark.config.FlipConfig;
+import dev.jacktym.marketshark.macros.AutoClaimSold;
+import dev.jacktym.marketshark.mixins.GuiNewChatAccessor;
 import net.minecraft.client.gui.ChatLine;
 import net.minecraft.client.gui.inventory.GuiChest;
 import net.minecraft.client.network.NetworkPlayerInfo;

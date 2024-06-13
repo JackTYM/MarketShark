@@ -1,9 +1,9 @@
-package dev.jacktym.coflflip.macros;
+package dev.jacktym.marketshark.macros;
 
-import dev.jacktym.coflflip.Main;
-import dev.jacktym.coflflip.config.FlipConfig;
-import dev.jacktym.coflflip.util.FlipItem;
-import dev.jacktym.coflflip.util.QueueUtil;
+import dev.jacktym.marketshark.Main;
+import dev.jacktym.marketshark.config.FlipConfig;
+import dev.jacktym.marketshark.util.FlipItem;
+import dev.jacktym.marketshark.util.QueueUtil;
 
 public class AutoOpen {
     public static void openAuction(FlipItem item) {

@@ -1,8 +1,8 @@
-package dev.jacktym.coflflip.macros;
+package dev.jacktym.marketshark.macros;
 
-import dev.jacktym.coflflip.Main;
-import dev.jacktym.coflflip.config.FlipConfig;
-import dev.jacktym.coflflip.util.*;
+import dev.jacktym.marketshark.Main;
+import dev.jacktym.marketshark.config.FlipConfig;
+import dev.jacktym.marketshark.util.*;
 import net.minecraft.client.gui.inventory.GuiChest;
 import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;

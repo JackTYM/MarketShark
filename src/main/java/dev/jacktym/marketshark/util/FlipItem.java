@@ -1,8 +1,8 @@
-package dev.jacktym.coflflip.util;
+package dev.jacktym.marketshark.util;
 
 import com.google.gson.*;
-import dev.jacktym.coflflip.Main;
-import dev.jacktym.coflflip.config.FlipConfig;
+import dev.jacktym.marketshark.Main;
+import dev.jacktym.marketshark.config.FlipConfig;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTBase;
 

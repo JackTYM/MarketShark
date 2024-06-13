@@ -1,6 +1,6 @@
-package dev.jacktym.coflflip.util;
+package dev.jacktym.marketshark.util;
 
-import dev.jacktym.coflflip.Main;
+import dev.jacktym.marketshark.Main;
 import gg.essential.universal.ChatColor;
 import net.minecraft.util.ChatComponentText;
 import net.minecraft.util.EnumChatFormatting;
@@ -8,7 +8,7 @@ import net.minecraft.util.IChatComponent;
 
 public class ChatUtils {
     public static void printMarkedChat(String message) {
-        addChatMessage(new ChatComponentText(EnumChatFormatting.GOLD + "[" + EnumChatFormatting.WHITE + "CoflFlip" + EnumChatFormatting.GOLD + "] " + EnumChatFormatting.WHITE + message));
+        addChatMessage(new ChatComponentText(EnumChatFormatting.GOLD + "[" + EnumChatFormatting.WHITE + "MarketShark" + EnumChatFormatting.GOLD + "] " + EnumChatFormatting.WHITE + message));
     }
 
     public static void printUnmarkedChat(String message) {

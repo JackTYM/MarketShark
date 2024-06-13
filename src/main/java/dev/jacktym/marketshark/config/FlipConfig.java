@@ -1,4 +1,4 @@
-package dev.jacktym.coflflip.config;
+package dev.jacktym.marketshark.config;
 
 import gg.essential.vigilance.Vigilant;
 import gg.essential.vigilance.data.*;
@@ -194,7 +194,7 @@ public class FlipConfig extends Vigilant {
     public static String activationKey = "";
 
     public FlipConfig() {
-        super(new File("config/coflflip.toml"), "Cofl Flip Config", new JVMAnnotationPropertyCollector(), new SortingBehavior() {
+        super(new File("config/marketshark.toml"), "Cofl Flip Config", new JVMAnnotationPropertyCollector(), new SortingBehavior() {
             @NotNull
             @Override
             public Comparator<? super Category> getCategoryComparator() {

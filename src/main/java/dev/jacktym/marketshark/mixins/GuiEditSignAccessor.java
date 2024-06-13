@@ -1,4 +1,4 @@
-package dev.jacktym.coflflip.mixins;
+package dev.jacktym.marketshark.mixins;
 
 import net.minecraft.client.gui.inventory.GuiEditSign;
 import net.minecraft.tileentity.TileEntitySign;

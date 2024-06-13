@@ -170,24 +170,43 @@ tasks.build {
     finalizedBy("obfuscate")
 }
 
+val buildVersion = project.objects.property(String::class.java)
+buildVersion.set("Hammerhead")
 
-val remapHammerheadJar by tasks.register<net.fabricmc.loom.task.RemapJarTask>("remapHammerheadJar") {
-    group = "build"
-    description = "Remap the Hammerhead JAR"
-
-    archiveClassifier.set(System.getProperty("marketshark.version"))
-    input.set(layout.buildDirectory.file("badjars/${project.name}-${project.version}-${System.getProperty("marketshark.version")}.jar"))
+tasks.register<net.fabricmc.loom.task.RemapJarTask>("remapHammerheadJar") {
+    archiveClassifier.set("Hammerhead")
+    input.set(layout.buildDirectory.file("badjars/${project.name}-${project.version}-Hammerhead.jar"))
+    dependsOn("buildHammerhead")
+}
+tasks.register<net.fabricmc.loom.task.RemapJarTask>("remapWobbegongJar") {
+    archiveClassifier.set("Wobbegong")
+    input.set(layout.buildDirectory.file("badjars/${project.name}-${project.version}-Wobbegong.jar"))
+    dependsOn("buildWobbegong")
+}
+tasks.register<net.fabricmc.loom.task.RemapJarTask>("remapGreatWhiteJar") {
+    archiveClassifier.set("GreatWhite")
+    input.set(layout.buildDirectory.file("badjars/${project.name}-${project.version}-GreatWhite.jar"))
+    dependsOn("buildGreatWhite")
+}
+tasks.register<net.fabricmc.loom.task.RemapJarTask>("remapMegalodonJar") {
+    archiveClassifier.set("Megalodon")
+    input.set(layout.buildDirectory.file("badjars/${project.name}-${project.version}-Megalodon.jar"))
+    dependsOn("buildMegalodon")
 }
 
 tasks.register<Jar>("buildHammerhead") {
-    destinationDirectory.set(layout.buildDirectory.dir("badjars"))
-    archiveClassifier.set("Hammerhead")
-    doFirst {
-        System.setProperty("marketshark.version", "Hammerhead")
-    }
-    // Include all compiled classes and resources in the JAR
+    buildVersion.set("Hammerhead")
 
+    archiveClassifier.set(buildVersion.get())
+    System.setProperty("marketshark.version", buildVersion.get())
+    destinationDirectory.set(layout.buildDirectory.dir("badjars"))
     from(sourceSets.main.get().output)
+
+    // Ensure dependencies are included
+    dependsOn("shadowJar")
+    from({
+        shadowImpl.map { if (it.isDirectory) it else zipTree(it) }
+    })
 
     // Configure the manifest attributes
     manifest {
@@ -199,55 +218,93 @@ tasks.register<Jar>("buildHammerhead") {
         )
     }
 
+    finalizedBy("remap${buildVersion.get()}Jar")
+}
+
+tasks.register<Jar>("buildWobbegong") {
+    buildVersion.set("Wobbegong")
+
+    archiveClassifier.set(buildVersion.get())
+    System.setProperty("marketshark.version", buildVersion.get())
+    destinationDirectory.set(layout.buildDirectory.dir("badjars"))
+    from(sourceSets.main.get().output)
+
     // Ensure dependencies are included
     dependsOn("shadowJar")
     from({
         shadowImpl.map { if (it.isDirectory) it else zipTree(it) }
     })
-    dependsOn("remapHammerheadJar")
-}
 
-tasks.named("build") {
-    dependsOn("buildHammerhead")
-}
-
-tasks.register<Jar>("buildWobbegong") {
-    archiveClassifier.set("Wobbegong")
-    doFirst {
-        System.setProperty("marketshark.version", "Wobbegong")
+    // Configure the manifest attributes
+    manifest {
+        attributes(
+            "FMLCorePluginContainsFMLMod" to "true",
+            "ForceLoadAsMod" to "true",
+            "TweakClass" to "gg.essential.loader.stage0.EssentialSetupTweaker",
+            "MixinConfigs" to "mixins.$modid.json"
+        )
     }
-    finalizedBy("build")
+
+    finalizedBy("remap${buildVersion.get()}Jar")
 }
 
 tasks.register<Jar>("buildGreatWhite") {
-    archiveClassifier.set("GreatWhite")
-    doFirst {
-        System.setProperty("marketshark.version", "GreatWhite")
+    buildVersion.set("GreatWhite")
+
+    archiveClassifier.set(buildVersion.get())
+    System.setProperty("marketshark.version", buildVersion.get())
+    destinationDirectory.set(layout.buildDirectory.dir("badjars"))
+    from(sourceSets.main.get().output)
+
+    // Ensure dependencies are included
+    dependsOn("shadowJar")
+    from({
+        shadowImpl.map { if (it.isDirectory) it else zipTree(it) }
+    })
+
+    // Configure the manifest attributes
+    manifest {
+        attributes(
+            "FMLCorePluginContainsFMLMod" to "true",
+            "ForceLoadAsMod" to "true",
+            "TweakClass" to "gg.essential.loader.stage0.EssentialSetupTweaker",
+            "MixinConfigs" to "mixins.$modid.json"
+        )
     }
-    finalizedBy("build")
+
+    finalizedBy("remap${buildVersion.get()}Jar")
 }
 
 tasks.register<Jar>("buildMegalodon") {
-    archiveClassifier.set("Megalodon")
-    doFirst {
-        System.setProperty("marketshark.version", "Megalodon")
-    }
-    finalizedBy("build")
-}
+    buildVersion.set("Megalodon")
 
-// Custom Task to Run All Builds
-tasks.register("buildAll") {
-    dependsOn("buildHammerhead", "buildWobbegong", "buildGreatWhite", "buildMegalodon")
+    archiveClassifier.set(buildVersion.get())
+    System.setProperty("marketshark.version", buildVersion.get())
+    destinationDirectory.set(layout.buildDirectory.dir("badjars"))
+    from(sourceSets.main.get().output)
+
+    // Ensure dependencies are included
+    dependsOn("shadowJar")
+    from({
+        shadowImpl.map { if (it.isDirectory) it else zipTree(it) }
+    })
+
+    // Configure the manifest attributes
+    manifest {
+        attributes(
+            "FMLCorePluginContainsFMLMod" to "true",
+            "ForceLoadAsMod" to "true",
+            "TweakClass" to "gg.essential.loader.stage0.EssentialSetupTweaker",
+            "MixinConfigs" to "mixins.$modid.json"
+        )
+    }
+
+    finalizedBy("remap${buildVersion.get()}Jar")
 }
 
 // Example usage in your code:
 tasks.register("printVersion") {
-    doLast {
+    doFirst {
         println("MarketShark Version: " + System.getProperty("marketshark.version"))
     }
-}
-
-// Ensure printVersion runs after buildAll
-tasks.named("buildAll") {
-    finalizedBy("printVersion")
 }

@@ -1,7 +1,7 @@
 {
   "compatibilityLevel": "JAVA_8",
   "minVersion": "0.8",
-  "package": "dev.jacktym.coflflip.mixins",
+  "package": "dev.jacktym.marketshark.mixins",
   "injectors": {
     "defaultRequire": 1
   },

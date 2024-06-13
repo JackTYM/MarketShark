@@ -1,4 +1,4 @@
-package dev.jacktym.coflflip.mixins;
+package dev.jacktym.marketshark.mixins;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
@@ -6,11 +6,11 @@ import de.torui.coflsky.commands.Command;
 import de.torui.coflsky.commands.CommandType;
 import de.torui.coflsky.commands.JsonStringCommand;
 import de.torui.coflsky.commands.models.ChatMessageData;
-import dev.jacktym.coflflip.macros.AutoOpen;
-import dev.jacktym.coflflip.util.DiscordIntegration;
-import dev.jacktym.coflflip.util.FlipData;
-import dev.jacktym.coflflip.util.FlipItem;
-import dev.jacktym.coflflip.util.RealtimeEventRegistry;
+import dev.jacktym.marketshark.macros.AutoOpen;
+import dev.jacktym.marketshark.util.DiscordIntegration;
+import dev.jacktym.marketshark.util.FlipData;
+import dev.jacktym.marketshark.util.FlipItem;
+import dev.jacktym.marketshark.util.RealtimeEventRegistry;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;

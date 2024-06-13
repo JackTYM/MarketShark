@@ -1,4 +1,4 @@
-package dev.jacktym.coflflip.util;
+package dev.jacktym.marketshark.util;
 
 import java.util.ArrayList;
 import java.util.List;

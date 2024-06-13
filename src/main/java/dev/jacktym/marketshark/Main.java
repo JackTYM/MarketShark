@@ -1,12 +1,12 @@
-package dev.jacktym.coflflip;
+package dev.jacktym.marketshark;
 
-import dev.jacktym.coflflip.commands.CoflFlip;
-import dev.jacktym.coflflip.config.FlipConfig;
-import dev.jacktym.coflflip.macros.AutoClaimSold;
-import dev.jacktym.coflflip.macros.Failsafes;
-import dev.jacktym.coflflip.util.DiscordIntegration;
-import dev.jacktym.coflflip.util.FlipItem;
-import dev.jacktym.coflflip.util.RealtimeEventRegistry;
+import dev.jacktym.marketshark.commands.MarketShark;
+import dev.jacktym.marketshark.config.FlipConfig;
+import dev.jacktym.marketshark.macros.AutoClaimSold;
+import dev.jacktym.marketshark.macros.Failsafes;
+import dev.jacktym.marketshark.util.DiscordIntegration;
+import dev.jacktym.marketshark.util.FlipItem;
+import dev.jacktym.marketshark.util.RealtimeEventRegistry;
 import net.minecraft.client.Minecraft;
 import net.minecraftforge.client.ClientCommandHandler;
 import net.minecraftforge.common.MinecraftForge;
@@ -19,7 +19,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
-@Mod(modid = "coflflip", name = "CoflFlip", version = "1.0.0")
+@Mod(modid = "marketshark", name = "MarketShark", version = "1.0.0")
 public class Main {
     public static Main instance = new Main();
     public static FlipConfig flipConfig;
@@ -27,7 +27,7 @@ public class Main {
 
     @Mod.EventHandler
     public void init(FMLInitializationEvent event) {
-        ClientCommandHandler.instance.registerCommand(new CoflFlip());
+        ClientCommandHandler.instance.registerCommand(new MarketShark());
 
         flipConfig = new FlipConfig();
 
@@ -42,13 +42,6 @@ public class Main {
 
         Locale.setDefault(new Locale("en", "US"));
 
-        /*System.setOut(new PrintStream(System.out) {
-            @Override
-            public void println(String str) {
-                CoflClient.handleMessage(str);
-                super.println(str);
-            }
-        });*/
         FlipItem.loadFlipData();
 
         DiscordIntegration.connectToWebsocket();

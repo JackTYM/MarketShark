@@ -1,4 +1,4 @@
-package dev.jacktym.coflflip.util;
+package dev.jacktym.marketshark.util;
 
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;

@@ -1,6 +1,6 @@
-package dev.jacktym.coflflip.mixins;
+package dev.jacktym.marketshark.mixins;
 
-import dev.jacktym.coflflip.util.RealtimeEventRegistry;
+import dev.jacktym.marketshark.util.RealtimeEventRegistry;
 import io.netty.channel.ChannelHandlerContext;
 import net.minecraft.network.NetworkManager;
 import net.minecraft.network.Packet;

@@ -1,23 +1,23 @@
-package dev.jacktym.coflflip.commands;
+package dev.jacktym.marketshark.commands;
 
-import dev.jacktym.coflflip.Main;
-import dev.jacktym.coflflip.macros.AutoList;
-import dev.jacktym.coflflip.util.*;
+import dev.jacktym.marketshark.Main;
+import dev.jacktym.marketshark.macros.AutoList;
+import dev.jacktym.marketshark.util.*;
 import gg.essential.api.utils.GuiUtil;
 import net.minecraft.command.CommandBase;
 import net.minecraft.command.CommandException;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.util.EnumChatFormatting;
 
-public class CoflFlip extends CommandBase {
+public class MarketShark extends CommandBase {
     @Override
     public String getCommandName() {
-        return "coflflip";
+        return "marketshark";
     }
 
     @Override
     public String getCommandUsage(ICommandSender sender) {
-        return "/coflflip help";
+        return "/marketshark help";
     }
 
     @Override
@@ -35,8 +35,8 @@ public class CoflFlip extends CommandBase {
             case 1: {
                 switch (args[0]) {
                     case "help": {
-                        ChatUtils.printColoredChat("CoflFlip Help Menu", EnumChatFormatting.GOLD);
-                        ChatUtils.printUnmarkedChat("/coflflip - Displays Config GUI");
+                        ChatUtils.printColoredChat("MarketShark Help Menu", EnumChatFormatting.GOLD);
+                        ChatUtils.printUnmarkedChat("/marketshark - Displays Config GUI");
                         break;
                     }
                     case "list": {

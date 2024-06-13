@@ -1,14 +1,14 @@
 {
     "Settings": {
-        "Input": "../build/libs/CoflFlip-1.0.0.jar",
-        "Output": "../build/libs/CoflFlip-1.0.0-Obf.jar",
+        "Input": "../build/libs/MarketShark-1.0.0.jar",
+        "Output": "../build/libs/MarketShark-1.0.0-Obf.jar",
         "Libraries": [
             
         ],
         "Exclusions": [
             "gg",
             "com",
-            "dev/jacktym/coflflip/mixins"
+            "dev/jacktym/marketshark/mixins"
         ],
         "GenerateRemap": true,
         "RemapOutput": "mappings.json",
