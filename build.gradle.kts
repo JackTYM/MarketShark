@@ -175,17 +175,17 @@ buildVersion.set("Hammerhead")
 
 tasks.register<net.fabricmc.loom.task.RemapJarTask>("remapHammerheadJar") {
     archiveClassifier.set("Hammerhead")
-    input.set(layout.buildDirectory.file("badjars/${project.name}-${project.version}-Hammerhead.jar"))
+    input.set(layout.buildDirectory.file("badjars/${rootProject.name}-${rootProject.version}-Hammerhead.jar"))
     dependsOn("buildHammerhead")
 }
 tasks.register<net.fabricmc.loom.task.RemapJarTask>("remapWobbegongJar") {
     archiveClassifier.set("Wobbegong")
-    input.set(layout.buildDirectory.file("badjars/${project.name}-${project.version}-Wobbegong.jar"))
+    input.set(layout.buildDirectory.file("badjars/${rootProject.name}-${rootProject.version}-Wobbegong.jar"))
     dependsOn("buildWobbegong")
 }
 tasks.register<net.fabricmc.loom.task.RemapJarTask>("remapGreatWhiteJar") {
     archiveClassifier.set("GreatWhite")
-    input.set(layout.buildDirectory.file("badjars/${project.name}-${project.version}-GreatWhite.jar"))
+    input.set(layout.buildDirectory.file("badjars/${rootProject.name}-${rootProject.version}-GreatWhite.jar"))
     dependsOn("buildGreatWhite")
 }
 tasks.register<net.fabricmc.loom.task.RemapJarTask>("remapMegalodonJar") {
