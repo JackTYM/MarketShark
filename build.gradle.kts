@@ -155,7 +155,6 @@ tasks.register("updateConfigJson") {
 tasks.register("obfuscate") {
     group = "build"
     description = "Runs the Java obfuscator"
-    dependsOn("updateConfigJson")
 
     doLast {
         exec {
@@ -173,20 +172,84 @@ tasks.build {
 val buildVersion = project.objects.property(String::class.java)
 buildVersion.set("Hammerhead")
 
+tasks.register("updateHammerheadConfigJson") {
+    group = "build"
+    description = "Updates config.json with the latest JAR file"
+
+    val latestJar = "../build/libs/${rootProject.name}-$version-Hammerhead.jar"
+    var outputJar = "../build/libs/${rootProject.name}-$version-Hammerhead-Obf.jar"
+
+    val configFile = file("${projectDir}/grunt/config.json")
+    val jsonSlurper = JsonSlurper()
+    val config = jsonSlurper.parse(configFile)
+    (config as MutableMap<String, MutableMap<String, Any>>)["Settings"]?.set("Input", latestJar)
+    config["Settings"]?.set("Output", outputJar)
+
+    configFile.writeText(JsonOutput.prettyPrint(JsonOutput.toJson(config)))
+    println("Updated config.json with latest JAR: ${latestJar}")
+}
 tasks.register<net.fabricmc.loom.task.RemapJarTask>("remapHammerheadJar") {
     archiveClassifier.set("Hammerhead")
     input.set(layout.buildDirectory.file("badjars/$modid-${rootProject.version}-Hammerhead.jar"))
     dependsOn("buildHammerhead")
+}
+tasks.register("updateWobbegongConfigJson") {
+    group = "build"
+    description = "Updates config.json with the latest JAR file"
+
+    val latestJar = "../build/libs/${rootProject.name}-$version-Wobbegong.jar"
+    var outputJar = "../build/libs/${rootProject.name}-$version-Wobbegong-Obf.jar"
+
+    val configFile = file("${projectDir}/grunt/config.json")
+    val jsonSlurper = JsonSlurper()
+    val config = jsonSlurper.parse(configFile)
+    (config as MutableMap<String, MutableMap<String, Any>>)["Settings"]?.set("Input", latestJar)
+    config["Settings"]?.set("Output", outputJar)
+
+    configFile.writeText(JsonOutput.prettyPrint(JsonOutput.toJson(config)))
+    println("Updated config.json with latest JAR: ${latestJar}")
 }
 tasks.register<net.fabricmc.loom.task.RemapJarTask>("remapWobbegongJar") {
     archiveClassifier.set("Wobbegong")
     input.set(layout.buildDirectory.file("badjars/$modid-${rootProject.version}-Wobbegong.jar"))
     dependsOn("buildWobbegong")
 }
+tasks.register("updateGreatWhiteConfigJson") {
+    group = "build"
+    description = "Updates config.json with the latest JAR file"
+
+    val latestJar = "../build/libs/${rootProject.name}-$version-GreatWhite.jar"
+    var outputJar = "../build/libs/${rootProject.name}-$version-GreatWhite-Obf.jar"
+
+    val configFile = file("${projectDir}/grunt/config.json")
+    val jsonSlurper = JsonSlurper()
+    val config = jsonSlurper.parse(configFile)
+    (config as MutableMap<String, MutableMap<String, Any>>)["Settings"]?.set("Input", latestJar)
+    config["Settings"]?.set("Output", outputJar)
+
+    configFile.writeText(JsonOutput.prettyPrint(JsonOutput.toJson(config)))
+    println("Updated config.json with latest JAR: ${latestJar}")
+}
 tasks.register<net.fabricmc.loom.task.RemapJarTask>("remapGreatWhiteJar") {
     archiveClassifier.set("GreatWhite")
     input.set(layout.buildDirectory.file("badjars/$modid-${rootProject.version}-GreatWhite.jar"))
     dependsOn("buildGreatWhite")
+}
+tasks.register("updateMegalodonConfigJson") {
+    group = "build"
+    description = "Updates config.json with the latest JAR file"
+
+    val latestJar = "../build/libs/${rootProject.name}-$version-Megalodon.jar"
+    var outputJar = "../build/libs/${rootProject.name}-$version-Megalodon-Obf.jar"
+
+    val configFile = file("${projectDir}/grunt/config.json")
+    val jsonSlurper = JsonSlurper()
+    val config = jsonSlurper.parse(configFile)
+    (config as MutableMap<String, MutableMap<String, Any>>)["Settings"]?.set("Input", latestJar)
+    config["Settings"]?.set("Output", outputJar)
+
+    configFile.writeText(JsonOutput.prettyPrint(JsonOutput.toJson(config)))
+    println("Updated config.json with latest JAR: ${latestJar}")
 }
 tasks.register<net.fabricmc.loom.task.RemapJarTask>("remapMegalodonJar") {
     archiveClassifier.set("Megalodon")
@@ -218,7 +281,7 @@ tasks.register<Jar>("buildHammerhead") {
         )
     }
 
-    finalizedBy("remap${buildVersion.get()}Jar")
+    finalizedBy("remap${buildVersion.get()}Jar", "update${buildVersion.get()}ConfigJson", "obfuscate")
 }
 
 tasks.register<Jar>("buildWobbegong") {
@@ -245,7 +308,7 @@ tasks.register<Jar>("buildWobbegong") {
         )
     }
 
-    finalizedBy("remap${buildVersion.get()}Jar")
+    finalizedBy("remap${buildVersion.get()}Jar", "update${buildVersion.get()}ConfigJson", "obfuscate")
 }
 
 tasks.register<Jar>("buildGreatWhite") {
@@ -272,7 +335,7 @@ tasks.register<Jar>("buildGreatWhite") {
         )
     }
 
-    finalizedBy("remap${buildVersion.get()}Jar")
+    finalizedBy("remap${buildVersion.get()}Jar", "update${buildVersion.get()}ConfigJson", "obfuscate")
 }
 
 tasks.register<Jar>("buildMegalodon") {
@@ -299,7 +362,7 @@ tasks.register<Jar>("buildMegalodon") {
         )
     }
 
-    finalizedBy("remap${buildVersion.get()}Jar")
+    finalizedBy("remap${buildVersion.get()}Jar", "update${buildVersion.get()}ConfigJson", "obfuscate")
 }
 
 // Example usage in your code:
