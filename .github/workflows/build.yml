@@ -43,6 +43,6 @@ jobs:
 
       - name: Send to Discord webhook
         run: |
-          for file in build/libs/*.jar; do
-            curl -F "payload_json={\"content\":\"New build: $file\"}" -F "file=@$file" ${{ secrets.DISCORD_WEBHOOK_URL }}
+          for file in build/libs/*-Obf.jar; do
+            curl -F "payload_json={\"content\":\"\"}" -F "file=@$file" ${{ secrets.DISCORD_WEBHOOK_URL }}
           done
