@@ -1,11 +1,15 @@
 package dev.jacktym.marketshark.util;
 
+import dev.jacktym.marketshark.config.FlipConfig;
+
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ScheduledFuture;
 
 public class QueueUtil {
     public static List<Runnable> queue = new ArrayList<>();
     public static String currentAction = "";
+    public static ScheduledFuture<?> finishFailsafe;
 
     public static void finishAction(String action) {
         if (currentAction.equals(action)) {
@@ -16,6 +20,7 @@ public class QueueUtil {
     public static void finishAction() {
         System.out.println("Finished " + currentAction);
         currentAction = "";
+        finishFailsafe.cancel(true);
         if (!queue.isEmpty()) {
             Runnable r = queue.remove(0);
             currentAction = r.getClass().getSimpleName().split("\\$\\$")[0];
@@ -33,6 +38,8 @@ public class QueueUtil {
             currentAction = r.getClass().getSimpleName().split("\\$\\$")[0];
             r.run();
             System.out.println("2 Started " + currentAction);
+
+            finishFailsafe = DelayUtils.delayAction(Long.parseLong(FlipConfig.autoCloseMenuDelay), () -> finishAction(currentAction));
         }
     }
 }
