@@ -283,7 +283,7 @@ public class DiscordIntegration {
 
             DiscordIntegration.sendToWebsocket("CaptchaIncorrect", response.toString());
         }
-        //#if >=GreatWhite
+        //#endif >=GreatWhite
     }
 
     //#if >=GreatWhite
