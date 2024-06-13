@@ -175,13 +175,8 @@ val remapHammerheadJar by tasks.register<net.fabricmc.loom.task.RemapJarTask>("r
     group = "build"
     description = "Remap the Hammerhead JAR"
 
-    // Set the input and output for the remap task
-    archiveClassifier.set("")
-
-    // Use the output of buildHammerhead as the input for remapJar
-    input.set(layout.buildDirectory.file("badjars/${project.name}-${project.version}-Hammerhead.jar"))
-    from(layout.buildDirectory.file("badjars/${project.name}-${project.version}-Hammerhead.jar"))
-
+    archiveClassifier.set(System.getProperty("marketshark.version"))
+    input.set(layout.buildDirectory.file("badjars/${project.name}-${project.version}-${System.getProperty("marketshark.version")}.jar"))
 }
 
 tasks.register<Jar>("buildHammerhead") {
