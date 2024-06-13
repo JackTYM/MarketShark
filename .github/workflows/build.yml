@@ -26,9 +26,11 @@ jobs:
         run: ./build.sh
 
       - name: List build directory contents
+        if: ${{ always() }}
         run: ls -R build
 
       - name: List badjars directory contents
+        if: ${{ always() }}
         run: ls -R build/badjars
 
       - name: Upload built mod JAR
