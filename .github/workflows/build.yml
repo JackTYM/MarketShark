@@ -19,6 +19,9 @@ jobs:
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v3
 
+      - name: Make build.bat executable
+        run: chmod +x build.bat
+
       - name: Execute Build All
         run: ./build.bat
 
