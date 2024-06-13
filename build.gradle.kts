@@ -132,6 +132,8 @@ tasks.shadowJar {
     fun relocate(name: String) = relocate(name, "$baseGroup.deps.$name")
 }
 
+extra["buildType"] = "default"
+
 tasks.assemble.get().dependsOn(tasks.remapJar)
 
 tasks.register("updateConfigJson") {
@@ -257,11 +259,16 @@ tasks.register<net.fabricmc.loom.task.RemapJarTask>("remapMegalodonJar") {
     dependsOn("buildMegalodon")
 }
 
-tasks.register<Jar>("buildHammerhead") {
+tasks.register("buildHammerhead") {
     buildVersion.set("Hammerhead")
+    project.extra["buildType"] = buildVersion.get()
+    println("Building: " + project.extra["buildType"])
 
+    finalizedBy("build${buildVersion.get()}Post")
+}
+tasks.register<Jar>("buildHammerheadPost") {
+    buildVersion.set("Hammerhead")
     archiveClassifier.set(buildVersion.get())
-    System.setProperty("marketshark.version", buildVersion.get())
     destinationDirectory.set(layout.buildDirectory.dir("badjars"))
     from(sourceSets.main.get().output)
 
@@ -284,11 +291,18 @@ tasks.register<Jar>("buildHammerhead") {
     finalizedBy("remap${buildVersion.get()}Jar", "update${buildVersion.get()}ConfigJson", "obfuscate")
 }
 
-tasks.register<Jar>("buildWobbegong") {
+tasks.register("buildWobbegong") {
     buildVersion.set("Wobbegong")
+    project.extra["buildType"] = buildVersion.get()
+    println("Building: " + project.extra["buildType"])
 
+    finalizedBy("build${buildVersion.get()}Post")
+}
+tasks.register<Jar>("buildWobbegongPost") {
+    buildVersion.set("Wobbegong")
     archiveClassifier.set(buildVersion.get())
-    System.setProperty("marketshark.version", buildVersion.get())
+    project.extra["buildType"] = buildVersion.get()
+    println(project.extra["buildType"])
     destinationDirectory.set(layout.buildDirectory.dir("badjars"))
     from(sourceSets.main.get().output)
 
@@ -311,11 +325,18 @@ tasks.register<Jar>("buildWobbegong") {
     finalizedBy("remap${buildVersion.get()}Jar", "update${buildVersion.get()}ConfigJson", "obfuscate")
 }
 
-tasks.register<Jar>("buildGreatWhite") {
+tasks.register("buildGreatWhite") {
     buildVersion.set("GreatWhite")
+    project.extra["buildType"] = buildVersion.get()
+    println("Building: " + project.extra["buildType"])
 
+    finalizedBy("build${buildVersion.get()}Post")
+}
+tasks.register<Jar>("buildGreatWhitePost") {
+    buildVersion.set("GreatWhite")
     archiveClassifier.set(buildVersion.get())
-    System.setProperty("marketshark.version", buildVersion.get())
+    project.extra["buildType"] = buildVersion.get()
+    println(project.extra["buildType"])
     destinationDirectory.set(layout.buildDirectory.dir("badjars"))
     from(sourceSets.main.get().output)
 
@@ -338,11 +359,18 @@ tasks.register<Jar>("buildGreatWhite") {
     finalizedBy("remap${buildVersion.get()}Jar", "update${buildVersion.get()}ConfigJson", "obfuscate")
 }
 
-tasks.register<Jar>("buildMegalodon") {
+tasks.register("buildMegalodon") {
     buildVersion.set("Megalodon")
+    project.extra["buildType"] = buildVersion.get()
+    println("Building: " + project.extra["buildType"])
 
+    finalizedBy("build${buildVersion.get()}Post")
+}
+tasks.register<Jar>("buildMegalodonPost") {
+    buildVersion.set("Megalodon")
     archiveClassifier.set(buildVersion.get())
-    System.setProperty("marketshark.version", buildVersion.get())
+    project.extra["buildType"] = buildVersion.get()
+    println(project.extra["buildType"])
     destinationDirectory.set(layout.buildDirectory.dir("badjars"))
     from(sourceSets.main.get().output)
 
@@ -368,6 +396,100 @@ tasks.register<Jar>("buildMegalodon") {
 // Example usage in your code:
 tasks.register("printVersion") {
     doFirst {
-        println("MarketShark Version: " + System.getProperty("marketshark.version"))
+        println("MarketShark Version: " + project.extra["buildType"])
     }
+}
+
+tasks.register<Copy>("processSource") {
+    dependsOn("cleanProcessedSource")
+    from("src/main/java")
+    into("$buildDir/src")
+
+    doLast {
+        println("Modifying with version " + project.extra["buildType"])
+        val srcDir = file("$buildDir/src")
+        srcDir.walkTopDown()
+            .filter { it.isFile }
+            .forEach { file ->
+                val text = file.readText()
+                val modifiedText = when (project.extra["buildType"]) {
+                    "Hammerhead" -> text
+                        .replace("//#if >=Wobbegong", "/*")
+                        .replace("//#endif >=Wobbegong", "*/")
+                        .replace("//#if >=GreatWhite", "/*")
+                        .replace("//#endif >=GreatWhite", "*/")
+                        .replace("//#if >=Megalodon", "/*")
+                        .replace("//#endif >=Megalodon", "*/")
+
+                        .replace("//#if Megalodon", "/*")
+                        .replace("//#endif Megalodon", "*/")
+                        .replace("//#if GreatWhite", "/*")
+                        .replace("//#endif GreatWhite", "*/")
+                        .replace("//#if Wobbegong", "/*")
+                        .replace("//#endif Wobbegong", "*/")
+
+                        .replace("version = \"\";", "version = \"Hammerhead\";")
+                    "Wobbegong" -> text
+                        .replace("//#if >=GreatWhite", "/*")
+                        .replace("//#endif >=GreatWhite", "*/")
+                        .replace("//#if >=Megalodon", "/*")
+                        .replace("//#endif >=Megalodon", "*/")
+
+                        .replace("//#if Megalodon", "/*")
+                        .replace("//#endif Megalodon", "*/")
+                        .replace("//#if GreatWhite", "/*")
+                        .replace("//#endif GreatWhite", "*/")
+                        .replace("//#if Hammerhead", "/*")
+                        .replace("//#endif Hammerhead", "*/")
+
+                        .replace("version = \"\";", "version = \"Wobbegong\";")
+                    "GreatWhite" -> text
+                        .replace("//#if >=Megalodon", "/*")
+                        .replace("//#endif >=Megalodon", "*/")
+
+                        .replace("//#if Megalodon", "/*")
+                        .replace("//#endif Megalodon", "*/")
+                        .replace("//#if Wobbegong", "/*")
+                        .replace("//#endif Wobbegong", "*/")
+                        .replace("//#if Hammerhead", "/*")
+                        .replace("//#endif Hammerhead", "*/")
+
+                        .replace("version = \"\";", "version = \"GreatWhite\";")
+                    "Megalodon" -> text
+                        .replace("//#if GreatWhite", "/*")
+                        .replace("//#endif GreatWhite", "*/")
+                        .replace("//#if Wobbegong", "/*")
+                        .replace("//#endif Wobbegong", "*/")
+                        .replace("//#if Hammerhead", "/*")
+                        .replace("//#endif Hammerhead", "*/")
+
+                        .replace("version = \"\";", "version = \"Megalodon\";")
+                    else -> text
+                        .replace("version = \"\";", "version = \"UnknownVersion\";")
+                }
+                file.writeText(modifiedText)
+            }
+    }
+}
+
+tasks.named<Copy>("processResources") {
+    from("$buildDir/src")
+    dependsOn("processSource")
+    mustRunAfter("processSource")
+}
+
+tasks.named<Jar>("jar") {
+    from("$buildDir/src") {
+        include("**/*.java")
+    }
+    dependsOn("processSource")
+}
+
+tasks.named<JavaCompile>("compileJava") {
+    dependsOn(tasks.getByName("processSource"))
+    source = tasks.getByName("processSource").outputs.files.asFileTree
+}
+
+tasks.register<Delete>("cleanProcessedSource") {
+    delete("$buildDir/src")
 }

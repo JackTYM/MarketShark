@@ -93,6 +93,7 @@ public class DiscordIntegration {
         websocketClient.setConnectionLostTimeout(0);
     }
 
+    //#if >=GreatWhite
     public static boolean getOwnedAuctions(GuiScreenEvent event) {
         if (!(event instanceof GuiScreenEvent.DrawScreenEvent.Post)) {
             // GUI not initialized yet
@@ -218,6 +219,7 @@ public class DiscordIntegration {
         }
         return false;
     }
+    //#endif >=GreatWhite
 
     public static void getCoflCaptcha(String message) {
         JsonObject jsonObject = new JsonParser().parse(message).getAsJsonObject();
@@ -227,6 +229,17 @@ public class DiscordIntegration {
                 .replace("\\\"", "\"");
 
         strippedData = ChatUtils.stripColor(strippedData);
+        //#if Hammerhead
+        if (strippedData.contains("/cofl captcha ")) {
+            JsonObject response = new JsonObject();
+            response.addProperty("message", strippedData);
+            response.addProperty("username", Main.mc.getSession().getUsername());
+
+            DiscordIntegration.sendToWebsocket("Captcha", response.toString());
+        }
+        //#endif Hammerhead
+
+        //#if >=GreatWhite
         if (strippedData.contains("Click to get a letter captcha to prove you are not.") && !strippedData.contains("You are currently delayed for likely being afk")) {
             ClientCommandHandler.instance.executeCommand(Main.mc.thePlayer, "/cofl captcha vertical");
         } else if (strippedData.contains("/cofl captcha ")) {
@@ -270,8 +283,10 @@ public class DiscordIntegration {
 
             DiscordIntegration.sendToWebsocket("CaptchaIncorrect", response.toString());
         }
+        //#if >=GreatWhite
     }
 
+    //#if >=GreatWhite
     public static void sendStats() {
         if (!statsSent) {
             statsSent = true;
@@ -310,6 +325,7 @@ public class DiscordIntegration {
 
         return scoreList;
     }
+    //#endif >=GreatWhite
 
     public static void sendToWebsocket(String type, String message) {
         JsonObject jsonObject = new JsonObject();
@@ -361,6 +377,8 @@ public class DiscordIntegration {
                 connectToWebsocket();
                 break;
             }
+
+            //#if >=GreatWhite
             case "Stats": {
                 ChatUtils.printMarkedChat(jsonObject.get("message").getAsString());
 
@@ -420,6 +438,8 @@ public class DiscordIntegration {
 
                 break;
             }
+            //#endif >=GreatWhite
+
             case "Settings": {
                 JsonObject settings = new JsonParser().parse(jsonObject.get("message").getAsString()).getAsJsonObject();
 
@@ -466,6 +486,7 @@ public class DiscordIntegration {
                 break;
             }
 
+            //#if >=GreatWhite
             case "SendChat": {
                 if (Main.mc != null && Main.mc.thePlayer != null) {
                     String send = jsonObject.get("message").getAsString();
@@ -516,7 +537,9 @@ public class DiscordIntegration {
                 }
                 break;
             }
+            //#endif >=GreatWhite
 
+            //#if >=Wobbegong
             case "Inventory": {
                 if (Main.mc != null && Main.mc.thePlayer != null) {
                     ItemStack[] inventory = Main.mc.thePlayer.inventory.mainInventory;
@@ -577,7 +600,10 @@ public class DiscordIntegration {
                 }
                 break;
             }
+            //#endif >=Wobbegong
 
+
+            //#if >=GreatWhite
             case "AuctionHouse": {
                 QueueUtil.addToQueue(() -> {
                     Main.mc.thePlayer.sendChatMessage("/ah");
@@ -587,7 +613,9 @@ public class DiscordIntegration {
                 });
                 break;
             }
+            //#endif >=GreatWhite
 
+            //#if >=GreatWhite
             case "Captcha": {
                 ClientCommandHandler.instance.executeCommand(Main.mc.thePlayer, "/cofl captcha vertical");
                 break;
@@ -597,6 +625,7 @@ public class DiscordIntegration {
                 ClientCommandHandler.instance.executeCommand(Main.mc.thePlayer, jsonObject.get("message").getAsString());
                 break;
             }
+            //#endif >=GreatWhite
         }
     }
 

@@ -5,7 +5,6 @@ import dev.jacktym.marketshark.macros.AutoList;
 import dev.jacktym.marketshark.util.*;
 import gg.essential.api.utils.GuiUtil;
 import net.minecraft.command.CommandBase;
-import net.minecraft.command.CommandException;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.util.EnumChatFormatting;
 
@@ -26,7 +25,7 @@ public class MarketShark extends CommandBase {
     }
 
     @Override
-    public void processCommand(ICommandSender sender, String[] args) throws CommandException {
+    public void processCommand(ICommandSender sender, String[] args) {
         switch (args.length) {
             case 0: {
                 GuiUtil.open(Main.flipConfig.gui());
@@ -37,6 +36,13 @@ public class MarketShark extends CommandBase {
                     case "help": {
                         ChatUtils.printColoredChat("MarketShark Help Menu", EnumChatFormatting.GOLD);
                         ChatUtils.printUnmarkedChat("/marketshark - Displays Config GUI");
+                        ChatUtils.printUnmarkedChat("/marketshark list - Lists held item");
+                        //#if >=GreatWhite
+                        ChatUtils.printUnmarkedChat("/marketshark listinv - Lists entire inventory");
+                        //#endif >=GreatWhite
+                        ChatUtils.printUnmarkedChat("/marketshark reset - Reset to bug fix");
+                        ChatUtils.printUnmarkedChat("/marketshark discord - Reconnect to discord");
+                        ChatUtils.printUnmarkedChat("/marketshark flipinfo - Prints cached flip info about held item");
                         break;
                     }
                     case "list": {
@@ -44,10 +50,12 @@ public class MarketShark extends CommandBase {
                         AutoList.listItem(flipItem);
                         break;
                     }
+                    //#if >=GreatWhite
                     case "listinv": {
                         AutoList.listInventory();
                         break;
                     }
+                    //#endif >=GreatWhite
                     case "reset": {
                         RealtimeEventRegistry.eventMap.clear();
                         RealtimeEventRegistry.classMap.clear();

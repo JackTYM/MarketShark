@@ -25,6 +25,7 @@ public class FlipConfig extends Vigilant {
             description = "Auto Buys Cofl Relay Flips"
     )
     public static boolean autoBuy = false;
+    //#if >=Megalodon
     @Property(
             type = PropertyType.CHECKBOX,
             category = "Macros",
@@ -39,6 +40,7 @@ public class FlipConfig extends Vigilant {
             description = "Delay to Skips the AutoBuy Confirm Window (Default 10)"
     )
     public static String confirmSkipDelay = "10";
+    //#endif >=Megalodon
     @Property(
             type = PropertyType.TEXT,
             category = "Macros",
@@ -102,6 +104,7 @@ public class FlipConfig extends Vigilant {
             description = "Auto Claims all Sold Auctions"
     )
     public static boolean autoClaimSold = false;
+    //#if >=Wobbegong
     @Property(
             type = PropertyType.SELECTOR,
             category = "Macros",
@@ -114,6 +117,7 @@ public class FlipConfig extends Vigilant {
             }
     )
     public static int autoRelist = 0;
+    //#endif >=Wobbegong
 
     @Property(
             type = PropertyType.TEXT,

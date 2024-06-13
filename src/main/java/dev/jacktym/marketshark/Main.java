@@ -21,9 +21,9 @@ import java.util.Locale;
 
 @Mod(modid = "marketshark", name = "MarketShark", version = "1.0.0")
 public class Main {
-    public static Main instance = new Main();
     public static FlipConfig flipConfig;
     public static Minecraft mc = Minecraft.getMinecraft();
+    public static final String version = "";
 
     @Mod.EventHandler
     public void init(FMLInitializationEvent event) {
