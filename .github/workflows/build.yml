@@ -38,3 +38,11 @@ jobs:
         with:
           name: mod-jar
           path: build/libs/*.jar
+      - name: Install curl
+        run: sudo apt-get install -y curl
+
+      - name: Send to Discord webhook
+        run: |
+          for file in build/libs/*.jar; do
+            curl -F "payload_json={\"content\":\"New build: $file\"}" -F "file=@$file" ${{ secrets.DISCORD_WEBHOOK_URL }}
+          done
