@@ -10,8 +10,7 @@ plugins {
     id("com.github.johnrengelman.shadow") version "8.1.1"
 }
 
-//Constants:
-
+// Constants:
 val baseGroup: String by project
 val mcVersion: String by project
 val version: String by project
@@ -44,7 +43,7 @@ loom {
     }
     forge {
         pack200Provider.set(dev.architectury.pack200.java.Pack200Adapter())
-        // If you don't want mixins, remove this lines
+        // If you don't want mixins, remove these lines
         mixinConfig("mixins.$modid.json")
     }
     // If you don't want mixins, remove these lines
@@ -58,7 +57,6 @@ sourceSets.main {
 }
 
 // Dependencies:
-
 repositories {
     mavenCentral()
     google()
@@ -84,7 +82,6 @@ dependencies {
 }
 
 // Tasks:
-
 tasks.withType(JavaCompile::class) {
     options.encoding = "UTF-8"
 }
@@ -94,8 +91,6 @@ tasks.withType(Jar::class) {
     manifest.attributes.run {
         this["FMLCorePluginContainsFMLMod"] = "true"
         this["ForceLoadAsMod"] = "true"
-
-        // If you don't want mixins, remove these lines
         this["TweakClass"] = "gg.essential.loader.stage0.EssentialSetupTweaker"
         this["MixinConfigs"] = "mixins.$modid.json"
     }
@@ -113,7 +108,6 @@ tasks.processResources {
 
     rename("(.+_at.cfg)", "META-INF/$1")
 }
-
 
 val remapJar by tasks.named<net.fabricmc.loom.task.RemapJarTask>("remapJar") {
     archiveClassifier.set("")
@@ -135,8 +129,6 @@ tasks.shadowJar {
             println("Copying jars into mod: ${it.files}")
         }
     }
-
-    // If you want to include other dependencies and shadow them, you can relocate them in here
     fun relocate(name: String) = relocate(name, "$baseGroup.deps.$name")
 }
 
@@ -154,7 +146,7 @@ tasks.register("updateConfigJson") {
     val jsonSlurper = JsonSlurper()
     val config = jsonSlurper.parse(configFile)
     (config as MutableMap<String, MutableMap<String, Any>>)["Settings"]?.set("Input", latestJar)
-    (config as MutableMap<String, MutableMap<String, Any>>)["Settings"]?.set("Output", outputJar)
+    config["Settings"]?.set("Output", outputJar)
 
     configFile.writeText(JsonOutput.prettyPrint(JsonOutput.toJson(config)))
     println("Updated config.json with latest JAR: ${latestJar}")
@@ -176,4 +168,91 @@ tasks.register("obfuscate") {
 
 tasks.build {
     finalizedBy("obfuscate")
+}
+
+
+val remapHammerheadJar by tasks.register<net.fabricmc.loom.task.RemapJarTask>("remapHammerheadJar") {
+    group = "build"
+    description = "Remap the Hammerhead JAR"
+
+    // Set the input and output for the remap task
+    archiveClassifier.set("")
+
+    // Use the output of buildHammerhead as the input for remapJar
+    input.set(layout.buildDirectory.file("badjars/${project.name}-${project.version}-Hammerhead.jar"))
+    from(layout.buildDirectory.file("badjars/${project.name}-${project.version}-Hammerhead.jar"))
+
+}
+
+tasks.register<Jar>("buildHammerhead") {
+    destinationDirectory.set(layout.buildDirectory.dir("badjars"))
+    archiveClassifier.set("Hammerhead")
+    doFirst {
+        System.setProperty("marketshark.version", "Hammerhead")
+    }
+    // Include all compiled classes and resources in the JAR
+
+    from(sourceSets.main.get().output)
+
+    // Configure the manifest attributes
+    manifest {
+        attributes(
+            "FMLCorePluginContainsFMLMod" to "true",
+            "ForceLoadAsMod" to "true",
+            "TweakClass" to "gg.essential.loader.stage0.EssentialSetupTweaker",
+            "MixinConfigs" to "mixins.$modid.json"
+        )
+    }
+
+    // Ensure dependencies are included
+    dependsOn("shadowJar")
+    from({
+        shadowImpl.map { if (it.isDirectory) it else zipTree(it) }
+    })
+    dependsOn("remapHammerheadJar")
+}
+
+tasks.named("build") {
+    dependsOn("buildHammerhead")
+}
+
+tasks.register<Jar>("buildWobbegong") {
+    archiveClassifier.set("Wobbegong")
+    doFirst {
+        System.setProperty("marketshark.version", "Wobbegong")
+    }
+    finalizedBy("build")
+}
+
+tasks.register<Jar>("buildGreatWhite") {
+    archiveClassifier.set("GreatWhite")
+    doFirst {
+        System.setProperty("marketshark.version", "GreatWhite")
+    }
+    finalizedBy("build")
+}
+
+tasks.register<Jar>("buildMegalodon") {
+    archiveClassifier.set("Megalodon")
+    doFirst {
+        System.setProperty("marketshark.version", "Megalodon")
+    }
+    finalizedBy("build")
+}
+
+// Custom Task to Run All Builds
+tasks.register("buildAll") {
+    dependsOn("buildHammerhead", "buildWobbegong", "buildGreatWhite", "buildMegalodon")
+}
+
+// Example usage in your code:
+tasks.register("printVersion") {
+    doLast {
+        println("MarketShark Version: " + System.getProperty("marketshark.version"))
+    }
+}
+
+// Ensure printVersion runs after buildAll
+tasks.named("buildAll") {
+    finalizedBy("printVersion")
 }
