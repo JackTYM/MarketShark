@@ -88,7 +88,8 @@ public class AutoBuy {
                             RealtimeEventRegistry.clearClazzMap("AutoBuy");
                         }
                     });
-                } else if (buyItem.getItem().equals(Items.gold_nugget) || ChatUtils.stripColor(buyItem.getDisplayName()).equals("Buy Item Right Now")) {
+                } else if (buyItem.getItem().equals(Items.gold_nugget)
+                        || (ChatUtils.stripColor(buyItem.getDisplayName()).equals("Buy Item Right Now") && !buyItem.getItem().equals(Item.getItemFromBlock(Blocks.bed)))) {
                     Main.mc.thePlayer.sendQueue.addToSendQueue(
                             new C0EPacketClickWindow(Main.mc.thePlayer.openContainer.windowId, 31, 2, 3,
                                     buyItem,
