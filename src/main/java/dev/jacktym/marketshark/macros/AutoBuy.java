@@ -281,13 +281,14 @@ public class AutoBuy {
             item.buyTime = System.currentTimeMillis();
             item.buySpeed = (int) (item.buyTime - item.startTime);
 
-            close = true;
+            Main.mc.thePlayer.closeScreen();
             return false;
         } else if (message.startsWith("You purchased") && message.contains(item.strippedDisplayName)) {
             ChatUtils.printMarkedChat("Purchased " + EnumChatFormatting.LIGHT_PURPLE + item.strippedDisplayName + EnumChatFormatting.RESET + " for " + EnumChatFormatting.GOLD + ChatUtils.abbreviateNumber(item.buyPrice) + EnumChatFormatting.RESET + " coins in " + EnumChatFormatting.GREEN + item.buySpeed + "ms" + EnumChatFormatting.RESET + " worth " + EnumChatFormatting.GOLD + ChatUtils.abbreviateNumber(item.coflWorth) + EnumChatFormatting.RESET + " coins for a " + EnumChatFormatting.GOLD + ChatUtils.abbreviateNumber(item.coflWorth - item.buyPrice) + EnumChatFormatting.RESET + " coin profit!");
             AutoClaim.claim(item);
-            close = true;
             item.bought = true;
+            RealtimeEventRegistry.clearClazzMap("AutoBuy");
+            Main.mc.thePlayer.closeScreen();
 
             DiscordIntegration.sendToWebsocket("FlipBought", item.serialize().toString());
             return true;

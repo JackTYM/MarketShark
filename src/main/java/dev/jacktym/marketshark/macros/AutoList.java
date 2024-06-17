@@ -150,9 +150,9 @@ public class AutoList {
 
         float flipProfit = item.sellPrice - item.buyPrice - calculateBINTax(item.buyPrice);
 
-        if (flipProfit < item.buyPrice) {
-            ChatUtils.printMarkedChat("Skipped listing item. Profit lower than buy price!");
-            item.skipReason = "Skipped listing item. Worth lower than buy price!!";
+        if (item.sellPrice < item.buyPrice) {
+            ChatUtils.printMarkedChat("Skipped listing item. Sell price than buy price!");
+            item.skipReason = "Skipped listing item. Sell price lower than buy price!";
 
             RealtimeEventRegistry.clearClazzMap("AutoList");
             finishCurrentListing();
