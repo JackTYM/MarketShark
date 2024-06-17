@@ -32,7 +32,7 @@ public class AutoClaim {
                 return false;
             }
 
-            if (chest.getDisplayName().getUnformattedText().equals("Co-op Auction House")) {
+            if (chest.getDisplayName().getUnformattedText().endsWith("Auction House")) {
                 DelayUtils.delayAction(300, () -> {
                     RealtimeEventRegistry.registerEvent("guiScreenEvent", guiScreenEvent -> claimItem((GuiScreenEvent) guiScreenEvent, item), "AutoClaim");
                     GuiUtil.tryClick(13);

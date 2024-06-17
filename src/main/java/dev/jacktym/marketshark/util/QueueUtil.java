@@ -29,6 +29,8 @@ public class QueueUtil {
             currentAction = r.getClass().getSimpleName().split("\\$\\$")[0];
             r.run();
             System.out.println("1 Started " + currentAction);
+
+            finishFailsafe = DelayUtils.delayAction(Long.parseLong(FlipConfig.autoCloseMenuDelay), () -> finishAction(currentAction));
         }
     }
 

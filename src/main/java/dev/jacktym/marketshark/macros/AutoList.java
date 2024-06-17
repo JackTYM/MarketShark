@@ -148,8 +148,11 @@ public class AutoList {
             }
         }
 
-        if (item.sellPrice < item.buyPrice) {
-            ChatUtils.printMarkedChat("Skipped listing item. Worth lower than buy price!");
+        float flipProfit = item.sellPrice - item.buyPrice - calculateBINTax(item.buyPrice);
+
+        if (flipProfit < item.buyPrice) {
+            ChatUtils.printMarkedChat("Skipped listing item. Profit lower than buy price!");
+            item.skipReason = "Skipped listing item. Worth lower than buy price!!";
 
             RealtimeEventRegistry.clearClazzMap("AutoList");
             finishCurrentListing();
@@ -161,13 +164,36 @@ public class AutoList {
             return;
         }
 
+        if (FlipConfig.enableMaxList && item.sellPrice > Long.parseLong(FlipConfig.maximumAutoList)) {
+            ChatUtils.printMarkedChat("Skipped listing item. Above maximum list!");
+            item.skipReason = "Skipped listing item. Above maximum list!";
+
+            RealtimeEventRegistry.clearClazzMap("AutoList");
+            finishCurrentListing();
+
+            if (FlipConfig.listedWebhooks) {
+                DiscordIntegration.sendToWebsocket("ListingSkipped", item.serialize().toString());
+            }
+            return;
+        }
+
+
+        if (FlipConfig.enableMinProfitPercent && Math.round((flipProfit / item.sellPrice)*100)/100 < Long.parseLong(FlipConfig.minimumProfitPercent)) {
+            ChatUtils.printMarkedChat("Skipped listing item. Below minimum profit percent!");
+            item.skipReason = "Skipped listing item. Below minimum profit percent!";
+            RealtimeEventRegistry.clearClazzMap("AutoList");
+            finishCurrentListing();
+
+            if (FlipConfig.listedWebhooks) {
+                DiscordIntegration.sendToWebsocket("ListingSkipped", item.serialize().toString());
+            }
+            return;
+        }
+
         QueueUtil.addToQueue(() -> {
             currentlyListing = true;
             Main.mc.thePlayer.sendChatMessage("/ah");
             RealtimeEventRegistry.registerEvent("guiScreenEvent", guiScreenEvent -> openManageAuctions((GuiScreenEvent) guiScreenEvent, item), "AutoList");
-
-            
-            
         });
     }
 
@@ -182,7 +208,7 @@ public class AutoList {
                 return false;
             }
 
-            if (chest.getDisplayName().getUnformattedText().equals("Co-op Auction House")) {
+            if (chest.getDisplayName().getUnformattedText().endsWith("Auction House")) {
                 DelayUtils.delayAction(800, () -> {
                     RealtimeEventRegistry.registerEvent("guiScreenEvent", guiScreenEvent -> openCreateAuction((GuiScreenEvent) guiScreenEvent, item), "AutoList");
                     GuiUtil.tryClick(15);
@@ -475,5 +501,27 @@ public class AutoList {
             }
         }
         return false;
+    }
+
+    public static float calculateBINTax(float itemPrice) {
+        float initialFee;
+        float collectionFee = 0;
+
+        // Determine initial fee based on item price
+        if (itemPrice > 100000000) {
+            initialFee = itemPrice * 0.025f;
+        } else if (itemPrice >= 10000000) {
+            initialFee = itemPrice * 0.02f;
+        } else {
+            initialFee = itemPrice * 0.01f;
+        }
+
+        // Determine collection fee if item price is above 1 million
+        if (itemPrice > 1000000) {
+            collectionFee = itemPrice * 0.01f;
+        }
+
+        // Calculate total tax
+        return initialFee + collectionFee;
     }
 }

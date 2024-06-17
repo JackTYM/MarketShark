@@ -36,6 +36,7 @@ public class FlipItem {
     public String buyer;
     public boolean sold;
     public boolean bought;
+    public String skipReason;
 
     public FlipItem() {
         flipItems.add(this);
@@ -83,6 +84,7 @@ public class FlipItem {
         jsonObject.addProperty("buyer", this.buyer);
         jsonObject.addProperty("sold", this.sold);
         jsonObject.addProperty("bought", this.bought);
+        jsonObject.addProperty("skipReason", this.skipReason);
         jsonObject.addProperty("sendBought", FlipConfig.boughtWebhooks);
         jsonObject.addProperty("sendSold", FlipConfig.soldWebhooks);
         return jsonObject;

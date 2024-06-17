@@ -105,7 +105,7 @@ public class DiscordIntegration {
                 return false;
             }
 
-            if (chest.getDisplayName().getUnformattedText().equals("Co-op Auction House")) {
+            if (chest.getDisplayName().getUnformattedText().endsWith("Auction House")) {
                 String auctionAmount = ChatUtils.stripColor(chest.getStackInSlot(15).getTagCompound().getCompoundTag("display").getTagList("Lore", 8).getStringTagAt(0));
 
                 if (auctionAmount.contains("You own ")) {
@@ -130,7 +130,7 @@ public class DiscordIntegration {
                 return false;
             }
 
-            if (chest.getDisplayName().getUnformattedText().equals("Co-op Auction House")) {
+            if (chest.getDisplayName().getUnformattedText().endsWith("Auction House")) {
                 DelayUtils.delayAction(800, () -> {
                     RealtimeEventRegistry.registerEvent("guiScreenEvent", guiScreenEvent -> sendAuctions((GuiScreenEvent) guiScreenEvent), "AutoList");
                     GuiUtil.tryClick(15);
@@ -177,7 +177,6 @@ public class DiscordIntegration {
 
                 JsonObject response = new JsonObject();
                 response.addProperty("items", gson.toJson(items));
-                response.addProperty("username", Main.mc.getSession().getUsername());
 
                 DiscordIntegration.sendToWebsocket("AuctionHouse", response.toString());
                 RealtimeEventRegistry.clearClazzMap("DiscordIntegration");
@@ -188,7 +187,6 @@ public class DiscordIntegration {
 
                 JsonObject response = new JsonObject();
                 response.addProperty("items", "None");
-                response.addProperty("username", Main.mc.getSession().getUsername());
 
                 DiscordIntegration.sendToWebsocket("AuctionHouse", response.toString());
                 RealtimeEventRegistry.clearClazzMap("DiscordIntegration");
@@ -233,7 +231,7 @@ public class DiscordIntegration {
         if (strippedData.contains("/cofl captcha ")) {
             JsonObject response = new JsonObject();
             response.addProperty("message", strippedData);
-            response.addProperty("username", Main.mc.getSession().getUsername());
+            
 
             DiscordIntegration.sendToWebsocket("Captcha", response.toString());
         }
@@ -264,22 +262,22 @@ public class DiscordIntegration {
             JsonObject response = new JsonObject();
             response.addProperty("captcha", captchaString.toString());
             response.addProperty("onClicks", captchaClicks.toString());
-            response.addProperty("username", Main.mc.getSession().getUsername());
+            
 
             DiscordIntegration.sendToWebsocket("Captcha", response.toString());
         } else if (strippedData.contains("Thanks for confirming that you are a real user")) {
             JsonObject response = new JsonObject();
-            response.addProperty("username", Main.mc.getSession().getUsername());
+            
 
             DiscordIntegration.sendToWebsocket("CaptchaSuccess", response.toString());
         } else if (strippedData.contains("You solved the captcha, but you failed too many previously")) {
             JsonObject response = new JsonObject();
-            response.addProperty("username", Main.mc.getSession().getUsername());
+            
 
             DiscordIntegration.sendToWebsocket("CaptchaCorrect", response.toString());
         } else if (strippedData.contains("Your answer was not correct")) {
             JsonObject response = new JsonObject();
-            response.addProperty("username", Main.mc.getSession().getUsername());
+            
 
             DiscordIntegration.sendToWebsocket("CaptchaIncorrect", response.toString());
         }
@@ -298,7 +296,6 @@ public class DiscordIntegration {
             stats.addProperty("status", FlipConfig.autoBuy);
             stats.addProperty("hypixel_ping", hypixelPing);
             stats.addProperty("cofl_ping", coflPing);
-            stats.addProperty("username", Main.mc.getSession().getUsername());
             DiscordIntegration.sendToWebsocket("Stats", stats.toString());
 
             if (Main.mc != null && Main.mc.thePlayer != null) {
@@ -332,6 +329,7 @@ public class DiscordIntegration {
         jsonObject.addProperty("type", type);
         jsonObject.addProperty("message", message);
         jsonObject.addProperty("key", FlipConfig.activationKey);
+        jsonObject.addProperty("username", Main.mc.getSession().getUsername());
         if (sessionId != null) {
             jsonObject.addProperty("session_id", sessionId);
         }
@@ -480,7 +478,6 @@ public class DiscordIntegration {
                 responseSettings.addProperty("autoSellTime", FlipConfig.autoSellTime);
                 responseSettings.addProperty("autoSellPrice", FlipConfig.autoSellPrice);
                 responseSettings.addProperty("autoClaimSold", FlipConfig.autoClaimSold);
-                responseSettings.addProperty("username", Main.mc.getSession().getUsername());
 
                 DiscordIntegration.sendToWebsocket("Settings", responseSettings.toString());
                 break;
@@ -510,7 +507,7 @@ public class DiscordIntegration {
                         JsonObject response = new JsonObject();
                         response.addProperty("chat", jsonObject.get("message").getAsString());
                         response.addProperty("messages", new Gson().toJson(messages));
-                        response.addProperty("username", Main.mc.getSession().getUsername());
+                        
 
                         DiscordIntegration.sendToWebsocket("ChatResponses", response.toString());
 
@@ -531,7 +528,7 @@ public class DiscordIntegration {
                     }
                     JsonObject response = new JsonObject();
                     response.addProperty("messages", new Gson().toJson(messages));
-                    response.addProperty("username", Main.mc.getSession().getUsername());
+                    
 
                     DiscordIntegration.sendToWebsocket("ChatMessages", response.toString());
                 }
@@ -594,7 +591,7 @@ public class DiscordIntegration {
 
                     JsonObject response = new JsonObject();
                     response.addProperty("items", gson.toJson(items));
-                    response.addProperty("username", Main.mc.getSession().getUsername());
+                    
 
                     DiscordIntegration.sendToWebsocket("Inventory", response.toString());
                 }

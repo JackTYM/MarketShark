@@ -134,6 +134,34 @@ public class FlipConfig extends Vigilant {
     @Property(
             type = PropertyType.CHECKBOX,
             category = "Failsafes",
+            name = "Enable Maximum Item List Cost",
+            description = "Enables cancelling listing an item if over a specific price"
+    )
+    public static boolean enableMaxList = false;
+    @Property(
+            type = PropertyType.TEXT,
+            category = "Failsafes",
+            name = "Maximum Item List Cost",
+            description = "The maximum amount to auto list an item for (Default 1000000000)"
+    )
+    public static String maximumAutoList = "1000000000";
+    @Property(
+            type = PropertyType.CHECKBOX,
+            category = "Failsafes",
+            name = "Enable Minimum Profit Percent",
+            description = "Enables skipping listing an item if under x% profit"
+    )
+    public static boolean enableMinProfitPercent = false;
+    @Property(
+            type = PropertyType.TEXT,
+            category = "Failsafes",
+            name = "Minimum Profit Percent",
+            description = "The minimum profit percent to auto list an item for (Default 3)"
+    )
+    public static String minimumProfitPercent = "3";
+    @Property(
+            type = PropertyType.CHECKBOX,
+            category = "Failsafes",
             name = "Anti Limbo",
             description = "Brings you back to your skyblock island while in limbo (if macro enabled)"
     )

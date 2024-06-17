@@ -31,7 +31,6 @@ public class Failsafes {
 
                 JsonObject response = new JsonObject();
                 response.addProperty("message", "Stuck GUI Failsafe Triggered!");
-                response.addProperty("username", Main.mc.getSession().getUsername());
 
                 DiscordIntegration.sendToWebsocket("FailsafeTriggered", response.toString());
             }
@@ -46,7 +45,6 @@ public class Failsafes {
 
             JsonObject response = new JsonObject();
             response.addProperty("message", "Stuck Event Failsafe Triggered!");
-            response.addProperty("username", Main.mc.getSession().getUsername());
 
             DiscordIntegration.sendToWebsocket("FailsafeTriggered", response.toString());
         }
@@ -92,6 +90,8 @@ public class Failsafes {
                         if (lastServerData != null) {
                             FMLClientHandler.instance().connectToServer(new GuiMainMenu(), lastServerData);
                         }
+                    } else {
+                        DiscordIntegration.sendToWebsocket("Banned", reason);
                     }
                 } else if (packet instanceof S00PacketDisconnect) {
                     S00PacketDisconnect disconnect = (S00PacketDisconnect) packet;
@@ -103,6 +103,8 @@ public class Failsafes {
                         if (lastServerData != null) {
                             FMLClientHandler.instance().connectToServer(new GuiMainMenu(), lastServerData);
                         }
+                    } else {
+                        DiscordIntegration.sendToWebsocket("Banned", reason);
                     }
                 }
             }

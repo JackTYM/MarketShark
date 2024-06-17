@@ -6,14 +6,8 @@ import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
 public class DelayUtils {
-    private static final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(10);
+    private static final ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
     public static ScheduledFuture<?> delayAction(long delay, Runnable action) {
-        return scheduler.schedule(() -> {
-            try {
-                action.run();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }, delay, TimeUnit.MILLISECONDS);
+        return scheduler.schedule(action, delay, TimeUnit.MILLISECONDS);
     }
 }
