@@ -56,7 +56,11 @@ public class Failsafes {
         if (FlipConfig.autoOpen) {
             String message = ChatUtils.stripColor(event.message.getUnformattedText());
 
-            if (message.equals("You are AFK. Move around to return from AFK.") && FlipConfig.antiLimbo) {
+            if ((
+                    message.equals("You were spawned in Limbo.")
+                            || message.equals("You are AFK. Move around to return from AFK.")
+                    || message.startsWith("A kick occurred in your")
+            ) && FlipConfig.antiLimbo) {
                 ChatUtils.printMarkedChat("In Limbo. Rejoining Skyblock!");
                 Main.mc.thePlayer.sendChatMessage("/l");
 
