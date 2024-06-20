@@ -646,13 +646,12 @@ public class DiscordIntegration {
                 });
                 break;
             }
-            //#endif >=GreatWhite
 
-            //#if >=GreatWhite
             case "Captcha": {
                 ClientCommandHandler.instance.executeCommand(Main.mc.thePlayer, "/cofl captcha vertical");
                 break;
             }
+            //#endif >=GreatWhite
 
             //#if >=Megalodon
             case "AutoCaptcha": {
@@ -661,6 +660,7 @@ public class DiscordIntegration {
             }
             //#endif >=Megalodon
 
+            //#if >=GreatWhite
             case "CaptchaSolve": {
                 ClientCommandHandler.instance.executeCommand(Main.mc.thePlayer, jsonObject.get("message").getAsString());
                 break;

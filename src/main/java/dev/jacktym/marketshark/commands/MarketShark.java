@@ -47,7 +47,7 @@ public class MarketShark extends CommandBase {
             if ("listinv".startsWith(partialCommand)) {
                 completions.add("listinv");
             }
-            //#endif
+            //#endif >=GreatWhite
             if ("reset".startsWith(partialCommand)) {
                 completions.add("reset");
             }
