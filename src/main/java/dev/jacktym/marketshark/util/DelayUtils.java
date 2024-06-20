@@ -4,15 +4,16 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 public class DelayUtils {
-    public static Timer delayAction(long delay, Runnable action) {
-        Timer timer = new Timer();
-        timer.schedule(new TimerTask() {
+    private static final Timer timer = new Timer();
+    public static TimerTask delayAction(long delay, Runnable action) {
+        TimerTask task = new TimerTask() {
             @Override
             public void run() {
                 action.run();
             }
-        }, delay);
+        };
+        timer.schedule(task, delay);
 
-        return timer;
+        return task;
     }
 }

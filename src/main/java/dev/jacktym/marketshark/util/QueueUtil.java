@@ -4,12 +4,12 @@ import dev.jacktym.marketshark.config.FlipConfig;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Timer;
+import java.util.TimerTask;
 
 public class QueueUtil {
     public static List<Runnable> queue = new ArrayList<>();
     public static String currentAction = "";
-    public static Timer finishFailsafe;
+    public static TimerTask finishFailsafe;
 
     public static void finishAction(String action) {
         if (currentAction.equals(action)) {

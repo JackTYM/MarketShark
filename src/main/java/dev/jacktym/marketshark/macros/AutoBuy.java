@@ -21,7 +21,7 @@ import net.minecraftforge.client.event.ClientChatReceivedEvent;
 import net.minecraftforge.client.event.GuiScreenEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
 
-import java.util.Timer;
+import java.util.TimerTask;
 
 public class AutoBuy {
     public static FlipItem item = null;
@@ -42,7 +42,7 @@ public class AutoBuy {
             RealtimeEventRegistry.registerEvent("clientTickEvent", clientTickEvent -> Failsafes.stuckEventFailsafe((TickEvent.ClientTickEvent) clientTickEvent, System.currentTimeMillis(), "AutoBuy"), "AutoBuy");
         });
     }
-    private static Timer closeGuiTimer;
+    private static TimerTask closeGuiTimer;
 
     public static void confirmClosed() {
         if (closeGuiTimer != null) {

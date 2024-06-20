@@ -669,7 +669,7 @@ public class DiscordIntegration {
         }
     }
 
-    static Timer reconnectTimer;
+    static TimerTask reconnectTimer;
     public static void onClose(int code, String reason, boolean remote) {
         connected = false;
 
