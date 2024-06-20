@@ -93,8 +93,10 @@ public class RealtimeEventRegistry {
     }
 
     public static void registerEvent(String event, Function<Event, Boolean> consumer, String clazz) {
-        eventMap.put(event, consumer);
-        classMap.put(clazz, new AbstractMap.SimpleEntry<>(event, consumer));
+        if (!eventMap.containsValue(consumer)) {
+            eventMap.put(event, consumer);
+            classMap.put(clazz, new AbstractMap.SimpleEntry<>(event, consumer));
+        }
     }
 
     public static void registerPacket(Function<Packet, Boolean> consumer, String clazz) {

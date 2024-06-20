@@ -7,6 +7,7 @@ import dev.jacktym.marketshark.Main;
 import dev.jacktym.marketshark.config.FlipConfig;
 import dev.jacktym.marketshark.macros.AutoClaimSold;
 import dev.jacktym.marketshark.mixins.GuiNewChatAccessor;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.ChatLine;
 import net.minecraft.client.gui.inventory.GuiChest;
 import net.minecraft.client.network.NetworkPlayerInfo;
@@ -27,9 +28,7 @@ import org.java_websocket.client.WebSocketClient;
 import org.java_websocket.handshake.ServerHandshake;
 
 import java.net.URI;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class DiscordIntegration {
@@ -94,31 +93,6 @@ public class DiscordIntegration {
     }
 
     //#if >=GreatWhite
-    public static boolean getOwnedAuctions(GuiScreenEvent event) {
-        if (!(event instanceof GuiScreenEvent.DrawScreenEvent.Post)) {
-            // GUI not initialized yet
-            return false;
-        }
-        if (event.gui instanceof GuiChest) {
-            IInventory chest = GuiUtil.getInventory(event.gui);
-            if (chest.getStackInSlot(15) == null) {
-                return false;
-            }
-
-            if (chest.getDisplayName().getUnformattedText().endsWith("Auction House")) {
-                String auctionAmount = ChatUtils.stripColor(chest.getStackInSlot(15).getTagCompound().getCompoundTag("display").getTagList("Lore", 8).getStringTagAt(0));
-
-                if (auctionAmount.contains("You own ")) {
-                    unsold = auctionAmount.split("You own ")[1].split(" auction")[0];
-
-                    Main.mc.thePlayer.closeScreen();
-                    return true;
-                }
-            }
-        }
-        return false;
-    }
-
     public static boolean openManageAuctions(GuiScreenEvent event) {
         if (!(event instanceof GuiScreenEvent.DrawScreenEvent.Post)) {
             // GUI not initialized yet
@@ -165,6 +139,7 @@ public class DiscordIntegration {
                     ItemStack stack = chest.getStackInSlot(slotId);
                     if (stack != null) {
                         if (stack.getItem() == Item.getItemFromBlock(Blocks.stained_glass_pane)) {
+                            System.out.println(slotId);
                             break;
                         }
 
@@ -180,7 +155,7 @@ public class DiscordIntegration {
 
                 DiscordIntegration.sendToWebsocket("AuctionHouse", response.toString());
                 RealtimeEventRegistry.clearClazzMap("DiscordIntegration");
-                
+
                 return true;
             } else if (ChatUtils.stripColor(chest.getDisplayName().getUnformattedText()).contains("Create")) {
                 Main.mc.thePlayer.closeScreen();
@@ -190,7 +165,7 @@ public class DiscordIntegration {
 
                 DiscordIntegration.sendToWebsocket("AuctionHouse", response.toString());
                 RealtimeEventRegistry.clearClazzMap("DiscordIntegration");
-                
+
                 return true;
             }
         }
@@ -231,7 +206,7 @@ public class DiscordIntegration {
         if (strippedData.contains("/cofl captcha ")) {
             JsonObject response = new JsonObject();
             response.addProperty("message", strippedData);
-            
+
 
             DiscordIntegration.sendToWebsocket("Captcha", response.toString());
         }
@@ -243,41 +218,82 @@ public class DiscordIntegration {
         } else if (strippedData.contains("/cofl captcha ")) {
             JsonArray captcha = new JsonParser().parse(strippedData).getAsJsonArray();
 
-            List<String> captchaClicks = new ArrayList<>();
+            List<String> clickRows = new ArrayList<>();
+            List<String> clickColumns = new ArrayList<>();
+
             int clickIndex = 0;
             StringBuilder captchaString = new StringBuilder();
+
+            List<String> tempColumns = new ArrayList<>();
             for (JsonElement element : captcha) {
-                captchaString.append(element.getAsJsonObject().get("text").getAsString().replace("\\n", "\n").replace("\uD83C\uDDE7", "").replace("\uD83C\uDDFE", ""));
+
+                String line = element.getAsJsonObject().get("text").getAsString().replace("\\n", "\n").replace("\uD83C\uDDE7", "").replace("\uD83C\uDDFE", "");
+                captchaString.append(line);
 
                 if (!element.getAsJsonObject().get("onClick").isJsonNull()) {
-                    if (captchaClicks.size() < clickIndex) {
-                        captchaClicks.add(element.getAsJsonObject().get("onClick").getAsString());
+                    if (clickRows.size() < clickIndex) {
+                        clickRows.add(element.getAsJsonObject().get("onClick").getAsString());
+                    }
+
+                    for (String character : line.split("")) {
+                        int length = 0;
+
+                        if (character.matches("\uFFFD")) {
+                            length = 8;
+                        } else if (character.equals("⋅")) {
+                            length = 4;
+                        } else if (character.equals(" ")) {
+                            length = 8;
+                        }
+
+                        for (int i = 0; i < length; i++) {
+                            if (!element.getAsJsonObject().get("onClick").getAsString().contains("config")) {
+                                tempColumns.add(element.getAsJsonObject().get("onClick").getAsString());
+                            }
+                        }
                     }
                 }
                 if (element.getAsJsonObject().get("text").getAsString().contains("\\n")) {
                     clickIndex++;
+
+                    if (tempColumns.size() > clickColumns.size()) {
+                        clickColumns.clear();
+                        clickColumns.addAll(tempColumns);
+                    }
+                    tempColumns = new ArrayList<>();
+                }
+            }
+
+            System.out.println("Column Clicks Length " + clickColumns.size());
+
+            HashMap<String, Integer> characters = new HashMap<>();
+
+            for (char c : captchaString.toString().toCharArray()) {
+                if (!characters.containsKey(String.valueOf(c))) {
+                    characters.put(String.valueOf(c), Minecraft.getMinecraft().fontRendererObj.getCharWidth(c));
                 }
             }
 
             JsonObject response = new JsonObject();
             response.addProperty("captcha", captchaString.toString());
-            response.addProperty("onClicks", captchaClicks.toString());
-            
+            response.addProperty("onClicks", clickRows.toString());
+            response.addProperty("clickColumns", clickColumns.toString());
+            response.addProperty("lengths", characters.toString());
 
             DiscordIntegration.sendToWebsocket("Captcha", response.toString());
         } else if (strippedData.contains("Thanks for confirming that you are a real user")) {
             JsonObject response = new JsonObject();
-            
+
 
             DiscordIntegration.sendToWebsocket("CaptchaSuccess", response.toString());
         } else if (strippedData.contains("You solved the captcha, but you failed too many previously")) {
             JsonObject response = new JsonObject();
-            
+
 
             DiscordIntegration.sendToWebsocket("CaptchaCorrect", response.toString());
         } else if (strippedData.contains("Your answer was not correct")) {
             JsonObject response = new JsonObject();
-            
+
 
             DiscordIntegration.sendToWebsocket("CaptchaIncorrect", response.toString());
         }
@@ -289,7 +305,6 @@ public class DiscordIntegration {
         if (!statsSent) {
             statsSent = true;
             JsonObject stats = new JsonObject();
-            stats.addProperty("unsold", unsold);
             stats.addProperty("purse", purse);
             stats.addProperty("island", island);
             stats.addProperty("visitors", visitors);
@@ -302,7 +317,7 @@ public class DiscordIntegration {
                 Main.mc.thePlayer.closeScreen();
             }
             RealtimeEventRegistry.clearClazzMap("DiscordIntegration");
-            
+
         }
     }
 
@@ -324,6 +339,7 @@ public class DiscordIntegration {
     }
     //#endif >=GreatWhite
 
+    private static List<Map.Entry<String, String>> websocketQueue = new ArrayList<>();
     public static void sendToWebsocket(String type, String message) {
         JsonObject jsonObject = new JsonObject();
         jsonObject.addProperty("type", type);
@@ -335,10 +351,17 @@ public class DiscordIntegration {
         }
         System.out.println("Sending " + jsonObject);
         if (websocketClient.isOpen()) {
-            websocketClient.send(jsonObject.toString());
+            try {
+                websocketClient.send(jsonObject.toString());
+            } catch (Exception e) {
+                e.printStackTrace();
+                System.out.println("AKLSJAIOSDJAIOSJDASIOD");
+            }
         } else {
-            //connectToWebsocket();
-            DelayUtils.delayAction(1000, () -> sendToWebsocket(type, message));
+            if (FlipConfig.debug) {
+                System.out.println("Client closed. Added to queue!");
+            }
+            websocketQueue.add(new AbstractMap.SimpleEntry<>(type, message));
         }
     }
 
@@ -351,12 +374,31 @@ public class DiscordIntegration {
             sendToWebsocket("Reconnecting", "");
         }
         connected = true;
+
+        List<Map.Entry<String, String>> tempQueue = new ArrayList<>(websocketQueue);
+        for (Map.Entry<String, String> message : tempQueue) {
+            System.out.println("Running " + message.getKey() + " From Queue!");
+            websocketQueue.remove(message);
+            sendToWebsocket(message.getKey(), message.getValue());
+        }
     }
 
 
     public static void onMessage(String message) {
         System.out.println("WebSocket Message: " + message);
         JsonObject jsonObject = new JsonParser().parse(message).getAsJsonObject();
+
+        if (jsonObject.has("username")) {
+            String username = jsonObject.get("username").getAsString();
+            if (!username.isEmpty()) {
+                if (!Main.mc.getSession().getUsername().equals(username)) {
+                    if (FlipConfig.debug) {
+                        System.out.println("WebSocket Message ignored! For different username");
+                    }
+                    return;
+                }
+            }
+        }
 
         switch (jsonObject.get("type").getAsString()) {
             case "Activated": {
@@ -380,7 +422,6 @@ public class DiscordIntegration {
             case "Stats": {
                 ChatUtils.printMarkedChat(jsonObject.get("message").getAsString());
 
-                unsold = "0";
                 purse = "Unknown";
                 island = "Unknown";
                 visitors = "Unknown";
@@ -390,9 +431,6 @@ public class DiscordIntegration {
 
                 if (Main.mc != null && Main.mc.thePlayer != null) {
                     QueueUtil.addToQueue(() -> {
-                        Main.mc.thePlayer.sendChatMessage("/ah");
-                        RealtimeEventRegistry.registerEvent("guiScreenEvent", guiScreenEvent -> getOwnedAuctions((GuiScreenEvent) guiScreenEvent), "DiscordIntegration");
-
                         Main.mc.thePlayer.sendQueue.addToSendQueue(new C16PacketClientStatus(C16PacketClientStatus.EnumState.REQUEST_STATS));
                         long sendPing = System.currentTimeMillis();
                         RealtimeEventRegistry.registerPacket(packet -> getPingPacket(packet, sendPing), "DiscordIntegration");
@@ -507,7 +545,7 @@ public class DiscordIntegration {
                         JsonObject response = new JsonObject();
                         response.addProperty("chat", jsonObject.get("message").getAsString());
                         response.addProperty("messages", new Gson().toJson(messages));
-                        
+
 
                         DiscordIntegration.sendToWebsocket("ChatResponses", response.toString());
 
@@ -528,7 +566,7 @@ public class DiscordIntegration {
                     }
                     JsonObject response = new JsonObject();
                     response.addProperty("messages", new Gson().toJson(messages));
-                    
+
 
                     DiscordIntegration.sendToWebsocket("ChatMessages", response.toString());
                 }
@@ -591,7 +629,7 @@ public class DiscordIntegration {
 
                     JsonObject response = new JsonObject();
                     response.addProperty("items", gson.toJson(items));
-                    
+
 
                     DiscordIntegration.sendToWebsocket("Inventory", response.toString());
                 }
@@ -605,8 +643,6 @@ public class DiscordIntegration {
                 QueueUtil.addToQueue(() -> {
                     Main.mc.thePlayer.sendChatMessage("/ah");
                     RealtimeEventRegistry.registerEvent("guiScreenEvent", guiScreenEvent -> openManageAuctions((GuiScreenEvent) guiScreenEvent), "DiscordIntegration");
-
-                    
                 });
                 break;
             }
@@ -618,6 +654,13 @@ public class DiscordIntegration {
                 break;
             }
 
+            //#if >=Megalodon
+            case "AutoCaptcha": {
+                ClientCommandHandler.instance.executeCommand(Main.mc.thePlayer, "/cofl captcha optifine");
+                break;
+            }
+            //#endif >=Megalodon
+
             case "CaptchaSolve": {
                 ClientCommandHandler.instance.executeCommand(Main.mc.thePlayer, jsonObject.get("message").getAsString());
                 break;
@@ -626,7 +669,7 @@ public class DiscordIntegration {
         }
     }
 
-
+    static Timer reconnectTimer;
     public static void onClose(int code, String reason, boolean remote) {
         connected = false;
 
@@ -636,16 +679,11 @@ public class DiscordIntegration {
         // 1006 = Cloudflare Restart
         if (remote && code != 1006) {
             ChatUtils.printMarkedChat("Disconnected from Discord Integration! Attempting to Reconnect in 5 seconds!");
-            DelayUtils.delayAction(5000, () -> {
-                if (!connected) {
-                    connectToWebsocket();
-                }
-            });
+            reconnect();
         } else {
-            connectToWebsocket();
+            reconnect();
         }
     }
-
 
     public static void onError(Exception ex) {
         connected = false;
@@ -655,10 +693,16 @@ public class DiscordIntegration {
         System.out.println("Disconnected from Discord Integration!");
         System.out.println("Websocket closed with reason: " + ex);
         ChatUtils.printMarkedChat("Disconnected from Discord Integration! Attempting to Reconnect in 5 seconds!");
-        DelayUtils.delayAction(5000, () -> {
-            if (!connected) {
+
+        reconnect();
+    }
+
+    public static void reconnect() {
+        if (reconnectTimer == null) {
+            reconnectTimer = DelayUtils.delayAction(5000, () -> {
                 connectToWebsocket();
-            }
-        });
+                reconnectTimer = null;
+            });
+        }
     }
 }

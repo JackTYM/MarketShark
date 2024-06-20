@@ -1,13 +1,18 @@
 package dev.jacktym.marketshark.util;
 
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ScheduledFuture;
-import java.util.concurrent.TimeUnit;
+import java.util.Timer;
+import java.util.TimerTask;
 
 public class DelayUtils {
-    private static final ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
-    public static ScheduledFuture<?> delayAction(long delay, Runnable action) {
-        return scheduler.schedule(action, delay, TimeUnit.MILLISECONDS);
+    public static Timer delayAction(long delay, Runnable action) {
+        Timer timer = new Timer();
+        timer.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                action.run();
+            }
+        }, delay);
+
+        return timer;
     }
 }

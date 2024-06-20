@@ -21,6 +21,8 @@ import net.minecraftforge.client.event.ClientChatReceivedEvent;
 import net.minecraftforge.client.event.GuiScreenEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
 
+import java.util.Timer;
+
 public class AutoBuy {
     public static FlipItem item = null;
     private static int buyWindowId = 0;
@@ -32,7 +34,7 @@ public class AutoBuy {
             return;
         }
 
-        QueueUtil.addToQueue(() -> {
+        QueueUtil.addToStartOfQueue(() -> {
             AutoBuy.item = item;
             RealtimeEventRegistry.registerPacket(AutoBuy::receivePacket, "AutoBuy");
             RealtimeEventRegistry.registerEvent("guiScreenEvent", guiScreenEvent -> closeBuy((GuiScreenEvent) guiScreenEvent), "AutoBuy");
@@ -40,17 +42,23 @@ public class AutoBuy {
             RealtimeEventRegistry.registerEvent("clientTickEvent", clientTickEvent -> Failsafes.stuckEventFailsafe((TickEvent.ClientTickEvent) clientTickEvent, System.currentTimeMillis(), "AutoBuy"), "AutoBuy");
         });
     }
+    private static Timer closeGuiTimer;
 
+    public static void confirmClosed() {
+        if (closeGuiTimer != null) {
+            closeGuiTimer.cancel();
+        }
+        closeGuiTimer = DelayUtils.delayAction(500, () -> {
+            if (Main.mc.currentScreen == null) {
+                RealtimeEventRegistry.clearClazzMap("AutoBuy");
+                close = false;
+            }
+        });
+    }
     // Packet-based approach occasionally fails
     public static boolean closeBuy(GuiScreenEvent event) {
         if (close) {
             Main.mc.thePlayer.closeScreen();
-            DelayUtils.delayAction(500, () -> {
-                if (Main.mc.currentScreen == null) {
-                    RealtimeEventRegistry.clearClazzMap("AutoBuy");
-                    close = false;
-                }
-            });
         }
         if (!(event instanceof GuiScreenEvent.DrawScreenEvent.Post)) {
             // GUI not initialized yet
@@ -70,24 +78,14 @@ public class AutoBuy {
                     }
                     FlipItem.flipItems.remove(AutoBuy.item);
                     FlipItem.flipMap.remove(AutoBuy.item.uuid);
-                    Main.mc.thePlayer.closeScreen();
-                    DelayUtils.delayAction(500, () -> {
-                        if (Main.mc.currentScreen == null) {
-                            RealtimeEventRegistry.clearClazzMap("AutoBuy");
-                        }
-                    });
+                    confirmClosed();
                 } else if (buyItem.getItem().equals(Items.potato) || ChatUtils.stripColor(buyItem.getDisplayName()).equals("Collect Auction")) {
                     if (FlipConfig.debug) {
                         ChatUtils.printMarkedChat("Lost Flip! Leaving Menu");
                     }
                     FlipItem.flipItems.remove(AutoBuy.item);
                     FlipItem.flipMap.remove(AutoBuy.item.uuid);
-                    Main.mc.thePlayer.closeScreen();
-                    DelayUtils.delayAction(500, () -> {
-                        if (Main.mc.currentScreen == null) {
-                            RealtimeEventRegistry.clearClazzMap("AutoBuy");
-                        }
-                    });
+                    confirmClosed();
                 } else if (buyItem.getItem().equals(Items.gold_nugget)
                         || (ChatUtils.stripColor(buyItem.getDisplayName()).equals("Buy Item Right Now") && !buyItem.getItem().equals(Item.getItemFromBlock(Blocks.bed)))) {
                     Main.mc.thePlayer.sendQueue.addToSendQueue(
@@ -101,24 +99,14 @@ public class AutoBuy {
                     }
                     FlipItem.flipItems.remove(AutoBuy.item);
                     FlipItem.flipMap.remove(AutoBuy.item.uuid);
-                    Main.mc.thePlayer.closeScreen();
-                    DelayUtils.delayAction(500, () -> {
-                        if (Main.mc.currentScreen == null) {
-                            RealtimeEventRegistry.clearClazzMap("AutoBuy");
-                        }
-                    });
+                    confirmClosed();
                 } else if (!ChatUtils.stripColor(buyItem.getDisplayName()).contains("Loading")) {
                     if (FlipConfig.debug) {
                         ChatUtils.printMarkedChat("Unknown Buy Item! May be users own auction! Leaving Menu | " + buyItem.getDisplayName());
                     }
                     FlipItem.flipItems.remove(AutoBuy.item);
                     FlipItem.flipMap.remove(AutoBuy.item.uuid);
-                    Main.mc.thePlayer.closeScreen();
-                    DelayUtils.delayAction(500, () -> {
-                        if (Main.mc.currentScreen == null) {
-                            RealtimeEventRegistry.clearClazzMap("AutoBuy");
-                        }
-                    });
+                    confirmClosed();
                 }
             } else if (chest.getDisplayName().getUnformattedText().equals("Auction View")) {
                 if (FlipConfig.debug) {
@@ -126,12 +114,7 @@ public class AutoBuy {
                 }
                 FlipItem.flipItems.remove(AutoBuy.item);
                 FlipItem.flipMap.remove(AutoBuy.item.uuid);
-                Main.mc.thePlayer.closeScreen();
-                DelayUtils.delayAction(500, () -> {
-                    if (Main.mc.currentScreen == null) {
-                        RealtimeEventRegistry.clearClazzMap("AutoBuy");
-                    }
-                });
+                confirmClosed();
             } else if (chest.getDisplayName().getUnformattedText().equals("Confirm Purchase")) {
                 ItemStack confirmItem = chest.getStackInSlot(11);
                 if (confirmItem == null) {
@@ -147,7 +130,7 @@ public class AutoBuy {
                     AutoBuy.item.buyPrice = Long.parseLong(ChatUtils.stripColor(confirmItem.getTagCompound().getCompoundTag("display").getTagList("Lore", 8).getStringTagAt(1).split("Cost: ")[1].split(" ")[0].replace(",", "")));
                     long expiryTime = System.currentTimeMillis() + 10000;
                     RealtimeEventRegistry.registerEvent("clientChatReceivedEvent", clientChatReceivedEvent -> AutoBuy.waitForBuyMessage((ClientChatReceivedEvent) clientChatReceivedEvent, expiryTime, AutoBuy.item), "AutoBuy");
-                    return true;
+                    return false;
                 }
             }
         }
