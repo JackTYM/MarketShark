@@ -187,7 +187,11 @@ public class DiscordIntegration {
         message = ChatUtils.stripColor(message);
         if (message.contains("Your Ping")) {
             coflPing = message.split("is: ")[1];
+            if (coflPing.contains("\\n")) {
+                coflPing = coflPing.split("\\n")[0];
+            }
             coflPing = coflPing.split("\\.")[0] + "." + coflPing.split("\\.")[1].charAt(0) + "ms";
+            coflPing = coflPing.replace("msms", "ms");
             return true;
         }
         return false;
