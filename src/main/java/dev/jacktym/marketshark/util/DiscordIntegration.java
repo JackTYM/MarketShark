@@ -344,6 +344,7 @@ public class DiscordIntegration {
     //#endif >=GreatWhite
 
     private static List<Map.Entry<String, String>> websocketQueue = new ArrayList<>();
+
     public static void sendToWebsocket(String type, String message) {
         JsonObject jsonObject = new JsonObject();
         jsonObject.addProperty("type", type);
@@ -434,46 +435,44 @@ public class DiscordIntegration {
                 statsSent = false;
 
                 if (Main.mc != null && Main.mc.thePlayer != null) {
-                    QueueUtil.addToQueue(() -> {
-                        Main.mc.thePlayer.sendQueue.addToSendQueue(new C16PacketClientStatus(C16PacketClientStatus.EnumState.REQUEST_STATS));
-                        long sendPing = System.currentTimeMillis();
-                        RealtimeEventRegistry.registerPacket(packet -> getPingPacket(packet, sendPing), "DiscordIntegration");
+                    Main.mc.thePlayer.sendQueue.addToSendQueue(new C16PacketClientStatus(C16PacketClientStatus.EnumState.REQUEST_STATS));
+                    long sendPing = System.currentTimeMillis();
+                    RealtimeEventRegistry.registerPacket(packet -> getPingPacket(packet, sendPing), "DiscordIntegration");
 
-                        RealtimeEventRegistry.registerMessage("coflMessage", DiscordIntegration::getCoflPing, "DiscordIntegration");
-                        ClientCommandHandler.instance.executeCommand(Main.mc.thePlayer, "/cofl ping");
+                    RealtimeEventRegistry.registerMessage("coflMessage", DiscordIntegration::getCoflPing, "DiscordIntegration");
+                    ClientCommandHandler.instance.executeCommand(Main.mc.thePlayer, "/cofl ping");
 
-                        List<String> scoreboard = getScoreboard();
-                        try {
-                            purse = ChatUtils.stripColor(scoreboard.get(6)).split(": ")[1];
-                        } catch (Exception ignored) {
-                        }
-                        try {
-                            island = ChatUtils.stripColor(scoreboard.get(4));
-                        } catch (Exception ignored) {
-                        }
-                        try {
-                            List<String> tabList = new ArrayList<>();
-                            List<NetworkPlayerInfo> list = new Ordering<NetworkPlayerInfo>() {
-                                public int compare(NetworkPlayerInfo p_compare_1_, NetworkPlayerInfo p_compare_2_) {
-                                    ScorePlayerTeam scoreplayerteam = p_compare_1_.getPlayerTeam();
-                                    ScorePlayerTeam scoreplayerteam1 = p_compare_2_.getPlayerTeam();
-                                    return ComparisonChain.start().compareTrueFirst(p_compare_1_.getGameType() != WorldSettings.GameType.SPECTATOR, p_compare_2_.getGameType() != WorldSettings.GameType.SPECTATOR).compare(scoreplayerteam != null ? scoreplayerteam.getRegisteredName() : "", scoreplayerteam1 != null ? scoreplayerteam1.getRegisteredName() : "").compare(p_compare_1_.getGameProfile().getName(), p_compare_2_.getGameProfile().getName()).result();
-                                }
-                            }.sortedCopy(Main.mc.thePlayer.sendQueue.getPlayerInfoMap());
-
-                            for (NetworkPlayerInfo playerInfo : list) {
-                                if (playerInfo.getDisplayName() != null) {
-                                    tabList.add(ChatUtils.stripColor(playerInfo.getDisplayName().getUnformattedText()).replaceAll("[^\\x00-\\x7F]", ""));
-                                }
+                    List<String> scoreboard = getScoreboard();
+                    try {
+                        purse = ChatUtils.stripColor(scoreboard.get(6)).split(": ")[1];
+                    } catch (Exception ignored) {
+                    }
+                    try {
+                        island = ChatUtils.stripColor(scoreboard.get(4));
+                    } catch (Exception ignored) {
+                    }
+                    try {
+                        List<String> tabList = new ArrayList<>();
+                        List<NetworkPlayerInfo> list = new Ordering<NetworkPlayerInfo>() {
+                            public int compare(NetworkPlayerInfo p_compare_1_, NetworkPlayerInfo p_compare_2_) {
+                                ScorePlayerTeam scoreplayerteam = p_compare_1_.getPlayerTeam();
+                                ScorePlayerTeam scoreplayerteam1 = p_compare_2_.getPlayerTeam();
+                                return ComparisonChain.start().compareTrueFirst(p_compare_1_.getGameType() != WorldSettings.GameType.SPECTATOR, p_compare_2_.getGameType() != WorldSettings.GameType.SPECTATOR).compare(scoreplayerteam != null ? scoreplayerteam.getRegisteredName() : "", scoreplayerteam1 != null ? scoreplayerteam1.getRegisteredName() : "").compare(p_compare_1_.getGameProfile().getName(), p_compare_2_.getGameProfile().getName()).result();
                             }
+                        }.sortedCopy(Main.mc.thePlayer.sendQueue.getPlayerInfoMap());
 
-                            visitors = tabList.get(20).split("\\(")[1].split("\\)")[0];
-
-                        } catch (Exception ignored) {
+                        for (NetworkPlayerInfo playerInfo : list) {
+                            if (playerInfo.getDisplayName() != null) {
+                                tabList.add(ChatUtils.stripColor(playerInfo.getDisplayName().getUnformattedText()).replaceAll("[^\\x00-\\x7F]", ""));
+                            }
                         }
 
-                        DelayUtils.delayAction(5000, DiscordIntegration::sendStats);
-                    });
+                        visitors = tabList.get(20).split("\\(")[1].split("\\)")[0];
+
+                    } catch (Exception ignored) {
+                    }
+
+                    DelayUtils.delayAction(5000, DiscordIntegration::sendStats);
                 }
 
                 break;
@@ -670,6 +669,7 @@ public class DiscordIntegration {
     }
 
     static TimerTask reconnectTimer;
+
     public static void onClose(int code, String reason, boolean remote) {
         connected = false;
 
