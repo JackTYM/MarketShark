@@ -651,16 +651,12 @@ public class DiscordIntegration {
                 ClientCommandHandler.instance.executeCommand(Main.mc.thePlayer, "/cofl captcha vertical");
                 break;
             }
-            //#endif >=GreatWhite
 
-            //#if >=Megalodon
-            case "AutoCaptcha": {
+            case "HorizontalCaptcha": {
                 ClientCommandHandler.instance.executeCommand(Main.mc.thePlayer, "/cofl captcha optifine");
                 break;
             }
-            //#endif >=Megalodon
 
-            //#if >=GreatWhite
             case "CaptchaSolve": {
                 ClientCommandHandler.instance.executeCommand(Main.mc.thePlayer, jsonObject.get("message").getAsString());
                 break;
