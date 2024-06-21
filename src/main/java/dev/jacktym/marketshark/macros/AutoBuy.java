@@ -27,7 +27,6 @@ public class AutoBuy {
     public static FlipItem item = null;
     private static int buyWindowId = 0;
     private static int confirmWindowId = 0;
-    private static boolean close = false;
 
     public static void autoBuy(FlipItem item) {
         if (!FlipConfig.autoBuy) {
@@ -45,21 +44,20 @@ public class AutoBuy {
     private static TimerTask closeGuiTimer;
 
     public static void confirmClosed() {
+        Main.mc.thePlayer.closeScreen();
         if (closeGuiTimer != null) {
             closeGuiTimer.cancel();
         }
         closeGuiTimer = DelayUtils.delayAction(500, () -> {
             if (Main.mc.currentScreen == null) {
                 RealtimeEventRegistry.clearClazzMap("AutoBuy");
-                close = false;
+            } else {
+                confirmClosed();
             }
         });
     }
     // Packet-based approach occasionally fails
     public static boolean closeBuy(GuiScreenEvent event) {
-        if (close) {
-            Main.mc.thePlayer.closeScreen();
-        }
         if (!(event instanceof GuiScreenEvent.DrawScreenEvent.Post)) {
             // GUI not initialized yet
             return false;
@@ -176,7 +174,7 @@ public class AutoBuy {
                                 ChatUtils.printMarkedChat("Exception during bed spam. Report this!");
                                 FlipItem.flipItems.remove(AutoBuy.item);
                                 FlipItem.flipMap.remove(AutoBuy.item.uuid);
-                                close = true;
+                                confirmClosed();
                             }
                         }).start();
                     } else if (p.func_149174_e().getItem().equals(Items.gold_nugget) || (ChatUtils.stripColor(p.func_149174_e().getDisplayName()).equals("Buy Item Right Now") && !p.func_149174_e().getItem().equals(Items.poisonous_potato))) {
@@ -256,7 +254,7 @@ public class AutoBuy {
 
     public static boolean waitForBuyMessage(ClientChatReceivedEvent event, Long expiryTime, FlipItem item) {
         if (expiryTime < System.currentTimeMillis()) {
-            close = true;
+            confirmClosed();
             return true;
         }
 
@@ -285,7 +283,7 @@ public class AutoBuy {
             if (!QueueUtil.currentAction.isEmpty()) {
                 FlipItem.flipItems.remove(AutoBuy.item);
                 FlipItem.flipMap.remove(AutoBuy.item.uuid);
-                close = true;
+                confirmClosed();
             }
             return true;
         }
