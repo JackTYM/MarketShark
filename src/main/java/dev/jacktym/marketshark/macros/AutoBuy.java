@@ -90,7 +90,7 @@ public class AutoBuy {
                             new C0EPacketClickWindow(Main.mc.thePlayer.openContainer.windowId, 31, 2, 3,
                                     buyItem,
                                     Main.mc.thePlayer.openContainer.getNextTransactionID(Main.mc.thePlayer.inventory)));
-                    System.out.println("Attempted Backup Click");
+                    System.out.println("Attempted Backup Click On Item: " + buyItem.getItem().getUnlocalizedName() + " With name " + ChatUtils.stripColor(buyItem.getDisplayName()));
                 } else if (buyItem.getItem().equals(Item.getItemFromBlock(Blocks.barrier))) {
                     if (FlipConfig.debug) {
                         ChatUtils.printMarkedChat("Auction Cancelled! Leaving Menu");
