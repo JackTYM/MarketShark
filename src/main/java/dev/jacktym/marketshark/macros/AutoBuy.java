@@ -41,6 +41,7 @@ public class AutoBuy {
             RealtimeEventRegistry.registerEvent("clientTickEvent", clientTickEvent -> Failsafes.stuckEventFailsafe((TickEvent.ClientTickEvent) clientTickEvent, System.currentTimeMillis(), "AutoBuy"), "AutoBuy");
         });
     }
+
     private static TimerTask closeGuiTimer;
 
     public static void confirmClosed() {
@@ -57,6 +58,7 @@ public class AutoBuy {
             }
         });
     }
+
     // Packet-based approach occasionally fails
     public static boolean closeBuy(GuiScreenEvent event) {
         if (!(event instanceof GuiScreenEvent.DrawScreenEvent.Post)) {
@@ -156,31 +158,22 @@ public class AutoBuy {
                     if (p.func_149174_e().getItem().equals(Items.bed)) {
                         // Buy bed Here
                         item.bed = true;
-                        new Thread(() -> {
-                            try {
-                                long bedTime = item.auctionStart + Long.parseLong(FlipConfig.bedSpamStartDelay);
+                        long bedTime = item.auctionStart + Long.parseLong(FlipConfig.bedSpamStartDelay);
+                        System.out.println("Spamming item " + item.strippedDisplayName + " in " + (bedTime - System.currentTimeMillis()) + "ms");
 
-                                System.out.println("Spamming item " + item.strippedDisplayName + " in " + (bedTime - System.currentTimeMillis()) + "ms");
-                                Thread.sleep(bedTime - System.currentTimeMillis());
-
-                                if (item.closed) {
-                                    return;
-                                }
-                                for (int i = 0; i < Integer.parseInt(FlipConfig.bedBuyRepeats); i++) {
+                        DelayUtils.delayAction(bedTime - System.currentTimeMillis(), () -> {
+                            if (item.closed) {
+                                return;
+                            }
+                            for (int i = 0; i < Integer.parseInt(FlipConfig.bedBuyRepeats); i++) {
+                                DelayUtils.delayAction(Integer.parseInt(FlipConfig.bedSpamDelay), () -> {
                                     Main.mc.thePlayer.sendQueue.addToSendQueue(
                                             new C0EPacketClickWindow(buyWindowId, 31, 2, 3,
                                                     p.func_149174_e(),
                                                     Main.mc.thePlayer.openContainer.getNextTransactionID(Main.mc.thePlayer.inventory)));
-                                    Thread.sleep(Integer.parseInt(FlipConfig.bedSpamDelay));
-                                }
-                            } catch (Exception e) {
-                                e.printStackTrace();
-                                ChatUtils.printMarkedChat("Exception during bed spam. Report this!");
-                                FlipItem.flipItems.remove(AutoBuy.item);
-                                FlipItem.flipMap.remove(AutoBuy.item.uuid);
-                                confirmClosed();
+                                });
                             }
-                        }).start();
+                        });
                     } else if (p.func_149174_e().getItem().equals(Items.gold_nugget) || (ChatUtils.stripColor(p.func_149174_e().getDisplayName()).equals("Buy Item Right Now") && !p.func_149174_e().getItem().equals(Items.poisonous_potato))) {
                         Main.mc.thePlayer.sendQueue.addToSendQueue(
                                 new C0EPacketClickWindow(buyWindowId, 31, 2, 3,
