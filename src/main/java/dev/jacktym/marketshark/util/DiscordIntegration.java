@@ -122,7 +122,7 @@ public class DiscordIntegration {
         }
         if (event.gui instanceof GuiChest) {
             IInventory chest = GuiUtil.getInventory(event.gui);
-            if (chest.getStackInSlot(0) == null) {
+            if (chest.getStackInSlot(18) == null) {
                 return false;
             }
             GsonBuilder gsonBuilder = new GsonBuilder();
@@ -139,7 +139,6 @@ public class DiscordIntegration {
                     ItemStack stack = chest.getStackInSlot(slotId);
                     if (stack != null) {
                         if (stack.getItem() == Item.getItemFromBlock(Blocks.stained_glass_pane)) {
-                            System.out.println(slotId);
                             break;
                         }
 
@@ -148,7 +147,22 @@ public class DiscordIntegration {
                         items.add(item);
                     }
                 }
-                Main.mc.thePlayer.closeScreen();
+
+                System.out.println(1);
+                // Claim sold flips
+                if (chest.getStackInSlot(30) != null && chest.getStackInSlot(30).getDisplayName().contains("Claim All")) {
+
+                    System.out.println(2);
+                    Main.mc.playerController.windowClick(Main.mc.thePlayer.openContainer.windowId, 30, 2, 3, Main.mc.thePlayer);
+                } else if (chest.getStackInSlot(21) != null && chest.getStackInSlot(21).getDisplayName().contains("Claim All")) {
+
+                    System.out.println(3);
+                    Main.mc.playerController.windowClick(Main.mc.thePlayer.openContainer.windowId, 21, 2, 3, Main.mc.thePlayer);
+                } else {
+                    System.out.println(4);
+                    Main.mc.thePlayer.closeScreen();
+                }
+                System.out.println(5);
 
                 JsonObject response = new JsonObject();
                 response.addProperty("items", gson.toJson(items));
