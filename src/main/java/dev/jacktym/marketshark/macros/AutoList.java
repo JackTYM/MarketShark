@@ -178,7 +178,7 @@ public class AutoList {
         }
 
 
-        if (FlipConfig.enableMinProfitPercent && Math.round((flipProfit / item.sellPrice)*100)/100 < Long.parseLong(FlipConfig.minimumProfitPercent)) {
+        if (FlipConfig.enableMinProfitPercent && Math.round((flipProfit / item.sellPrice)*100) < Long.parseLong(FlipConfig.minimumProfitPercent)) {
             ChatUtils.printMarkedChat("Skipped listing item. Below minimum profit percent!");
             item.skipReason = "Skipped listing item. Below minimum profit percent!";
             RealtimeEventRegistry.clearClazzMap("AutoList");
