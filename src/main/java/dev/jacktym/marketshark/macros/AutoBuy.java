@@ -44,6 +44,7 @@ public class AutoBuy {
     private static TimerTask closeGuiTimer;
 
     public static void confirmClosed() {
+        item.closed = true;
         Main.mc.thePlayer.closeScreen();
         if (closeGuiTimer != null) {
             closeGuiTimer.cancel();
@@ -159,9 +160,12 @@ public class AutoBuy {
                             try {
                                 long bedTime = item.auctionStart + Long.parseLong(FlipConfig.bedSpamStartDelay);
 
+                                System.out.println("Spamming item " + item.strippedDisplayName + " in " + (bedTime - System.currentTimeMillis()) + "ms");
                                 Thread.sleep(bedTime - System.currentTimeMillis());
-                                System.out.println("Spamming in " + (bedTime - System.currentTimeMillis()) / 1000);
 
+                                if (item.closed) {
+                                    return;
+                                }
                                 for (int i = 0; i < Integer.parseInt(FlipConfig.bedBuyRepeats); i++) {
                                     Main.mc.thePlayer.sendQueue.addToSendQueue(
                                             new C0EPacketClickWindow(buyWindowId, 31, 2, 3,
