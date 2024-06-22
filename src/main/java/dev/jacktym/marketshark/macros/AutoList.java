@@ -190,6 +190,8 @@ public class AutoList {
             return;
         }
 
+        ChatUtils.printMarkedChat("Listing item " + item.strippedDisplayName + " for " + ChatUtils.abbreviateNumber(item.sellPrice) + " coins");
+
         QueueUtil.addToQueue(() -> {
             currentlyListing = true;
             Main.mc.thePlayer.sendChatMessage("/ah");

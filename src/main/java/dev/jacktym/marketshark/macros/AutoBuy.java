@@ -103,7 +103,7 @@ public class AutoBuy {
                     confirmClosed();
                 } else if (!ChatUtils.stripColor(buyItem.getDisplayName()).contains("Loading")) {
                     if (FlipConfig.debug) {
-                        ChatUtils.printMarkedChat("Unknown Buy Item! May be users own auction! Leaving Menu | " + buyItem.getDisplayName());
+                        ChatUtils.printMarkedChat("Unknown Buy Item! May be users own auction! Leaving Menu | " + buyItem.getDisplayName() + " " + buyItem.getItem().getUnlocalizedName());
                     }
                     FlipItem.flipItems.remove(AutoBuy.item);
                     FlipItem.flipMap.remove(AutoBuy.item.uuid);
