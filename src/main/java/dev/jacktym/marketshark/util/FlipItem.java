@@ -95,7 +95,7 @@ public class FlipItem {
         if (stack != null) {
             NBTBase uuidTag = stack.serializeNBT().getCompoundTag("tag").getCompoundTag("ExtraAttributes").getTag("uuid");
             if (uuidTag != null) {
-                return uuidTag.toString();
+                return uuidTag.toString().replace("\"", "");
             }
         }
         return "";
