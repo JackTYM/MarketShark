@@ -122,7 +122,7 @@ public class AutoList {
             return;
         }
 
-        if (FlipConfig.autoSellPrice == 4 && item.coflWorth != 0) {
+        if (FlipConfig.autoSellPrice == 4 && item.coflWorth != 0 && item.coflWorth != item.buyPrice) {
             item.sellPrice = item.coflWorth;
         } else {
             JsonObject coflPrice = CoflAPIUtil.getCoflPrice(item.itemStack);
@@ -135,7 +135,11 @@ public class AutoList {
                         item.sellPrice = (long) (coflPrice.get("lbin").getAsLong() * 0.95);
                         break;
                     case 4:
-                        ChatUtils.printMarkedChat("No Cofl Flip to use. Defaulting to Median Price");
+                        if (item.coflWorth == item.buyPrice) {
+                            ChatUtils.printMarkedChat("Buy Price = Worth. May be User Finder Flip. Defaulting to Median Price");
+                        } else {
+                            ChatUtils.printMarkedChat("No Cofl Flip to use. Defaulting to Median Price");
+                        }
                     case 2:
                         item.sellPrice = coflPrice.get("median").getAsLong();
                         break;
