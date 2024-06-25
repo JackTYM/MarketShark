@@ -25,6 +25,13 @@ public class FlipConfig extends Vigilant {
             description = "Auto Buys Cofl Relay Flips"
     )
     public static boolean autoBuy = false;
+    @Property(
+            type = PropertyType.CHECKBOX,
+            category = "Macros",
+            name = "Max Buy Clicks",
+            description = "The max amount of times for the macro to click the Buy button (Default 2)"
+    )
+    public static int maxBuyClicks = 2;
     //#if >=Megalodon
     @Property(
             type = PropertyType.CHECKBOX,
@@ -226,7 +233,7 @@ public class FlipConfig extends Vigilant {
     public static String activationKey = "";
 
     public FlipConfig() {
-        super(new File("config/marketshark.toml"), "Cofl Flip Config", new JVMAnnotationPropertyCollector(), new SortingBehavior() {
+        super(new File("config/marketshark.toml"), "MarketShark Config", new JVMAnnotationPropertyCollector(), new SortingBehavior() {
             @NotNull
             @Override
             public Comparator<? super Category> getCategoryComparator() {

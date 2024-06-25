@@ -90,11 +90,14 @@ public class AutoBuy {
                     });
                 } else if (buyItem.getItem().equals(Items.gold_nugget)
                         || (ChatUtils.stripColor(buyItem.getDisplayName()).equals("Buy Item Right Now") && !buyItem.getItem().equals(Item.getItemFromBlock(Blocks.bed)))) {
-                    Main.mc.thePlayer.sendQueue.addToSendQueue(
-                            new C0EPacketClickWindow(Main.mc.thePlayer.openContainer.windowId, 31, 2, 3,
-                                    buyItem,
-                                    Main.mc.thePlayer.openContainer.getNextTransactionID(Main.mc.thePlayer.inventory)));
-                    System.out.println("Attempted Backup Click");
+                    if (item.buyClicks < FlipConfig.maxBuyClicks) {
+                        item.buyClicks++;
+                        Main.mc.thePlayer.sendQueue.addToSendQueue(
+                                new C0EPacketClickWindow(Main.mc.thePlayer.openContainer.windowId, 31, 2, 3,
+                                        buyItem,
+                                        Main.mc.thePlayer.openContainer.getNextTransactionID(Main.mc.thePlayer.inventory)));
+                        System.out.println("Attempted Backup Click");
+                    }
                 } else if (buyItem.getItem().equals(Item.getItemFromBlock(Blocks.barrier))) {
                     if (FlipConfig.debug) {
                         ChatUtils.printMarkedChat("Auction Cancelled! Leaving Menu");
@@ -197,46 +200,49 @@ public class AutoBuy {
                             }
                         }).start();
                     } else if (p.func_149174_e().getItem().equals(Items.gold_nugget) || (ChatUtils.stripColor(p.func_149174_e().getDisplayName()).equals("Buy Item Right Now") && !p.func_149174_e().getItem().equals(Items.poisonous_potato))) {
-                        Main.mc.thePlayer.sendQueue.addToSendQueue(
-                                new C0EPacketClickWindow(buyWindowId, 31, 2, 3,
-                                        p.func_149174_e(),
-                                        Main.mc.thePlayer.openContainer.getNextTransactionID(Main.mc.thePlayer.inventory)));
+                        if (item.buyClicks < FlipConfig.maxBuyClicks) {
+                            item.buyClicks++;
+                            Main.mc.thePlayer.sendQueue.addToSendQueue(
+                                    new C0EPacketClickWindow(buyWindowId, 31, 2, 3,
+                                            p.func_149174_e(),
+                                            Main.mc.thePlayer.openContainer.getNextTransactionID(Main.mc.thePlayer.inventory)));
 
-                        System.out.println("Attempted Click");
+                            System.out.println("Attempted Click");
 
-                        //#if >=Megalodon
-                        if (FlipConfig.confirmSkip) {
-                            DelayUtils.delayAction(Long.parseLong(FlipConfig.confirmSkipDelay), () -> {
-                                ItemStack fakeConfirm = new ItemStack(Item.getItemFromBlock(Blocks.stained_hardened_clay), 1, 13);
-                                fakeConfirm.setStackDisplayName("§aConfirm");
+                            //#if >=Megalodon
+                            if (FlipConfig.confirmSkip) {
+                                DelayUtils.delayAction(Long.parseLong(FlipConfig.confirmSkipDelay), () -> {
+                                    ItemStack fakeConfirm = new ItemStack(Item.getItemFromBlock(Blocks.stained_hardened_clay), 1, 13);
+                                    fakeConfirm.setStackDisplayName("§aConfirm");
 
-                                NBTTagCompound nbt = new NBTTagCompound();
+                                    NBTTagCompound nbt = new NBTTagCompound();
 
-                                nbt.setByte("overrideMeta", (byte) 1);
-                                NBTTagCompound display = new NBTTagCompound();
-                                NBTTagList lore = new NBTTagList();
-                                lore.appendTag(new NBTTagString("§7Purchasing: " + AutoBuy.item.itemStack.getDisplayName()));
-                                lore.appendTag(new NBTTagString("§7Cost: " + p.func_149174_e().getTagCompound().getCompoundTag("display").getTagList("Lore", 8).getStringTagAt(1).split("Price: ")[1]));
-                                display.setTag("Lore", lore);
-                                display.setString("Name", "§aConfirm");
-                                nbt.setTag("display", display);
+                                    nbt.setByte("overrideMeta", (byte) 1);
+                                    NBTTagCompound display = new NBTTagCompound();
+                                    NBTTagList lore = new NBTTagList();
+                                    lore.appendTag(new NBTTagString("§7Purchasing: " + AutoBuy.item.itemStack.getDisplayName()));
+                                    lore.appendTag(new NBTTagString("§7Cost: " + p.func_149174_e().getTagCompound().getCompoundTag("display").getTagList("Lore", 8).getStringTagAt(1).split("Price: ")[1]));
+                                    display.setTag("Lore", lore);
+                                    display.setString("Name", "§aConfirm");
+                                    nbt.setTag("display", display);
 
-                                nbt.setTag("AttributeModifiers", new NBTTagList());
-                                fakeConfirm.setTagCompound(nbt);
+                                    nbt.setTag("AttributeModifiers", new NBTTagList());
+                                    fakeConfirm.setTagCompound(nbt);
 
-                                Main.mc.thePlayer.sendQueue.addToSendQueue(
-                                        new C0EPacketClickWindow(buyWindowId + 1, 11, 2, 3,
-                                                fakeConfirm,
-                                                Main.mc.thePlayer.openContainer.getNextTransactionID(Main.mc.thePlayer.inventory)));
+                                    Main.mc.thePlayer.sendQueue.addToSendQueue(
+                                            new C0EPacketClickWindow(buyWindowId + 1, 11, 2, 3,
+                                                    fakeConfirm,
+                                                    Main.mc.thePlayer.openContainer.getNextTransactionID(Main.mc.thePlayer.inventory)));
 
-                                ChatUtils.printMarkedChat("Attempted Confirm Skip with " + FlipConfig.confirmSkipDelay + "ms Delay!");
+                                    ChatUtils.printMarkedChat("Attempted Confirm Skip with " + FlipConfig.confirmSkipDelay + "ms Delay!");
 
-                                AutoBuy.item.buyPrice = Long.parseLong(ChatUtils.stripColor(p.func_149174_e().getTagCompound().getCompoundTag("display").getTagList("Lore", 8).getStringTagAt(1).split("Price: ")[1].split(" ")[0].replace(",", "")));
-                                long expiryTime = System.currentTimeMillis() + 10000;
-                                RealtimeEventRegistry.registerEvent("clientChatReceivedEvent", clientChatReceivedEvent -> AutoBuy.waitForBuyMessage((ClientChatReceivedEvent) clientChatReceivedEvent, expiryTime, AutoBuy.item), "AutoBuy");
-                            });
+                                    AutoBuy.item.buyPrice = Long.parseLong(ChatUtils.stripColor(p.func_149174_e().getTagCompound().getCompoundTag("display").getTagList("Lore", 8).getStringTagAt(1).split("Price: ")[1].split(" ")[0].replace(",", "")));
+                                    long expiryTime = System.currentTimeMillis() + 10000;
+                                    RealtimeEventRegistry.registerEvent("clientChatReceivedEvent", clientChatReceivedEvent -> AutoBuy.waitForBuyMessage((ClientChatReceivedEvent) clientChatReceivedEvent, expiryTime, AutoBuy.item), "AutoBuy");
+                                });
+                            }
+                            //#endif >=Megalodon
                         }
-                        //#endif >=Megalodon
                     }
                 }
             } else if (p.func_149175_c() == confirmWindowId

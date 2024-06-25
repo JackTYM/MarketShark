@@ -37,6 +37,7 @@ public class FlipItem {
     public boolean sold;
     public boolean bought;
     public String skipReason;
+    public int buyClicks = 0;
 
     public FlipItem() {
         flipItems.add(this);
