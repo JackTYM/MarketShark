@@ -27,6 +27,7 @@ import org.java_websocket.client.WebSocketClient;
 import org.java_websocket.handshake.ServerHandshake;
 
 import java.net.URI;
+import java.util.*;
 import java.security.MessageDigest;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -149,7 +150,7 @@ public class DiscordIntegration {
         }
         if (event.gui instanceof GuiChest) {
             IInventory chest = GuiUtil.getInventory(event.gui);
-            if (chest.getStackInSlot(0) == null) {
+            if (chest.getStackInSlot(18) == null) {
                 return false;
             }
             GsonBuilder gsonBuilder = new GsonBuilder();
@@ -174,14 +175,29 @@ public class DiscordIntegration {
                         items.add(item);
                     }
                 }
-                Main.mc.thePlayer.closeScreen();
+
+                System.out.println(1);
+                // Claim sold flips
+                if (chest.getStackInSlot(30) != null && chest.getStackInSlot(30).getDisplayName().contains("Claim All")) {
+
+                    System.out.println(2);
+                    Main.mc.playerController.windowClick(Main.mc.thePlayer.openContainer.windowId, 30, 2, 3, Main.mc.thePlayer);
+                } else if (chest.getStackInSlot(21) != null && chest.getStackInSlot(21).getDisplayName().contains("Claim All")) {
+
+                    System.out.println(3);
+                    Main.mc.playerController.windowClick(Main.mc.thePlayer.openContainer.windowId, 21, 2, 3, Main.mc.thePlayer);
+                } else {
+                    System.out.println(4);
+                    Main.mc.thePlayer.closeScreen();
+                }
+                System.out.println(5);
 
                 JsonObject response = new JsonObject();
                 response.addProperty("items", gson.toJson(items));
 
                 DiscordIntegration.sendToWebsocket("AuctionHouse", response.toString());
                 RealtimeEventRegistry.clearClazzMap("DiscordIntegration");
-                
+
                 return true;
             } else if (ChatUtils.stripColor(chest.getDisplayName().getUnformattedText()).contains("Create")) {
                 Main.mc.thePlayer.closeScreen();
@@ -191,7 +207,7 @@ public class DiscordIntegration {
 
                 DiscordIntegration.sendToWebsocket("AuctionHouse", response.toString());
                 RealtimeEventRegistry.clearClazzMap("DiscordIntegration");
-                
+
                 return true;
             }
         }
@@ -213,7 +229,11 @@ public class DiscordIntegration {
         message = ChatUtils.stripColor(message);
         if (message.contains("Your Ping")) {
             coflPing = message.split("is: ")[1];
+            if (coflPing.contains("\\n")) {
+                coflPing = coflPing.split("\\n")[0];
+            }
             coflPing = coflPing.split("\\.")[0] + "." + coflPing.split("\\.")[1].charAt(0) + "ms";
+            coflPing = coflPing.replace("msms", "ms");
             return true;
         }
         return false;
@@ -232,7 +252,7 @@ public class DiscordIntegration {
         if (strippedData.contains("/cofl captcha ")) {
             JsonObject response = new JsonObject();
             response.addProperty("message", strippedData);
-            
+
 
             DiscordIntegration.sendToWebsocket("Captcha", response.toString());
         }
@@ -244,41 +264,82 @@ public class DiscordIntegration {
         } else if (strippedData.contains("/cofl captcha ")) {
             JsonArray captcha = new JsonParser().parse(strippedData).getAsJsonArray();
 
-            List<String> captchaClicks = new ArrayList<>();
+            List<String> clickRows = new ArrayList<>();
+            List<String> clickColumns = new ArrayList<>();
+
             int clickIndex = 0;
             StringBuilder captchaString = new StringBuilder();
+
+            List<String> tempColumns = new ArrayList<>();
             for (JsonElement element : captcha) {
-                captchaString.append(element.getAsJsonObject().get("text").getAsString().replace("\\n", "\n").replace("\uD83C\uDDE7", "").replace("\uD83C\uDDFE", ""));
+
+                String line = element.getAsJsonObject().get("text").getAsString().replace("\\n", "\n").replace("\uD83C\uDDE7", "").replace("\uD83C\uDDFE", "");
+                captchaString.append(line);
 
                 if (!element.getAsJsonObject().get("onClick").isJsonNull()) {
-                    if (captchaClicks.size() < clickIndex) {
-                        captchaClicks.add(element.getAsJsonObject().get("onClick").getAsString());
+                    if (clickRows.size() < clickIndex) {
+                        clickRows.add(element.getAsJsonObject().get("onClick").getAsString());
+                    }
+
+                    for (String character : line.split("")) {
+                        int length = 0;
+
+                        if (character.matches("\uFFFD")) {
+                            length = 8;
+                        } else if (character.equals("⋅")) {
+                            length = 4;
+                        } else if (character.equals(" ")) {
+                            length = 8;
+                        }
+
+                        for (int i = 0; i < length; i++) {
+                            if (!element.getAsJsonObject().get("onClick").getAsString().contains("config")) {
+                                tempColumns.add(element.getAsJsonObject().get("onClick").getAsString());
+                            }
+                        }
                     }
                 }
                 if (element.getAsJsonObject().get("text").getAsString().contains("\\n")) {
                     clickIndex++;
+
+                    if (tempColumns.size() > clickColumns.size()) {
+                        clickColumns.clear();
+                        clickColumns.addAll(tempColumns);
+                    }
+                    tempColumns = new ArrayList<>();
+                }
+            }
+
+            System.out.println("Column Clicks Length " + clickColumns.size());
+
+            HashMap<String, Integer> characters = new HashMap<>();
+
+            for (char c : captchaString.toString().toCharArray()) {
+                if (!characters.containsKey(String.valueOf(c))) {
+                    characters.put(String.valueOf(c), Minecraft.getMinecraft().fontRendererObj.getCharWidth(c));
                 }
             }
 
             JsonObject response = new JsonObject();
             response.addProperty("captcha", captchaString.toString());
-            response.addProperty("onClicks", captchaClicks.toString());
-            
+            response.addProperty("onClicks", clickRows.toString());
+            response.addProperty("clickColumns", clickColumns.toString());
+            response.addProperty("lengths", characters.toString());
 
             DiscordIntegration.sendToWebsocket("Captcha", response.toString());
         } else if (strippedData.contains("Thanks for confirming that you are a real user")) {
             JsonObject response = new JsonObject();
-            
+
 
             DiscordIntegration.sendToWebsocket("CaptchaSuccess", response.toString());
         } else if (strippedData.contains("You solved the captcha, but you failed too many previously")) {
             JsonObject response = new JsonObject();
-            
+
 
             DiscordIntegration.sendToWebsocket("CaptchaCorrect", response.toString());
         } else if (strippedData.contains("Your answer was not correct")) {
             JsonObject response = new JsonObject();
-            
+
 
             DiscordIntegration.sendToWebsocket("CaptchaIncorrect", response.toString());
         }
@@ -290,7 +351,6 @@ public class DiscordIntegration {
         if (!statsSent) {
             statsSent = true;
             JsonObject stats = new JsonObject();
-            stats.addProperty("unsold", unsold);
             stats.addProperty("purse", purse);
             stats.addProperty("island", island);
             stats.addProperty("visitors", visitors);
@@ -303,7 +363,7 @@ public class DiscordIntegration {
                 Main.mc.thePlayer.closeScreen();
             }
             RealtimeEventRegistry.clearClazzMap("DiscordIntegration");
-            
+
         }
     }
 
@@ -325,6 +385,8 @@ public class DiscordIntegration {
     }
     //#endif >=GreatWhite
 
+    private static List<Map.Entry<String, String>> websocketQueue = new ArrayList<>();
+
     public static void sendToWebsocket(String type, String message) {
         JsonObject jsonObject = new JsonObject();
         jsonObject.addProperty("type", type);
@@ -337,10 +399,17 @@ public class DiscordIntegration {
         }
         System.out.println("Sending " + jsonObject);
         if (websocketClient.isOpen()) {
-            websocketClient.send(jsonObject.toString());
+            try {
+                websocketClient.send(jsonObject.toString());
+            } catch (Exception e) {
+                e.printStackTrace();
+                System.out.println("AKLSJAIOSDJAIOSJDASIOD");
+            }
         } else {
-            //connectToWebsocket();
-            DelayUtils.delayAction(1000, () -> sendToWebsocket(type, message));
+            if (FlipConfig.debug) {
+                System.out.println("Client closed. Added to queue!");
+            }
+            websocketQueue.add(new AbstractMap.SimpleEntry<>(type, message));
         }
     }
 
@@ -374,12 +443,31 @@ public class DiscordIntegration {
             sendToWebsocket("Reconnecting", "");
         }
         connected = true;
+
+        List<Map.Entry<String, String>> tempQueue = new ArrayList<>(websocketQueue);
+        for (Map.Entry<String, String> message : tempQueue) {
+            System.out.println("Running " + message.getKey() + " From Queue!");
+            websocketQueue.remove(message);
+            sendToWebsocket(message.getKey(), message.getValue());
+        }
     }
 
 
     public static void onMessage(String message) {
         System.out.println("WebSocket Message: " + message);
         JsonObject jsonObject = new JsonParser().parse(message).getAsJsonObject();
+
+        if (jsonObject.has("username")) {
+            String username = jsonObject.get("username").getAsString();
+            if (!username.isEmpty()) {
+                if (!Main.mc.getSession().getUsername().equals(username)) {
+                    if (FlipConfig.debug) {
+                        System.out.println("WebSocket Message ignored! For different username");
+                    }
+                    return;
+                }
+            }
+        }
 
         switch (jsonObject.get("type").getAsString()) {
             case "Activated": {
@@ -412,49 +500,44 @@ public class DiscordIntegration {
                 statsSent = false;
 
                 if (Main.mc != null && Main.mc.thePlayer != null) {
-                    QueueUtil.addToQueue(() -> {
-                        Main.mc.thePlayer.sendChatMessage("/ah");
-                        RealtimeEventRegistry.registerEvent("guiScreenEvent", guiScreenEvent -> getOwnedAuctions((GuiScreenEvent) guiScreenEvent), "DiscordIntegration");
+                    Main.mc.thePlayer.sendQueue.addToSendQueue(new C16PacketClientStatus(C16PacketClientStatus.EnumState.REQUEST_STATS));
+                    long sendPing = System.currentTimeMillis();
+                    RealtimeEventRegistry.registerPacket(packet -> getPingPacket(packet, sendPing), "DiscordIntegration");
 
-                        Main.mc.thePlayer.sendQueue.addToSendQueue(new C16PacketClientStatus(C16PacketClientStatus.EnumState.REQUEST_STATS));
-                        long sendPing = System.currentTimeMillis();
-                        RealtimeEventRegistry.registerPacket(packet -> getPingPacket(packet, sendPing), "DiscordIntegration");
+                    RealtimeEventRegistry.registerMessage("coflMessage", DiscordIntegration::getCoflPing, "DiscordIntegration");
+                    ClientCommandHandler.instance.executeCommand(Main.mc.thePlayer, "/cofl ping");
 
-                        RealtimeEventRegistry.registerMessage("coflMessage", DiscordIntegration::getCoflPing, "DiscordIntegration");
-                        ClientCommandHandler.instance.executeCommand(Main.mc.thePlayer, "/cofl ping");
-
-                        List<String> scoreboard = getScoreboard();
-                        try {
-                            purse = ChatUtils.stripColor(scoreboard.get(6)).split(": ")[1];
-                        } catch (Exception ignored) {
-                        }
-                        try {
-                            island = ChatUtils.stripColor(scoreboard.get(4));
-                        } catch (Exception ignored) {
-                        }
-                        try {
-                            List<String> tabList = new ArrayList<>();
-                            List<NetworkPlayerInfo> list = new Ordering<NetworkPlayerInfo>() {
-                                public int compare(NetworkPlayerInfo p_compare_1_, NetworkPlayerInfo p_compare_2_) {
-                                    ScorePlayerTeam scoreplayerteam = p_compare_1_.getPlayerTeam();
-                                    ScorePlayerTeam scoreplayerteam1 = p_compare_2_.getPlayerTeam();
-                                    return ComparisonChain.start().compareTrueFirst(p_compare_1_.getGameType() != WorldSettings.GameType.SPECTATOR, p_compare_2_.getGameType() != WorldSettings.GameType.SPECTATOR).compare(scoreplayerteam != null ? scoreplayerteam.getRegisteredName() : "", scoreplayerteam1 != null ? scoreplayerteam1.getRegisteredName() : "").compare(p_compare_1_.getGameProfile().getName(), p_compare_2_.getGameProfile().getName()).result();
-                                }
-                            }.sortedCopy(Main.mc.thePlayer.sendQueue.getPlayerInfoMap());
-
-                            for (NetworkPlayerInfo playerInfo : list) {
-                                if (playerInfo.getDisplayName() != null) {
-                                    tabList.add(ChatUtils.stripColor(playerInfo.getDisplayName().getUnformattedText()).replaceAll("[^\\x00-\\x7F]", ""));
-                                }
+                    List<String> scoreboard = getScoreboard();
+                    try {
+                        purse = ChatUtils.stripColor(scoreboard.get(6)).split(": ")[1];
+                    } catch (Exception ignored) {
+                    }
+                    try {
+                        island = ChatUtils.stripColor(scoreboard.get(4));
+                    } catch (Exception ignored) {
+                    }
+                    try {
+                        List<String> tabList = new ArrayList<>();
+                        List<NetworkPlayerInfo> list = new Ordering<NetworkPlayerInfo>() {
+                            public int compare(NetworkPlayerInfo p_compare_1_, NetworkPlayerInfo p_compare_2_) {
+                                ScorePlayerTeam scoreplayerteam = p_compare_1_.getPlayerTeam();
+                                ScorePlayerTeam scoreplayerteam1 = p_compare_2_.getPlayerTeam();
+                                return ComparisonChain.start().compareTrueFirst(p_compare_1_.getGameType() != WorldSettings.GameType.SPECTATOR, p_compare_2_.getGameType() != WorldSettings.GameType.SPECTATOR).compare(scoreplayerteam != null ? scoreplayerteam.getRegisteredName() : "", scoreplayerteam1 != null ? scoreplayerteam1.getRegisteredName() : "").compare(p_compare_1_.getGameProfile().getName(), p_compare_2_.getGameProfile().getName()).result();
                             }
+                        }.sortedCopy(Main.mc.thePlayer.sendQueue.getPlayerInfoMap());
 
-                            visitors = tabList.get(20).split("\\(")[1].split("\\)")[0];
-
-                        } catch (Exception ignored) {
+                        for (NetworkPlayerInfo playerInfo : list) {
+                            if (playerInfo.getDisplayName() != null) {
+                                tabList.add(ChatUtils.stripColor(playerInfo.getDisplayName().getUnformattedText()).replaceAll("[^\\x00-\\x7F]", ""));
+                            }
                         }
 
-                        DelayUtils.delayAction(5000, DiscordIntegration::sendStats);
-                    });
+                        visitors = tabList.get(20).split("\\(")[1].split("\\)")[0];
+
+                    } catch (Exception ignored) {
+                    }
+
+                    DelayUtils.delayAction(5000, DiscordIntegration::sendStats);
                 }
 
                 break;
@@ -530,7 +613,7 @@ public class DiscordIntegration {
                         JsonObject response = new JsonObject();
                         response.addProperty("chat", jsonObject.get("message").getAsString());
                         response.addProperty("messages", new Gson().toJson(messages));
-                        
+
 
                         DiscordIntegration.sendToWebsocket("ChatResponses", response.toString());
 
@@ -551,7 +634,7 @@ public class DiscordIntegration {
                     }
                     JsonObject response = new JsonObject();
                     response.addProperty("messages", new Gson().toJson(messages));
-                    
+
 
                     DiscordIntegration.sendToWebsocket("ChatMessages", response.toString());
                 }
@@ -614,7 +697,7 @@ public class DiscordIntegration {
 
                     JsonObject response = new JsonObject();
                     response.addProperty("items", gson.toJson(items));
-                    
+
 
                     DiscordIntegration.sendToWebsocket("Inventory", response.toString());
                 }
@@ -628,16 +711,17 @@ public class DiscordIntegration {
                 QueueUtil.addToQueue(() -> {
                     Main.mc.thePlayer.sendChatMessage("/ah");
                     RealtimeEventRegistry.registerEvent("guiScreenEvent", guiScreenEvent -> openManageAuctions((GuiScreenEvent) guiScreenEvent), "DiscordIntegration");
-
-                    
                 });
                 break;
             }
-            //#endif >=GreatWhite
 
-            //#if >=GreatWhite
             case "Captcha": {
                 ClientCommandHandler.instance.executeCommand(Main.mc.thePlayer, "/cofl captcha vertical");
+                break;
+            }
+
+            case "HorizontalCaptcha": {
+                ClientCommandHandler.instance.executeCommand(Main.mc.thePlayer, "/cofl captcha optifine");
                 break;
             }
 
@@ -649,6 +733,7 @@ public class DiscordIntegration {
         }
     }
 
+    static TimerTask reconnectTimer;
 
     public static void onClose(int code, String reason, boolean remote) {
         connected = false;
@@ -659,13 +744,9 @@ public class DiscordIntegration {
         // 1006 = Cloudflare Restart
         if (remote && code != 1006) {
             ChatUtils.printMarkedChat("Disconnected from Discord Integration! Attempting to Reconnect in 5 seconds!");
-            DelayUtils.delayAction(5000, () -> {
-                if (!connected) {
-                    connectToWebsocket();
-                }
-            });
+            reconnect();
         } else {
-            connectToWebsocket();
+            reconnect();
         }
     }
 
@@ -678,10 +759,16 @@ public class DiscordIntegration {
         System.out.println("Disconnected from Discord Integration!");
         System.out.println("Websocket closed with reason: " + ex);
         ChatUtils.printMarkedChat("Disconnected from Discord Integration! Attempting to Reconnect in 5 seconds!");
-        DelayUtils.delayAction(5000, () -> {
-            if (!connected) {
+
+        reconnect();
+    }
+
+    public static void reconnect() {
+        if (reconnectTimer == null) {
+            reconnectTimer = DelayUtils.delayAction(5000, () -> {
                 connectToWebsocket();
-            }
-        });
+                reconnectTimer = null;
+            });
+        }
     }
 }

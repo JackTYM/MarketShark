@@ -6,7 +6,11 @@ import dev.jacktym.marketshark.util.*;
 import gg.essential.api.utils.GuiUtil;
 import net.minecraft.command.CommandBase;
 import net.minecraft.command.ICommandSender;
+import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumChatFormatting;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class MarketShark extends CommandBase {
     @Override
@@ -22,6 +26,40 @@ public class MarketShark extends CommandBase {
     @Override
     public int getRequiredPermissionLevel() {
         return 0;
+    }
+
+    @Override
+    public List<String> addTabCompletionOptions(ICommandSender sender, String[] args, BlockPos pos) {
+        List<String> completions = new ArrayList<>();
+
+        if (args.length == 0) {
+            completions.add("marketshark");
+        } else if (args.length == 1) {
+            String partialCommand = args[args.length - 1].toLowerCase(); // Get the last argument and convert to lower case for case insensitive matching
+            // Provide top-level command completions
+            if ("help".startsWith(partialCommand)) {
+                completions.add("help");
+            }
+            if ("list".startsWith(partialCommand)) {
+                completions.add("list");
+            }
+            //#if >=GreatWhite
+            if ("listinv".startsWith(partialCommand)) {
+                completions.add("listinv");
+            }
+            //#endif >=GreatWhite
+            if ("reset".startsWith(partialCommand)) {
+                completions.add("reset");
+            }
+            if ("discord".startsWith(partialCommand)) {
+                completions.add("discord");
+            }
+            if ("flipinfo".startsWith(partialCommand)) {
+                completions.add("flipinfo");
+            }
+        }
+
+        return completions;
     }
 
     @Override

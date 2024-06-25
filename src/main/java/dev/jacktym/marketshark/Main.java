@@ -38,8 +38,6 @@ public class Main {
         registry.add(this);
         registry.forEach(MinecraftForge.EVENT_BUS::register);
 
-        RealtimeEventRegistry.registerPacket(Failsafes::receivePacket, "Failsafes");
-
         Locale.setDefault(new Locale("en", "US"));
 
         FlipItem.loadFlipData();

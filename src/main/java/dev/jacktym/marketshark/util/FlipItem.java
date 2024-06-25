@@ -38,6 +38,7 @@ public class FlipItem {
     public boolean bought;
     public String skipReason;
     public int buyClicks = 0;
+    public boolean closed = false;
 
     public FlipItem() {
         flipItems.add(this);
@@ -95,7 +96,7 @@ public class FlipItem {
         if (stack != null) {
             NBTBase uuidTag = stack.serializeNBT().getCompoundTag("tag").getCompoundTag("ExtraAttributes").getTag("uuid");
             if (uuidTag != null) {
-                return uuidTag.toString();
+                return uuidTag.toString().replace("\"", "");
             }
         }
         return "";
