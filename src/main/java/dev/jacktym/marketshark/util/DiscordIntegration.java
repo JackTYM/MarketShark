@@ -7,6 +7,7 @@ import dev.jacktym.marketshark.Main;
 import dev.jacktym.marketshark.config.FlipConfig;
 import dev.jacktym.marketshark.macros.AutoClaimSold;
 import dev.jacktym.marketshark.mixins.GuiNewChatAccessor;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.ChatLine;
 import net.minecraft.client.gui.inventory.GuiChest;
 import net.minecraft.client.network.NetworkPlayerInfo;
@@ -27,11 +28,8 @@ import org.java_websocket.client.WebSocketClient;
 import org.java_websocket.handshake.ServerHandshake;
 
 import java.net.URI;
-import java.util.*;
 import java.security.MessageDigest;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class DiscordIntegration {
@@ -414,8 +412,8 @@ public class DiscordIntegration {
     }
 
     public static String getHWID() {
-        try{
-            String toEncrypt =  System.getenv("COMPUTERNAME") + System.getProperty("user.name") + System.getenv("PROCESSOR_IDENTIFIER") + System.getenv("PROCESSOR_LEVEL");
+        try {
+            String toEncrypt = System.getenv("COMPUTERNAME") + System.getProperty("user.name") + System.getenv("PROCESSOR_IDENTIFIER") + System.getenv("PROCESSOR_LEVEL");
             MessageDigest md = MessageDigest.getInstance("MD5");
             md.update(toEncrypt.getBytes());
             StringBuffer hexString = new StringBuffer();
@@ -433,6 +431,7 @@ public class DiscordIntegration {
             e.printStackTrace();
             return "Error";
         }
+    }
 
 
     public static void onOpen(ServerHandshake handshakedata) {
