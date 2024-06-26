@@ -165,9 +165,10 @@ public class AutoBuy {
                         // Buy bed Here
                         item.bed = true;
                         long bedTime = item.auctionStart + Long.parseLong(FlipConfig.bedSpamStartDelay);
-                        System.out.println("Spamming item " + item.strippedDisplayName + " in " + (bedTime - System.currentTimeMillis()) + "ms");
+                        long delay = Math.max(bedTime - System.currentTimeMillis(), 0);
+                        System.out.println("Spamming item " + item.strippedDisplayName + " in " + delay+ "ms");
 
-                        DelayUtils.delayAction(bedTime - System.currentTimeMillis(), () -> {
+                        DelayUtils.delayAction(delay, () -> {
                             if (item.closed) {
                                 return;
                             }
