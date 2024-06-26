@@ -26,12 +26,12 @@ public class FlipConfig extends Vigilant {
     )
     public static boolean autoBuy = false;
     @Property(
-            type = PropertyType.CHECKBOX,
+            type = PropertyType.TEXT,
             category = "Macros",
             name = "Max Buy Clicks",
             description = "The max amount of times for the macro to click the Buy button (Default 2)"
     )
-    public static int maxBuyClicks = 2;
+    public static String maxBuyClicks = "2";
     //#if >=Megalodon
     @Property(
             type = PropertyType.CHECKBOX,
