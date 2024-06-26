@@ -20,9 +20,13 @@ public class QueueUtil {
     public static void finishAction() {
         System.out.println("Finished " + currentAction);
         currentAction = "";
-        if (finishFailsafe != null) {
-            finishFailsafe.cancel();
-            finishFailsafe = null;
+        try {
+            if (finishFailsafe != null) {
+                finishFailsafe.cancel();
+                finishFailsafe = null;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
         if (!queue.isEmpty()) {
             Runnable r = queue.remove(0);

@@ -47,8 +47,13 @@ public class AutoBuy {
     public static void confirmClosed() {
         item.closed = true;
         Main.mc.thePlayer.closeScreen();
-        if (closeGuiTimer != null) {
-            closeGuiTimer.cancel();
+        try {
+            if (closeGuiTimer != null) {
+                closeGuiTimer.cancel();
+                closeGuiTimer = null;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
         closeGuiTimer = DelayUtils.delayAction(500, () -> {
             if (Main.mc.currentScreen == null) {
@@ -89,14 +94,11 @@ public class AutoBuy {
                     confirmClosed();
                 } else if (buyItem.getItem().equals(Items.gold_nugget)
                         || (ChatUtils.stripColor(buyItem.getDisplayName()).equals("Buy Item Right Now") && !buyItem.getItem().equals(Item.getItemFromBlock(Blocks.bed)))) {
-                    if (item.buyClicks < Float.parseFloat(FlipConfig.maxBuyClicks)) {
-                        item.buyClicks++;
-                        Main.mc.thePlayer.sendQueue.addToSendQueue(
-                                new C0EPacketClickWindow(Main.mc.thePlayer.openContainer.windowId, 31, 2, 3,
-                                        buyItem,
-                                        Main.mc.thePlayer.openContainer.getNextTransactionID(Main.mc.thePlayer.inventory)));
-                        System.out.println("Attempted Backup Click On Item: " + buyItem.getItem().getUnlocalizedName() + " With name " + ChatUtils.stripColor(buyItem.getDisplayName()));
-                    }
+                    Main.mc.thePlayer.sendQueue.addToSendQueue(
+                            new C0EPacketClickWindow(Main.mc.thePlayer.openContainer.windowId, 31, 2, 3,
+                                    buyItem,
+                                    Main.mc.thePlayer.openContainer.getNextTransactionID(Main.mc.thePlayer.inventory)));
+                    System.out.println("Attempted Backup Click On Item: " + buyItem.getItem().getUnlocalizedName() + " With name " + ChatUtils.stripColor(buyItem.getDisplayName()));
                 } else if (buyItem.getItem().equals(Item.getItemFromBlock(Blocks.barrier))) {
                     if (FlipConfig.debug) {
                         ChatUtils.printMarkedChat("Auction Cancelled! Leaving Menu");
@@ -166,7 +168,7 @@ public class AutoBuy {
                         item.bed = true;
                         long bedTime = item.auctionStart + Long.parseLong(FlipConfig.bedSpamStartDelay);
                         long delay = Math.max(bedTime - System.currentTimeMillis(), 0);
-                        System.out.println("Spamming item " + item.strippedDisplayName + " in " + delay+ "ms");
+                        System.out.println("Spamming item " + item.strippedDisplayName + " in " + delay + "ms");
 
                         DelayUtils.delayAction(delay, () -> {
                             if (item.closed) {
