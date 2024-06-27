@@ -392,6 +392,7 @@ public class DiscordIntegration {
         jsonObject.addProperty("key", FlipConfig.activationKey);
         jsonObject.addProperty("username", Main.mc.getSession().getUsername());
         jsonObject.addProperty("hwid", getHWID());
+        jsonObject.addProperty("version", Main.version);
         if (sessionId != null) {
             jsonObject.addProperty("session_id", sessionId);
         }

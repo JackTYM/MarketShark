@@ -4,7 +4,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 public class DelayUtils {
-    private static final Timer timer = new Timer();
+    private static Timer timer = new Timer();
     public static TimerTask delayAction(long delay, Runnable action) {
         TimerTask task = new TimerTask() {
             @Override
@@ -12,8 +12,13 @@ public class DelayUtils {
                 action.run();
             }
         };
-        timer.schedule(task, delay);
+        try {
+            timer.schedule(task, delay);
 
-        return task;
+            return task;
+        } catch (Exception e) {
+            timer = new Timer();
+            return delayAction(delay, action);
+        }
     }
 }

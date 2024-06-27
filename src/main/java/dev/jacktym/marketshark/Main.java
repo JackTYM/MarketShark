@@ -19,7 +19,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
-@Mod(modid = "marketshark", name = "MarketShark", version = "1.0.0")
+@Mod(modid = "skyhud", name = "SharketMark", version = "1.0.0")
 public class Main {
     public static FlipConfig flipConfig;
     public static Minecraft mc = Minecraft.getMinecraft();
