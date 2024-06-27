@@ -575,6 +575,8 @@ public class DiscordIntegration {
                 } catch (Exception ignored) {
                 }
 
+                Main.flipConfig.save();
+
                 JsonObject responseSettings = new JsonObject();
                 responseSettings.addProperty("autoOpen", FlipConfig.autoOpen);
                 responseSettings.addProperty("autoBuy", FlipConfig.autoBuy);

@@ -87,13 +87,14 @@ public class AutoBuy {
                     confirmClosed();
                 } else if (buyItem.getItem().equals(Items.potato) || ChatUtils.stripColor(buyItem.getDisplayName()).equals("Collect Auction")) {
                     if (FlipConfig.debug) {
-                        ChatUtils.printMarkedChat("Lost Flip! Leaving Menu");
+                        System.out.println("Lost Flip Potato! " + buyItem.getDisplayName());
                     }
+                    ChatUtils.printMarkedChat("Lost Flip! Leaving Menu");
                     FlipItem.flipItems.remove(AutoBuy.item);
                     FlipItem.flipMap.remove(AutoBuy.item.uuid);
                     confirmClosed();
                 } else if (buyItem.getItem().equals(Items.gold_nugget)
-                        || (ChatUtils.stripColor(buyItem.getDisplayName()).equals("Buy Item Right Now") && !buyItem.getItem().equals(Item.getItemFromBlock(Blocks.bed)))) {
+                        || (ChatUtils.stripColor(buyItem.getDisplayName()).equals("Buy Item Right Now") && !buyItem.getItem().equals(Items.bed))) {
                     Main.mc.thePlayer.sendQueue.addToSendQueue(
                             new C0EPacketClickWindow(Main.mc.thePlayer.openContainer.windowId, 31, 2, 3,
                                     buyItem,
@@ -139,6 +140,8 @@ public class AutoBuy {
                         long expiryTime = System.currentTimeMillis() + 10000;
                         RealtimeEventRegistry.registerEvent("clientChatReceivedEvent", clientChatReceivedEvent -> AutoBuy.waitForBuyMessage((ClientChatReceivedEvent) clientChatReceivedEvent, expiryTime, AutoBuy.item), "AutoBuy");
                         return false;
+                    } else {
+                        confirmClosed();
                     }
                 }
             }
@@ -253,6 +256,8 @@ public class AutoBuy {
                             long expiryTime = System.currentTimeMillis() + 10000;
                             RealtimeEventRegistry.registerEvent("clientChatReceivedEvent", clientChatReceivedEvent -> AutoBuy.waitForBuyMessage((ClientChatReceivedEvent) clientChatReceivedEvent, expiryTime, AutoBuy.item), "AutoBuy");
                             return true;
+                        } else {
+                            confirmClosed();
                         }
                     }
                 }

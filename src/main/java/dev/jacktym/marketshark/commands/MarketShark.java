@@ -10,12 +10,18 @@ import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumChatFormatting;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class MarketShark extends CommandBase {
     @Override
     public String getCommandName() {
         return "marketshark";
+    }
+
+    @Override
+    public List<String> getCommandAliases() {
+        return Arrays.asList("ms", "marketshark", "shark", "sharkmacro", "sm");
     }
 
     @Override

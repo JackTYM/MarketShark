@@ -155,12 +155,11 @@ public class AutoList {
         float flipProfit = item.sellPrice - item.buyPrice - calculateBINTax(item.buyPrice);
 
         if (item.sellPrice < item.buyPrice) {
-            ChatUtils.printMarkedChat("Skipped listing item. Sell price than buy price!");
+            ChatUtils.printMarkedChat("Skipped listing item. Sell price less than buy price!");
             item.skipReason = "Skipped listing item. Sell price lower than buy price!";
 
             RealtimeEventRegistry.clearClazzMap("AutoList");
             finishCurrentListing();
-            
 
             if (FlipConfig.listedWebhooks) {
                 DiscordIntegration.sendToWebsocket("ListingSkipped", item.serialize().toString());

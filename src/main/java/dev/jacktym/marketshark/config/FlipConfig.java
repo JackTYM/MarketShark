@@ -250,4 +250,8 @@ public class FlipConfig extends Vigilant {
         this.writeData();
         this.initialize();
     }
+
+    public void save() {
+        this.writeData();
+    }
 }
