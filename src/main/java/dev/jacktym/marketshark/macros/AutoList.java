@@ -123,17 +123,17 @@ public class AutoList {
         }
 
         if (automatic) {
-            if (FlipConfig.flipper && item.finder.equals("flipper")) {
+            if (FlipConfig.flipper && item.finder.equals("FLIPPER")) {
                 item.skipReason = "Skipped listing item. Flipper finder disabled!";
-            } else if (FlipConfig.sniper && item.finder.equals("sniper")) {
+            } else if (FlipConfig.sniper && item.finder.equals("SNIPER")) {
                 item.skipReason = "Skipped listing item. Sniper finder disabled!";
-            } else if (FlipConfig.sniperMedian && item.finder.equals("sniperMedian")) {
+            } else if (FlipConfig.sniperMedian && item.finder.equals("SNIPER_MEDIAN")) {
                 item.skipReason = "Skipped listing item. Sniper (Median) finder disabled!";
-            } else if (FlipConfig.user && item.finder.equals("user")) {
+            } else if (FlipConfig.user && item.finder.equals("USER")) {
                 item.skipReason = "Skipped listing item. User finder disabled!";
             } else if (FlipConfig.tfm && item.finder.equals("TFM")) {
                 item.skipReason = "Skipped listing item. TFM finder disabled!";
-            } else if (FlipConfig.stonks && item.finder.equals("stonks")) {
+            } else if (FlipConfig.stonks && item.finder.equals("STONKS")) {
                 item.skipReason = "Skipped listing item. Stonks finder disabled!";
             }
 

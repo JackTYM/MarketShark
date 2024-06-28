@@ -158,6 +158,8 @@ public class FlipItem {
                         ? jsonObject.get("buyer").getAsString() : "";
                 item.sold = !jsonObject.get("sold").isJsonNull() && jsonObject.get("sold").getAsBoolean();
                 item.bought = !jsonObject.get("bought").isJsonNull() && jsonObject.get("bought").getAsBoolean();
+                item.finder = jsonObject.has("finder") && !jsonObject.get("finder").isJsonNull()
+                        ? jsonObject.get("finder").getAsString() : "";
                 if (item.bought && !item.sold) {
                     if (!item.uuid.isEmpty()) {
                         flipMap.put(item.uuid, item);
@@ -166,8 +168,6 @@ public class FlipItem {
                     // Flips automatically added when new FlipItem created
                     flipItems.remove(item);
                 }
-                item.finder = !jsonObject.get("finder").isJsonNull()
-                        ? jsonObject.get("finder").getAsString() : "";
             }
         } catch (IOException e) {
             e.printStackTrace();
