@@ -91,7 +91,7 @@ public class MarketShark extends CommandBase {
                     }
                     case "list": {
                         FlipItem flipItem = FlipItem.getFlipItem(Main.mc.thePlayer.inventory.getCurrentItem());
-                        AutoList.listItem(flipItem);
+                        AutoList.listItem(flipItem, false);
                         break;
                     }
                     //#if >=GreatWhite

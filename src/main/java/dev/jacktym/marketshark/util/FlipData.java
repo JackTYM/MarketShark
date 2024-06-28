@@ -9,13 +9,16 @@ public class FlipData {
     public long coflWorth;
     @SerializedName("auction")
     public AuctionData auctionData;
+    @SerializedName("finder")
+    public String finder;
 
     public FlipData() {
     }
 
-    public FlipData(String id, long target, AuctionData auctionData) {
+    public FlipData(String id, long target, AuctionData auctionData, String finder) {
         this.auctionId = id;
         this.coflWorth = target;
         this.auctionData = auctionData;
+        this.finder = finder;
     }
 }

@@ -41,6 +41,7 @@ public class ListenerManagerMixin {
                     item.uuid = flip.auctionData.uuid;
                     item.sellerUuid = flip.auctionData.sellerUuid;
                     item.skyblockId = flip.auctionData.skyblockId;
+                    item.finder = flip.finder;
                     item.bed = false;
                     // Supports Multiple Cofl Date Formats
                     try {

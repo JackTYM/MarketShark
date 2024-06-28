@@ -39,7 +39,7 @@ public class FlipItem {
     public String skipReason;
     public int buyClicks = 0;
     public boolean closed = false;
-
+    public String finder;
     public FlipItem() {
         flipItems.add(this);
         this.username = Main.mc.getSession().getUsername();
@@ -89,6 +89,7 @@ public class FlipItem {
         jsonObject.addProperty("skipReason", this.skipReason);
         jsonObject.addProperty("sendBought", FlipConfig.boughtWebhooks);
         jsonObject.addProperty("sendSold", FlipConfig.soldWebhooks);
+        jsonObject.addProperty("finder", this.finder);
         return jsonObject;
     }
 
@@ -165,6 +166,8 @@ public class FlipItem {
                     // Flips automatically added when new FlipItem created
                     flipItems.remove(item);
                 }
+                item.finder = !jsonObject.get("finder").isJsonNull()
+                        ? jsonObject.get("finder").getAsString() : "";
             }
         } catch (IOException e) {
             e.printStackTrace();

@@ -108,7 +108,7 @@ public class AutoClaim {
 
         String message = event.message.getUnformattedText();
         if (message.startsWith("You claimed") && message.contains(ChatUtils.stripColor(item.displayName))) {
-            AutoList.listItem(item);
+            AutoList.listItem(item, true);
             
             RealtimeEventRegistry.clearClazzMap("AutoClaim");
             return true;

@@ -209,13 +209,50 @@ public class FlipConfig extends Vigilant {
             description = "Webhook whenever a flip is sold"
     )
     public static boolean soldWebhooks = false;
+
     @Property(
             type = PropertyType.CHECKBOX,
-            category = "Webhooks",
-            name = "24H Stats",
-            description = "Sends flip stats every 24 Hours"
+            category = "Flip Finders",
+            name = "Flipper",
+            description = "Enables AutoSell for the Flipper finder"
     )
-    public static boolean statsWebhooks = false;
+    public static boolean flipper = true;
+    @Property(
+            type = PropertyType.CHECKBOX,
+            category = "Flip Finders",
+            name = "Sniper",
+            description = "Enables AutoSell for the Sniper finder"
+    )
+    public static boolean sniper = true;
+    @Property(
+            type = PropertyType.CHECKBOX,
+            category = "Flip Finders",
+            name = "Sniper (Median)",
+            description = "Enables AutoSell for the Sniper (Median) finder"
+    )
+    public static boolean sniperMedian = true;
+    @Property(
+            type = PropertyType.CHECKBOX,
+            category = "Flip Finders",
+            name = "User",
+            description = "Enables AutoSell for the User finder"
+    )
+    public static boolean user = false;
+
+    @Property(
+            type = PropertyType.CHECKBOX,
+            category = "Flip Finders",
+            name = "TFM",
+            description = "Enables AutoSell for the TFM finder"
+    )
+    public static boolean tfm = false;
+    @Property(
+            type = PropertyType.CHECKBOX,
+            category = "Flip Finders",
+            name = "Stonks",
+            description = "Enables AutoSell for the Stonks finder"
+    )
+    public static boolean stonks = true;
 
     @Property(
             type = PropertyType.CHECKBOX,

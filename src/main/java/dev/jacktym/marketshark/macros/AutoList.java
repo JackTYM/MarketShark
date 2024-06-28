@@ -117,9 +117,36 @@ public class AutoList {
         }
     }
 
-    public static void listItem(FlipItem item) {
+    public static void listItem(FlipItem item, boolean automatic) {
         if (!FlipConfig.autoSell || item == null || currentlyListing) {
             return;
+        }
+
+        if (automatic) {
+            if (FlipConfig.flipper && item.finder.equals("flipper")) {
+                item.skipReason = "Skipped listing item. Flipper finder disabled!";
+            } else if (FlipConfig.sniper && item.finder.equals("sniper")) {
+                item.skipReason = "Skipped listing item. Sniper finder disabled!";
+            } else if (FlipConfig.sniperMedian && item.finder.equals("sniperMedian")) {
+                item.skipReason = "Skipped listing item. Sniper (Median) finder disabled!";
+            } else if (FlipConfig.user && item.finder.equals("user")) {
+                item.skipReason = "Skipped listing item. User finder disabled!";
+            } else if (FlipConfig.tfm && item.finder.equals("TFM")) {
+                item.skipReason = "Skipped listing item. TFM finder disabled!";
+            } else if (FlipConfig.stonks && item.finder.equals("stonks")) {
+                item.skipReason = "Skipped listing item. Stonks finder disabled!";
+            }
+
+            if (!item.skipReason.isEmpty()) {
+                ChatUtils.printMarkedChat(item.skipReason);
+
+                RealtimeEventRegistry.clearClazzMap("AutoList");
+                finishCurrentListing();
+
+                if (FlipConfig.listedWebhooks) {
+                    DiscordIntegration.sendToWebsocket("ListingSkipped", item.serialize().toString());
+                }
+            }
         }
 
         if (FlipConfig.autoSellPrice == 4 && item.coflWorth != 0 && item.coflWorth != item.buyPrice) {
