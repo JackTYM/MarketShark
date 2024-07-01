@@ -93,8 +93,8 @@ public class AutoBuy {
                     FlipItem.flipItems.remove(AutoBuy.item);
                     FlipItem.flipMap.remove(AutoBuy.item.uuid);
                     confirmClosed();
-                } else if (buyItem.getItem().equals(Items.gold_nugget)
-                        || (ChatUtils.stripColor(buyItem.getDisplayName()).equals("Buy Item Right Now") && !buyItem.getItem().equals(Items.bed))
+                } else if ((buyItem.getItem().equals(Items.gold_nugget)
+                        || (ChatUtils.stripColor(buyItem.getDisplayName()).equals("Buy Item Right Now") && !buyItem.getItem().equals(Items.bed)))
                 //#if >=Megalodon
                 && !item.skipped
                 //#endif >=Megalodon
