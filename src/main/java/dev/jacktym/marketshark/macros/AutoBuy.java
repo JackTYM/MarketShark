@@ -94,11 +94,12 @@ public class AutoBuy {
                     FlipItem.flipMap.remove(AutoBuy.item.uuid);
                     confirmClosed();
                 } else if ((buyItem.getItem().equals(Items.gold_nugget)
-                        || (ChatUtils.stripColor(buyItem.getDisplayName()).equals("Buy Item Right Now") && !buyItem.getItem().equals(Items.bed)))
-                //#if >=Megalodon
-                && !item.skipped
-                //#endif >=Megalodon
-                ) {
+                        || (ChatUtils.stripColor(buyItem.getDisplayName()).equals("Buy Item Right Now") && !buyItem.getItem().equals(Items.bed)))) {
+                    //#if >=Megalodon
+                    if (!item.skipped) {
+                        return false;
+                    }
+                    //#endif >=Megalodon
                     Main.mc.thePlayer.sendQueue.addToSendQueue(
                             new C0EPacketClickWindow(Main.mc.thePlayer.openContainer.windowId, 31, 2, 3,
                                     buyItem,
