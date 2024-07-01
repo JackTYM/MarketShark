@@ -180,16 +180,8 @@ public class AutoBuy {
 
                         item.bedClicking = true;
                         String itemName = item.strippedDisplayName;
-                        DelayUtils.delayAction(delay, () -> {
-                            while (item.bedClicking && !item.closed && itemName.equals(item.strippedDisplayName)) {
-                                DelayUtils.delayAction(Integer.parseInt(FlipConfig.bedSpamDelay), () -> {
-                                    Main.mc.thePlayer.sendQueue.addToSendQueue(
-                                            new C0EPacketClickWindow(buyWindowId, 31, 2, 3,
-                                                    p.func_149174_e(),
-                                                    Main.mc.thePlayer.openContainer.getNextTransactionID(Main.mc.thePlayer.inventory)));
-                                });
-                            }
-                        });
+
+                        DelayUtils.delayAction(delay, () -> clickBed(itemName, p));
                     } else if (p.func_149174_e().getItem().equals(Items.gold_nugget) || (ChatUtils.stripColor(p.func_149174_e().getDisplayName()).equals("Buy Item Right Now") && !p.func_149174_e().getItem().equals(Items.poisonous_potato))) {
                         Main.mc.thePlayer.sendQueue.addToSendQueue(
                                 new C0EPacketClickWindow(buyWindowId, 31, 2, 3,
@@ -269,6 +261,19 @@ public class AutoBuy {
             }
         }
         return false;
+    }
+
+    public static void clickBed(String itemName, S2FPacketSetSlot p) {
+        if (item.bedClicking && !item.closed && itemName.equals(item.strippedDisplayName)) {
+            DelayUtils.delayAction(Integer.parseInt(FlipConfig.bedSpamDelay), () -> {
+                Main.mc.thePlayer.sendQueue.addToSendQueue(
+                        new C0EPacketClickWindow(buyWindowId, 31, 2, 3,
+                                p.func_149174_e(),
+                                Main.mc.thePlayer.openContainer.getNextTransactionID(Main.mc.thePlayer.inventory)));
+
+                clickBed(itemName, p);
+            });
+        }
     }
 
     public static boolean waitForBuyMessage(ClientChatReceivedEvent event, Long expiryTime, FlipItem item) {
