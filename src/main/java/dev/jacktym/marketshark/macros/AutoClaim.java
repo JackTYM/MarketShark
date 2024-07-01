@@ -28,7 +28,7 @@ public class AutoClaim {
         }
         if (event.gui instanceof GuiChest) {
             IInventory chest = GuiUtil.getInventory(event.gui);
-            if (chest.getStackInSlot(0) == null) {
+            if (chest.getStackInSlot(13) == null) {
                 return false;
             }
 
@@ -50,7 +50,7 @@ public class AutoClaim {
         }
         if (event.gui instanceof GuiChest) {
             IInventory chest = GuiUtil.getInventory(event.gui);
-            if (chest.getStackInSlot(0) == null) {
+            if (chest.getStackInSlot(10) == null) {
                 return false;
             }
 
@@ -83,7 +83,7 @@ public class AutoClaim {
         }
         if (event.gui instanceof GuiChest) {
             IInventory chest = GuiUtil.getInventory(event.gui);
-            if (chest.getStackInSlot(0) == null) {
+            if (chest.getStackInSlot(31) == null) {
                 return false;
             }
 

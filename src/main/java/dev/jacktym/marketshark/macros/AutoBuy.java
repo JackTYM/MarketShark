@@ -94,7 +94,11 @@ public class AutoBuy {
                     FlipItem.flipMap.remove(AutoBuy.item.uuid);
                     confirmClosed();
                 } else if (buyItem.getItem().equals(Items.gold_nugget)
-                        || (ChatUtils.stripColor(buyItem.getDisplayName()).equals("Buy Item Right Now") && !buyItem.getItem().equals(Items.bed))) {
+                        || (ChatUtils.stripColor(buyItem.getDisplayName()).equals("Buy Item Right Now") && !buyItem.getItem().equals(Items.bed))
+                //#if >=Megalodon
+                && !item.skipped
+                //#endif >=Megalodon
+                ) {
                     Main.mc.thePlayer.sendQueue.addToSendQueue(
                             new C0EPacketClickWindow(Main.mc.thePlayer.openContainer.windowId, 31, 2, 3,
                                     buyItem,
@@ -173,11 +177,10 @@ public class AutoBuy {
                         long delay = Math.max(bedTime - System.currentTimeMillis(), 0);
                         System.out.println("Spamming item " + item.strippedDisplayName + " in " + delay + "ms");
 
+                        item.bedClicking = true;
+                        String itemName = item.strippedDisplayName;
                         DelayUtils.delayAction(delay, () -> {
-                            if (item.closed) {
-                                return;
-                            }
-                            for (int i = 0; i < Integer.parseInt(FlipConfig.bedBuyRepeats); i++) {
+                            while (item.bedClicking && !item.closed && itemName.equals(item.strippedDisplayName)) {
                                 DelayUtils.delayAction(Integer.parseInt(FlipConfig.bedSpamDelay), () -> {
                                     Main.mc.thePlayer.sendQueue.addToSendQueue(
                                             new C0EPacketClickWindow(buyWindowId, 31, 2, 3,
@@ -197,6 +200,7 @@ public class AutoBuy {
                         //#if >=Megalodon
                         if (FlipConfig.confirmSkip) {
                             DelayUtils.delayAction(Long.parseLong(FlipConfig.confirmSkipDelay), () -> {
+                                item.skipped = true;
                                 ItemStack fakeConfirm = new ItemStack(Item.getItemFromBlock(Blocks.stained_hardened_clay), 1, 13);
                                 fakeConfirm.setStackDisplayName("§aConfirm");
 

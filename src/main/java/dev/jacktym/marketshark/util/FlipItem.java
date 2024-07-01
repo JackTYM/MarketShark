@@ -40,6 +40,11 @@ public class FlipItem {
     public int buyClicks = 0;
     public boolean closed = false;
     public String finder;
+    public boolean bedClicking = false;
+    //#if >=Megalodon
+    public boolean skipped = false;
+    //#endif >=Megalodon
+
     public FlipItem() {
         flipItems.add(this);
         this.username = Main.mc.getSession().getUsername();
