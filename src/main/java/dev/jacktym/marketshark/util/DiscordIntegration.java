@@ -49,6 +49,7 @@ public class DiscordIntegration {
     private static String hypixelPing = "";
 
     private static String coflPing = "";
+    private static String coflDelay = "";
 
     public static void connectToWebsocket() {
         try {
@@ -213,6 +214,16 @@ public class DiscordIntegration {
         }
         return false;
     }
+
+    public static boolean getCoflDelay(String message) {
+
+        message = ChatUtils.stripColor(message);
+        if (message.contains("You are currently delayed by")) {
+            coflDelay = message.split("a maximum of ")[1].split(" by the fairness system")[0];
+            return true;
+        }
+        return false;
+    }
     //#endif >=GreatWhite
 
     public static void getCoflCaptcha(String message) {
@@ -332,6 +343,7 @@ public class DiscordIntegration {
             stats.addProperty("status", FlipConfig.autoBuy);
             stats.addProperty("hypixel_ping", hypixelPing);
             stats.addProperty("cofl_ping", coflPing);
+            stats.addProperty("cofl_delay", coflDelay);
             stats.addProperty("paused", Main.paused);
             DiscordIntegration.sendToWebsocket("Stats", stats.toString());
 
@@ -475,6 +487,7 @@ public class DiscordIntegration {
                 visitors = "Unknown";
                 hypixelPing = "Unknown";
                 coflPing = "Unknown";
+                coflDelay = "Unknown";
                 statsSent = false;
 
                 if (Main.mc != null && Main.mc.thePlayer != null) {
@@ -484,6 +497,8 @@ public class DiscordIntegration {
 
                     RealtimeEventRegistry.registerMessage("coflMessage", DiscordIntegration::getCoflPing, "DiscordIntegration");
                     ClientCommandHandler.instance.executeCommand(Main.mc.thePlayer, "/cofl ping");
+                    RealtimeEventRegistry.registerMessage("coflMessage", DiscordIntegration::getCoflDelay, "DiscordIntegration");
+                    ClientCommandHandler.instance.executeCommand(Main.mc.thePlayer, "/cofl delay");
 
                     List<String> scoreboard = getScoreboard();
                     try {
