@@ -181,8 +181,9 @@ public class FlipItem {
 
     public static String getItemStrings() {
         StringBuilder sb = new StringBuilder();
-        // Avoid ConcurrentModificationException
-        for (FlipItem item : new ArrayList<>(flipItems)) {
+        // Make a copy of the list to avoid ConcurrentModificationException
+        List<FlipItem> itemsCopy = new ArrayList<>(flipItems);
+        for (FlipItem item : itemsCopy) {
             sb.append(item.serialize().toString()).append(",");
         }
         return sb.toString();
