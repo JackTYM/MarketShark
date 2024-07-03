@@ -29,7 +29,7 @@ public class AutoBuy {
     private static int confirmWindowId = 0;
 
     public static void autoBuy(FlipItem item) {
-        if (!FlipConfig.autoBuy) {
+        if (!FlipConfig.autoBuy || Main.paused) {
             return;
         }
 

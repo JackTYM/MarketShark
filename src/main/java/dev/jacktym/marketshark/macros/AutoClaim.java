@@ -10,7 +10,7 @@ import net.minecraftforge.client.event.GuiScreenEvent;
 
 public class AutoClaim {
     public static void claim(FlipItem item) {
-        if (!FlipConfig.autoClaim) {
+        if (!FlipConfig.autoClaim || Main.paused) {
             return;
         }
 

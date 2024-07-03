@@ -49,6 +49,12 @@ public class MarketShark extends CommandBase {
             if ("list".startsWith(partialCommand)) {
                 completions.add("list");
             }
+            if ("pause".startsWith(partialCommand)) {
+                completions.add("pause");
+            }
+            if ("unpause".startsWith(partialCommand)) {
+                completions.add("unpause");
+            }
             //#if >=GreatWhite
             if ("listinv".startsWith(partialCommand)) {
                 completions.add("listinv");
@@ -70,6 +76,9 @@ public class MarketShark extends CommandBase {
 
     @Override
     public void processCommand(ICommandSender sender, String[] args) {
+        if (Main.paused) {
+            ChatUtils.printMarkedChat("MarketShark is Paused! Features will not work until unpaused!");
+        }
         switch (args.length) {
             case 0: {
                 GuiUtil.open(Main.flipConfig.gui());
@@ -81,6 +90,8 @@ public class MarketShark extends CommandBase {
                         ChatUtils.printColoredChat("MarketShark Help Menu", EnumChatFormatting.GOLD);
                         ChatUtils.printUnmarkedChat("/marketshark - Displays Config GUI");
                         ChatUtils.printUnmarkedChat("/marketshark list - Lists held item");
+                        ChatUtils.printUnmarkedChat("/marketshark pause - Pauses MarketShark features");
+                        ChatUtils.printUnmarkedChat("/marketshark unpause - Unpauses MarketShark features");
                         //#if >=GreatWhite
                         ChatUtils.printUnmarkedChat("/marketshark listinv - Lists entire inventory");
                         //#endif >=GreatWhite
@@ -94,6 +105,21 @@ public class MarketShark extends CommandBase {
                         AutoList.listItem(flipItem, false);
                         break;
                     }
+                    case "pause": {
+                        if (!Main.paused) {
+                            ChatUtils.printMarkedChat("Paused MarketShark");
+                            Main.paused = true;
+                            DiscordIntegration.Reset();
+                        }
+                        break;
+                    }
+                    case "unpause": {
+                        if (Main.paused) {
+                            ChatUtils.printMarkedChat("Unpaused MarketShark");
+                            Main.paused = false;
+                        }
+                        break;
+                    }
                     //#if >=GreatWhite
                     case "listinv": {
                         AutoList.listInventory();
@@ -101,15 +127,7 @@ public class MarketShark extends CommandBase {
                     }
                     //#endif >=GreatWhite
                     case "reset": {
-                        RealtimeEventRegistry.eventMap.clear();
-                        RealtimeEventRegistry.classMap.clear();
-                        RealtimeEventRegistry.eventMap.clear();
-                        RealtimeEventRegistry.packetClassMap.clear();
-                        AutoList.listingInv = false;
-                        AutoList.finishCurrentListing();
-                        QueueUtil.queue.clear();
-                        QueueUtil.finishAction();
-                        break;
+                        DiscordIntegration.Reset();
                     }
                     case "discord": {
                         DiscordIntegration.connectToWebsocket();

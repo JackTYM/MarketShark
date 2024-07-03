@@ -28,7 +28,7 @@ public class AutoList {
     private static final Condition listingCondition = lock.newCondition();
 
     public static void listInventory() {
-        if (currentlyListing) {
+        if (currentlyListing || Main.paused) {
             return;
         }
         QueueUtil.addToQueue(() -> {

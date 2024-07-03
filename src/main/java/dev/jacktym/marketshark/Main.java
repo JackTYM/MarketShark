@@ -24,6 +24,7 @@ public class Main {
     public static FlipConfig flipConfig;
     public static Minecraft mc = Minecraft.getMinecraft();
     public static final String version = "";
+    public static boolean paused = false;
 
     @Mod.EventHandler
     public void init(FMLInitializationEvent event) {

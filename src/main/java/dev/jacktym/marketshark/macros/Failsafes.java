@@ -20,22 +20,29 @@ import net.minecraftforge.fml.common.gameevent.TickEvent;
 public class Failsafes {
     @SubscribeEvent
     public void closeGuiFailsafe(GuiScreenEvent event) {
-        DelayUtils.delayAction(Long.parseLong(FlipConfig.autoCloseMenuDelay), () -> {
-            if (Main.mc != null && Main.mc.thePlayer != null && FlipConfig.autoOpen && event.gui == Main.mc.currentScreen && event.gui instanceof GuiChest) {
-                ChatUtils.printMarkedChat("Stuck GUI Failsafe Triggered!");
-                if (!QueueUtil.currentAction.isEmpty()) {
-                    RealtimeEventRegistry.clearClazzMap(QueueUtil.currentAction);
-                }
-                if (Main.mc.thePlayer != null) {
-                    Main.mc.thePlayer.closeScreen();
-                }
-
-                JsonObject response = new JsonObject();
-                response.addProperty("message", "Stuck GUI Failsafe Triggered!");
-
-                DiscordIntegration.sendToWebsocket("FailsafeTriggered", response.toString());
+        try {
+            if (Main.paused) {
+                return;
             }
-        });
+            DelayUtils.delayAction(Long.parseLong(FlipConfig.autoCloseMenuDelay), () -> {
+                if (Main.mc != null && Main.mc.thePlayer != null && FlipConfig.autoOpen && event.gui == Main.mc.currentScreen && event.gui instanceof GuiChest) {
+                    ChatUtils.printMarkedChat("Stuck GUI Failsafe Triggered!");
+                    if (!QueueUtil.currentAction.isEmpty()) {
+                        RealtimeEventRegistry.clearClazzMap(QueueUtil.currentAction);
+                    }
+                    if (Main.mc.thePlayer != null) {
+                        Main.mc.thePlayer.closeScreen();
+                    }
+
+                    JsonObject response = new JsonObject();
+                    response.addProperty("message", "Stuck GUI Failsafe Triggered!");
+
+                    DiscordIntegration.sendToWebsocket("FailsafeTriggered", response.toString());
+                }
+            });
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     public static boolean stuckEventFailsafe(TickEvent.ClientTickEvent event, long startTime, String clazz) {
@@ -54,6 +61,9 @@ public class Failsafes {
 
     @SubscribeEvent
     public void clientChatReceivedEvent(ClientChatReceivedEvent event) {
+        if (Main.paused) {
+            return;
+        }
         if (FlipConfig.autoOpen) {
             String message = ChatUtils.stripColor(event.message.getUnformattedText());
 
@@ -85,6 +95,9 @@ public class Failsafes {
 
     @SubscribeEvent
     public void connectToServerEvent(EntityJoinWorldEvent event) {
+        if (Main.paused) {
+            return;
+        }
         if (event.entity == Main.mc.thePlayer) {
             if (Main.mc.getCurrentServerData() != null) {
                 lastServerData = Main.mc.getCurrentServerData();
@@ -94,6 +107,9 @@ public class Failsafes {
 
     @SubscribeEvent
     public void serverDisconnectGui(GuiOpenEvent event) {
+        if (Main.paused) {
+            return;
+        }
         if (event.gui instanceof GuiDisconnected) {
             GuiDisconnectedAccessor disconnectScreen = (GuiDisconnectedAccessor) event.gui;
 
@@ -124,6 +140,9 @@ public class Failsafes {
     private static boolean connect = false;
     @SubscribeEvent
     public void GuiEvent(GuiScreenEvent event) {
+        if (Main.paused) {
+            return;
+        }
         if (connect) {
             connect = false;
             FMLClientHandler.instance().connectToServer(new GuiMainMenu(), lastServerData);

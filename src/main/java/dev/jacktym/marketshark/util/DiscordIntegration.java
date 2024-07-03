@@ -6,6 +6,7 @@ import com.google.gson.*;
 import dev.jacktym.marketshark.Main;
 import dev.jacktym.marketshark.config.FlipConfig;
 import dev.jacktym.marketshark.macros.AutoClaimSold;
+import dev.jacktym.marketshark.macros.AutoList;
 import dev.jacktym.marketshark.mixins.GuiNewChatAccessor;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.ChatLine;
@@ -38,7 +39,6 @@ public class DiscordIntegration {
     public static boolean connected = false;
 
     private static boolean statsSent = true;
-    private static String unsold = "";
 
     private static String purse = "";
 
@@ -94,31 +94,6 @@ public class DiscordIntegration {
     }
 
     //#if >=GreatWhite
-    public static boolean getOwnedAuctions(GuiScreenEvent event) {
-        if (!(event instanceof GuiScreenEvent.DrawScreenEvent.Post)) {
-            // GUI not initialized yet
-            return false;
-        }
-        if (event.gui instanceof GuiChest) {
-            IInventory chest = GuiUtil.getInventory(event.gui);
-            if (chest.getStackInSlot(15) == null) {
-                return false;
-            }
-
-            if (chest.getDisplayName().getUnformattedText().endsWith("Auction House")) {
-                String auctionAmount = ChatUtils.stripColor(chest.getStackInSlot(15).getTagCompound().getCompoundTag("display").getTagList("Lore", 8).getStringTagAt(0));
-
-                if (auctionAmount.contains("You own ")) {
-                    unsold = auctionAmount.split("You own ")[1].split(" auction")[0];
-
-                    Main.mc.thePlayer.closeScreen();
-                    return true;
-                }
-            }
-        }
-        return false;
-    }
-
     public static boolean openManageAuctions(GuiScreenEvent event) {
         if (!(event instanceof GuiScreenEvent.DrawScreenEvent.Post)) {
             // GUI not initialized yet
@@ -355,6 +330,7 @@ public class DiscordIntegration {
             stats.addProperty("status", FlipConfig.autoBuy);
             stats.addProperty("hypixel_ping", hypixelPing);
             stats.addProperty("cofl_ping", coflPing);
+            stats.addProperty("paused", Main.paused);
             DiscordIntegration.sendToWebsocket("Stats", stats.toString());
 
             if (Main.mc != null && Main.mc.thePlayer != null) {
@@ -389,6 +365,8 @@ public class DiscordIntegration {
         JsonObject jsonObject = new JsonObject();
         jsonObject.addProperty("type", type);
         jsonObject.addProperty("message", message);
+
+        System.out.println("Sending " + jsonObject);
         jsonObject.addProperty("key", FlipConfig.activationKey);
         jsonObject.addProperty("username", Main.mc.getSession().getUsername());
         jsonObject.addProperty("hwid", getHWID());
@@ -396,13 +374,12 @@ public class DiscordIntegration {
         if (sessionId != null) {
             jsonObject.addProperty("session_id", sessionId);
         }
-        System.out.println("Sending " + jsonObject);
+
         if (websocketClient.isOpen()) {
             try {
                 websocketClient.send(jsonObject.toString());
             } catch (Exception e) {
                 e.printStackTrace();
-                System.out.println("AKLSJAIOSDJAIOSJDASIOD");
             }
         } else {
             if (FlipConfig.debug) {
@@ -491,7 +468,6 @@ public class DiscordIntegration {
             case "Stats": {
                 ChatUtils.printMarkedChat(jsonObject.get("message").getAsString());
 
-                unsold = "0";
                 purse = "Unknown";
                 island = "Unknown";
                 visitors = "Unknown";
@@ -732,7 +708,29 @@ public class DiscordIntegration {
                 break;
             }
             //#endif >=GreatWhite
+            case "Pause": {
+                Main.paused = true;
+                Reset();
+                break;
+            }
+
+            case "Unpause": {
+                Main.paused = false;
+                break;
+            }
         }
+    }
+
+    public static void Reset() {
+        RealtimeEventRegistry.eventMap.clear();
+        RealtimeEventRegistry.classMap.clear();
+        RealtimeEventRegistry.eventMap.clear();
+        RealtimeEventRegistry.packetClassMap.clear();
+        AutoList.listingInv = false;
+        AutoList.finishCurrentListing();
+        QueueUtil.queue.clear();
+        QueueUtil.finishAction();
+        return;
     }
 
     static TimerTask reconnectTimer;

@@ -7,7 +7,7 @@ import dev.jacktym.marketshark.util.QueueUtil;
 
 public class AutoOpen {
     public static void openAuction(FlipItem item) {
-        if (!FlipConfig.autoOpen) {
+        if (!FlipConfig.autoOpen || Main.paused) {
             return;
         }
         QueueUtil.addToStartOfQueue(() -> {
@@ -15,6 +15,7 @@ public class AutoOpen {
                 System.out.println("Attempting Open: " + item.auctionId);
             }
             if (Main.mc.thePlayer != null) {
+                Main.mc.thePlayer.closeScreen();
                 AutoBuy.autoBuy(item);
                 Main.mc.thePlayer.sendChatMessage("/viewauction " + item.auctionId);
             }

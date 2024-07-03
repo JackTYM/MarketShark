@@ -19,7 +19,7 @@ import java.util.List;
 public class AutoClaimSold {
     @SubscribeEvent
     public void clientChatReceivedEvent(ClientChatReceivedEvent event) {
-        if (!FlipConfig.autoClaimSold) {
+        if (!FlipConfig.autoClaimSold || Main.paused) {
             return;
         }
 
@@ -39,6 +39,9 @@ public class AutoClaimSold {
 
     @SubscribeEvent
     public void checkForSold(GuiScreenEvent event) {
+        if (Main.paused) {
+            return;
+        }
         if (!(event instanceof GuiScreenEvent.DrawScreenEvent.Post)) {
             // GUI not initialized yet
             return;
