@@ -8,6 +8,8 @@ import net.minecraft.inventory.IInventory;
 import net.minecraftforge.client.event.ClientChatReceivedEvent;
 import net.minecraftforge.client.event.GuiScreenEvent;
 
+import java.util.TimerTask;
+
 public class AutoClaim {
     public static void claim(FlipItem item) {
         if (!FlipConfig.autoClaim || Main.paused) {
@@ -17,7 +19,8 @@ public class AutoClaim {
         QueueUtil.addToQueue(() -> {
             RealtimeEventRegistry.registerEvent("guiScreenEvent", guiScreenEvent -> openBids((GuiScreenEvent) guiScreenEvent, item), "AutoClaim");
             Main.mc.thePlayer.sendChatMessage("/ah");
-            
+
+            System.out.println("Opened AH to claim");
         });
     }
 
@@ -35,7 +38,7 @@ public class AutoClaim {
             if (chest.getDisplayName().getUnformattedText().contains("Auction House")) {
                 DelayUtils.delayAction(300, () -> {
                     RealtimeEventRegistry.registerEvent("guiScreenEvent", guiScreenEvent -> claimItem((GuiScreenEvent) guiScreenEvent, item), "AutoClaim");
-                    GuiUtil.tryClick(13);
+                    GuiUtil.singleClick(13);
                 });
                 return true;
             }
@@ -63,7 +66,7 @@ public class AutoClaim {
                         int finalI = i;
                         DelayUtils.delayAction(300, () -> {
                             RealtimeEventRegistry.registerEvent("guiScreenEvent", guiScreenEvent -> confirmClaim((GuiScreenEvent) guiScreenEvent, item), "AutoClaim");
-                            GuiUtil.tryClick(finalI);
+                            GuiUtil.singleClick(finalI);
                         });
                         return true;
                     }
@@ -75,6 +78,8 @@ public class AutoClaim {
 
         return false;
     }
+
+    private static TimerTask claimTimer;
 
     public static boolean confirmClaim(GuiScreenEvent event, FlipItem item) {
         if (!(event instanceof GuiScreenEvent.DrawScreenEvent.Post)) {
@@ -88,11 +93,14 @@ public class AutoClaim {
             }
 
             if (chest.getDisplayName().getUnformattedText().equals("BIN Auction View")) {
-                DelayUtils.delayAction(300, () -> {
-                    long expiryTime = System.currentTimeMillis() + 10000;
-                    RealtimeEventRegistry.registerEvent("clientChatReceivedEvent", clientChatReceivedEvent -> waitForClaimMessage((ClientChatReceivedEvent) clientChatReceivedEvent, expiryTime, item), "AutoClaim");
-                    GuiUtil.tryClick(31);
-                });
+                if (claimTimer == null) {
+                    claimTimer = DelayUtils.delayAction(300, () -> {
+                        long expiryTime = System.currentTimeMillis() + 10000;
+                        RealtimeEventRegistry.registerEvent("clientChatReceivedEvent", clientChatReceivedEvent -> waitForClaimMessage((ClientChatReceivedEvent) clientChatReceivedEvent, expiryTime, item), "AutoClaim");
+                        GuiUtil.singleClick(31);
+                        claimTimer = null;
+                    });
+                }
                 return true;
             }
         }

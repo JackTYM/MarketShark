@@ -53,9 +53,11 @@ public class AutoClaimSold {
             }
 
             if (ChatUtils.stripColor(chest.getDisplayName().getUnformattedText()).equals("Manage Auctions")) {
-                for (int i = 1; i <= 14; i++) {
+                for (int i = 1; i <= 35; i++) {
                     int slotId = i + 9;
-                    if (i > 7) slotId += 2;
+
+                    int increment = (i - 1) / 7;
+                    slotId += increment * 2;
 
                     ItemStack stack = chest.getStackInSlot(slotId);
                     if (stack != null) {
@@ -101,7 +103,7 @@ public class AutoClaimSold {
 
             if (chest.getDisplayName().getUnformattedText().equals("BIN Auction View")) {
                 DelayUtils.delayAction(300, () -> {
-                    GuiUtil.tryClick(31);
+                    GuiUtil.singleClick(31);
                     
                     RealtimeEventRegistry.clearClazzMap("AutoClaimSold");
                 });

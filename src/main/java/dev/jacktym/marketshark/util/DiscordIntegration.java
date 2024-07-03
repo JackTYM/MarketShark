@@ -108,7 +108,7 @@ public class DiscordIntegration {
             if (chest.getDisplayName().getUnformattedText().endsWith("Auction House")) {
                 DelayUtils.delayAction(800, () -> {
                     RealtimeEventRegistry.registerEvent("guiScreenEvent", guiScreenEvent -> sendAuctions((GuiScreenEvent) guiScreenEvent), "AutoList");
-                    GuiUtil.tryClick(15);
+                    GuiUtil.singleClick(15);
                 });
                 return true;
             }
@@ -133,9 +133,11 @@ public class DiscordIntegration {
             List<FlipItem> items = new ArrayList<>();
             System.out.println(ChatUtils.stripColor(chest.getDisplayName().getUnformattedText()));
             if (ChatUtils.stripColor(chest.getDisplayName().getUnformattedText()).equals("Manage Auctions")) {
-                for (int i = 1; i <= 14; i++) {
+                for (int i = 1; i <= 35; i++) {
                     int slotId = i + 9;
-                    if (i > 7) slotId += 2;
+
+                    int increment = (i - 1) / 7;
+                    slotId += increment * 2;
 
                     ItemStack stack = chest.getStackInSlot(slotId);
                     if (stack != null) {
@@ -730,7 +732,6 @@ public class DiscordIntegration {
         AutoList.finishCurrentListing();
         QueueUtil.queue.clear();
         QueueUtil.finishAction();
-        return;
     }
 
     static TimerTask reconnectTimer;

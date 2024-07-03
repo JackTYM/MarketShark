@@ -227,6 +227,18 @@ public class AutoList {
             Main.mc.thePlayer.sendChatMessage("/ah");
             RealtimeEventRegistry.registerEvent("guiScreenEvent", guiScreenEvent -> openManageAuctions((GuiScreenEvent) guiScreenEvent, item), "AutoList");
         });
+
+        listItem(item);
+    }
+
+    public static void listItem(FlipItem item) {
+        ChatUtils.printMarkedChat("Listing item " + item.strippedDisplayName + " for " + ChatUtils.abbreviateNumber(item.sellPrice) + " coins");
+
+        QueueUtil.addToQueue(() -> {
+            currentlyListing = true;
+            Main.mc.thePlayer.sendChatMessage("/ah");
+            RealtimeEventRegistry.registerEvent("guiScreenEvent", guiScreenEvent -> openManageAuctions((GuiScreenEvent) guiScreenEvent, item), "AutoList");
+        });
     }
 
     public static boolean openManageAuctions(GuiScreenEvent event, FlipItem item) {
@@ -243,7 +255,7 @@ public class AutoList {
             if (chest.getDisplayName().getUnformattedText().endsWith("Auction House")) {
                 DelayUtils.delayAction(800, () -> {
                     RealtimeEventRegistry.registerEvent("guiScreenEvent", guiScreenEvent -> openCreateAuction((GuiScreenEvent) guiScreenEvent, item), "AutoList");
-                    GuiUtil.tryClick(15);
+                    GuiUtil.singleClick(15);
                 });
                 return true;
             }
@@ -265,10 +277,10 @@ public class AutoList {
                 DelayUtils.delayAction(800, () -> {
                     RealtimeEventRegistry.registerEvent("guiScreenEvent", guiScreenEvent -> createAuction((GuiScreenEvent) guiScreenEvent, item), "AutoList");
                     if (chest.getStackInSlot(24) != null && chest.getStackInSlot(24).getItem().equals(Items.golden_horse_armor)) {
-                        GuiUtil.tryClick(24);
+                        GuiUtil.singleClick(24);
                     } else {
                         if (chest.getStackInSlot(33) != null && !chest.getStackInSlot(33).getTagCompound().getCompoundTag("display").getTagList("Lore", 8).get(0).toString().contains("You reached the maximum number of")) {
-                            GuiUtil.tryClick(33);
+                            GuiUtil.singleClick(33);
                         } else {
                             if (FlipConfig.debug) {
                                 System.out.println("Auction House Full!");
@@ -477,7 +489,7 @@ public class AutoList {
             if (chest.getDisplayName().getUnformattedText().equals("Create BIN Auction")) {
                 DelayUtils.delayAction(800, () -> {
                     RealtimeEventRegistry.registerEvent("guiScreenEvent", guiScreenEvent -> confirmAuction((GuiScreenEvent) guiScreenEvent, item), "AutoList");
-                    GuiUtil.tryClick(29);
+                    GuiUtil.singleClick(29);
                 });
                 return true;
             }
@@ -499,7 +511,7 @@ public class AutoList {
             if (chest.getDisplayName().getUnformattedText().equals("Confirm BIN Auction")) {
                 DelayUtils.delayAction(800, () -> {
                     RealtimeEventRegistry.registerEvent("guiScreenEvent", guiScreenEvent -> closeAuction((GuiScreenEvent) guiScreenEvent, item), "AutoList");
-                    GuiUtil.tryClick(11);
+                    GuiUtil.singleClick(11);
                 });
                 return true;
             }

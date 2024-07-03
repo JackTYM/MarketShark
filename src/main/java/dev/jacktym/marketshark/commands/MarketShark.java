@@ -90,6 +90,7 @@ public class MarketShark extends CommandBase {
                         ChatUtils.printColoredChat("MarketShark Help Menu", EnumChatFormatting.GOLD);
                         ChatUtils.printUnmarkedChat("/marketshark - Displays Config GUI");
                         ChatUtils.printUnmarkedChat("/marketshark list - Lists held item");
+                        ChatUtils.printUnmarkedChat("/marketshark list (price) - Lists held item at specific price");
                         ChatUtils.printUnmarkedChat("/marketshark pause - Pauses MarketShark features");
                         ChatUtils.printUnmarkedChat("/marketshark unpause - Unpauses MarketShark features");
                         //#if >=GreatWhite
@@ -128,6 +129,7 @@ public class MarketShark extends CommandBase {
                     //#endif >=GreatWhite
                     case "reset": {
                         DiscordIntegration.Reset();
+                        ChatUtils.printMarkedChat("Reset MarketShark!");
                     }
                     case "discord": {
                         DiscordIntegration.connectToWebsocket();
@@ -137,6 +139,21 @@ public class MarketShark extends CommandBase {
                         FlipItem flipItem = FlipItem.getFlipItem(Main.mc.thePlayer.inventory.getCurrentItem());
 
                         ChatUtils.printMarkedChat("Current Flip Item - Buy Price: " + flipItem.buyPrice + " Cofl Worth: " + flipItem.coflWorth + " Bed: " + flipItem.bed + " Uuid: " + flipItem.uuid);
+                        break;
+                    }
+                }
+            }
+            case 2: {
+                switch (args[0]) {
+                    case "list": {
+                        try {
+                            FlipItem flipItem = FlipItem.getFlipItem(Main.mc.thePlayer.inventory.getCurrentItem());
+                            flipItem.sellPrice = ChatUtils.unabbreviateNumber(args[1].replace(",", ""));
+                            AutoList.listItem(flipItem);
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                            ChatUtils.printMarkedChat("Failed to list item. Report this!");
+                        }
                         break;
                     }
                 }

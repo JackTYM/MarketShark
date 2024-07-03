@@ -47,6 +47,7 @@ public class AutoBuy {
     public static void confirmClosed() {
         item.closed = true;
         Main.mc.thePlayer.closeScreen();
+        System.out.println("Closed GUI");
         try {
             if (closeGuiTimer != null) {
                 closeGuiTimer.cancel();
