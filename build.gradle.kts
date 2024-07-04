@@ -75,8 +75,6 @@ dependencies {
     forge("net.minecraftforge:forge:1.8.9-11.15.1.2318-1.8.9")
 
     modImplementation("org.spongepowered:mixin:0.8.5-SNAPSHOT")
-    shadowImpl("gg.essential:loader-launchwrapper:1.1.3")
-    shadowImpl("org.java-websocket:Java-WebSocket:1.5.2")
     shadowImpl("com.neovisionaries:nv-websocket-client:2.14")
     modImplementation("gg.essential:essential-1.8.9-forge:2581")
     modImplementation(files("libs/CoflMod-1.5.5-alpha.jar"))
