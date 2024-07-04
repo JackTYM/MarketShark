@@ -21,10 +21,10 @@ public class Failsafes {
     @SubscribeEvent
     public void closeGuiFailsafe(GuiScreenEvent event) {
         try {
-            if (Main.paused) {
+            if (Main.paused || !DiscordIntegration.activated) {
                 return;
             }
-            DelayUtils.delayAction(Long.parseLong(FlipConfig.autoCloseMenuDelay), () -> {
+            DelayUtils.delayAction(FlipConfig.autoCloseMenuDelay, () -> {
                 if (Main.mc != null && Main.mc.thePlayer != null && FlipConfig.autoOpen && event.gui == Main.mc.currentScreen && event.gui instanceof GuiChest) {
                     ChatUtils.printMarkedChat("Stuck GUI Failsafe Triggered!");
                     if (!QueueUtil.currentAction.isEmpty()) {
@@ -46,7 +46,7 @@ public class Failsafes {
     }
 
     public static boolean stuckEventFailsafe(TickEvent.ClientTickEvent event, long startTime, String clazz) {
-        if (startTime + Long.parseLong(FlipConfig.autoCloseMenuDelay) < System.currentTimeMillis() && Main.mc != null && Main.mc.thePlayer != null && FlipConfig.autoOpen) {
+        if (startTime + FlipConfig.autoCloseMenuDelay < System.currentTimeMillis() && Main.mc != null && Main.mc.thePlayer != null && FlipConfig.autoOpen) {
             ChatUtils.printMarkedChat("Stuck Event Failsafe Triggered!");
             RealtimeEventRegistry.clearClazzMap(clazz);
             Main.mc.thePlayer.closeScreen();
@@ -61,7 +61,7 @@ public class Failsafes {
 
     @SubscribeEvent
     public void clientChatReceivedEvent(ClientChatReceivedEvent event) {
-        if (Main.paused) {
+        if (Main.paused || !DiscordIntegration.activated) {
             return;
         }
         if (FlipConfig.autoOpen) {
@@ -95,7 +95,7 @@ public class Failsafes {
 
     @SubscribeEvent
     public void connectToServerEvent(EntityJoinWorldEvent event) {
-        if (Main.paused) {
+        if (Main.paused || !DiscordIntegration.activated) {
             return;
         }
         if (event.entity == Main.mc.thePlayer) {
@@ -107,7 +107,7 @@ public class Failsafes {
 
     @SubscribeEvent
     public void serverDisconnectGui(GuiOpenEvent event) {
-        if (Main.paused) {
+        if (Main.paused || !DiscordIntegration.activated) {
             return;
         }
         if (event.gui instanceof GuiDisconnected) {
@@ -140,7 +140,7 @@ public class Failsafes {
     private static boolean connect = false;
     @SubscribeEvent
     public void GuiEvent(GuiScreenEvent event) {
-        if (Main.paused) {
+        if (Main.paused || !DiscordIntegration.activated) {
             return;
         }
         if (connect) {

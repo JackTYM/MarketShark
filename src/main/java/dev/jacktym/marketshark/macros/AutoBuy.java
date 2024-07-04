@@ -29,7 +29,7 @@ public class AutoBuy {
     private static int confirmWindowId = 0;
 
     public static void autoBuy(FlipItem item) {
-        if (!FlipConfig.autoBuy || Main.paused) {
+        if (!FlipConfig.autoBuy || Main.paused || !DiscordIntegration.activated) {
             return;
         }
 
@@ -135,7 +135,7 @@ public class AutoBuy {
                 }
 
                 if (confirmItem.getItem().equals(Item.getItemFromBlock(Blocks.stained_hardened_clay))) {
-                    if (item.buyClicks < Float.parseFloat(FlipConfig.maxBuyClicks)) {
+                    if (item.buyClicks < FlipConfig.maxBuyClicks) {
                         item.buyClicks++;
                         Main.mc.thePlayer.sendQueue.addToSendQueue(
                                 new C0EPacketClickWindow(Main.mc.thePlayer.openContainer.windowId, 11, 2, 3,
@@ -175,7 +175,7 @@ public class AutoBuy {
                     if (p.func_149174_e().getItem().equals(Items.bed)) {
                         // Buy bed Here
                         item.bed = true;
-                        long bedTime = item.auctionStart + Long.parseLong(FlipConfig.bedSpamStartDelay);
+                        long bedTime = item.auctionStart + FlipConfig.bedSpamStartDelay;
                         long delay = Math.max(bedTime - System.currentTimeMillis(), 0);
                         System.out.println("Spamming item " + item.strippedDisplayName + " in " + delay + "ms");
 
@@ -193,7 +193,7 @@ public class AutoBuy {
 
                         //#if >=Megalodon
                         if (FlipConfig.confirmSkip) {
-                            DelayUtils.delayAction(Long.parseLong(FlipConfig.confirmSkipDelay), () -> {
+                            DelayUtils.delayAction(FlipConfig.confirmSkipDelay, () -> {
                                 item.skipped = true;
                                 ItemStack fakeConfirm = new ItemStack(Item.getItemFromBlock(Blocks.stained_hardened_clay), 1, 13);
                                 fakeConfirm.setStackDisplayName("§aConfirm");
@@ -243,7 +243,7 @@ public class AutoBuy {
 
                     System.out.println(confirmItem.getItem().getUnlocalizedName());
                     if (confirmItem.getItem().equals(Item.getItemFromBlock(Blocks.stained_hardened_clay))) {
-                        if (item.buyClicks < Float.parseFloat(FlipConfig.maxBuyClicks)) {
+                        if (item.buyClicks < FlipConfig.maxBuyClicks) {
                             item.buyClicks++;
                             Main.mc.thePlayer.sendQueue.addToSendQueue(
                                     new C0EPacketClickWindow(confirmWindowId, 11, 2, 3,
@@ -266,7 +266,7 @@ public class AutoBuy {
 
     public static void clickBed(String itemName, S2FPacketSetSlot p) {
         if (QueueUtil.currentAction.equals("AutoBuy") && item.bedClicking && !item.closed && itemName.equals(item.strippedDisplayName)) {
-            DelayUtils.delayAction(Integer.parseInt(FlipConfig.bedSpamDelay), () -> {
+            DelayUtils.delayAction(FlipConfig.bedSpamDelay, () -> {
                 Main.mc.thePlayer.sendQueue.addToSendQueue(
                         new C0EPacketClickWindow(buyWindowId, 31, 2, 3,
                                 p.func_149174_e(),

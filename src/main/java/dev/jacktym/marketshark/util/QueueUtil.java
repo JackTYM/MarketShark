@@ -34,7 +34,7 @@ public class QueueUtil {
             r.run();
             System.out.println("1 Started " + currentAction);
 
-            finishFailsafe = DelayUtils.delayAction(Long.parseLong(FlipConfig.autoCloseMenuDelay), () -> finishAction(currentAction));
+            finishFailsafe = DelayUtils.delayAction(FlipConfig.autoCloseMenuDelay, () -> finishAction(currentAction));
         }
     }
 
@@ -59,7 +59,7 @@ public class QueueUtil {
             r.run();
             System.out.println("2 Started " + currentAction);
 
-            finishFailsafe = DelayUtils.delayAction(Long.parseLong(FlipConfig.autoCloseMenuDelay), () -> finishAction(currentAction));
+            finishFailsafe = DelayUtils.delayAction(FlipConfig.autoCloseMenuDelay, () -> finishAction(currentAction));
         }
     }
 }

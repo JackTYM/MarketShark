@@ -28,7 +28,7 @@ public class AutoList {
     private static final Condition listingCondition = lock.newCondition();
 
     public static void listInventory() {
-        if (currentlyListing || Main.paused) {
+        if (currentlyListing || Main.paused || !DiscordIntegration.activated) {
             return;
         }
         QueueUtil.addToQueue(() -> {
@@ -194,7 +194,7 @@ public class AutoList {
             return;
         }
 
-        if (FlipConfig.enableMaxList && item.sellPrice > Long.parseLong(FlipConfig.maximumAutoList)) {
+        if (FlipConfig.enableMaxList && item.sellPrice > FlipConfig.maximumAutoList) {
             ChatUtils.printMarkedChat("Skipped listing item. Above maximum list!");
             item.skipReason = "Skipped listing item. Above maximum list!";
 
@@ -208,7 +208,7 @@ public class AutoList {
         }
 
 
-        if (FlipConfig.enableMinProfitPercent && Math.round((flipProfit / item.sellPrice)*100) < Long.parseLong(FlipConfig.minimumProfitPercent)) {
+        if (FlipConfig.enableMinProfitPercent && Math.round((flipProfit / item.sellPrice)*100) < FlipConfig.minimumProfitPercent) {
             ChatUtils.printMarkedChat("Skipped listing item. Below minimum profit percent!");
             item.skipReason = "Skipped listing item. Below minimum profit percent!";
             RealtimeEventRegistry.clearClazzMap("AutoList");
@@ -462,7 +462,7 @@ public class AutoList {
                 return false;
             }
 
-            tileEntitySign.signText[0] = new ChatComponentText(FlipConfig.autoSellTime);
+            tileEntitySign.signText[0] = new ChatComponentText("" + FlipConfig.autoSellTime);
 
             DelayUtils.delayAction(800, () -> {
                 if (tileEntitySign.signText[0].getUnformattedText().equals(FlipConfig.autoSellTime)) {

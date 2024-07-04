@@ -23,7 +23,8 @@ import java.util.Locale;
 public class Main {
     public static FlipConfig flipConfig;
     public static Minecraft mc = Minecraft.getMinecraft();
-    public static final String version = "";
+    public static final String version = "None";
+    public static final String modVersion = "1.0.0";
     public static boolean paused = false;
 
     @Mod.EventHandler

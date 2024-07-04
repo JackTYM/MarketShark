@@ -29,7 +29,7 @@ loom {
         "client" {
             // If you don't want mixins, remove these lines
             property("mixin.debug", "true")
-            arg("--tweakClass", "gg.essential.loader.stage0.EssentialSetupTweaker")
+            arg("--tweakClass", "cc.polyfrost.oneconfig.loader.stage0.LaunchWrapperTweaker")
         }
     }
     runConfigs {
@@ -62,6 +62,7 @@ repositories {
     google()
     maven("https://repo.spongepowered.org/maven/")
     maven("https://repo.sk1er.club/repository/maven-public")
+    maven("https://repo.polyfrost.org/releases")
 }
 
 val shadowImpl: Configuration by configurations.creating {
@@ -79,6 +80,9 @@ dependencies {
     shadowImpl("com.neovisionaries:nv-websocket-client:2.14")
     modImplementation("gg.essential:essential-1.8.9-forge:2581")
     modImplementation(files("libs/CoflMod-1.5.5-alpha.jar"))
+
+    modImplementation("cc.polyfrost:oneconfig-1.8.9-forge:0.2.2-alpha+")
+    shadowImpl("cc.polyfrost:oneconfig-wrapper-launchwrapper:1.0.0-beta17")
 }
 
 // Tasks:
@@ -91,7 +95,7 @@ tasks.withType(Jar::class) {
     manifest.attributes.run {
         this["FMLCorePluginContainsFMLMod"] = "true"
         this["ForceLoadAsMod"] = "true"
-        this["TweakClass"] = "gg.essential.loader.stage0.EssentialSetupTweaker"
+        this["TweakClass"] = "cc.polyfrost.oneconfig.loader.stage0.LaunchWrapperTweaker"
         this["MixinConfigs"] = "mixins.$modid.json"
     }
 }
@@ -283,7 +287,7 @@ tasks.register<Jar>("buildHammerheadPost") {
         attributes(
             "FMLCorePluginContainsFMLMod" to "true",
             "ForceLoadAsMod" to "true",
-            "TweakClass" to "gg.essential.loader.stage0.EssentialSetupTweaker",
+            "TweakClass" to "cc.polyfrost.oneconfig.loader.stage0.LaunchWrapperTweaker",
             "MixinConfigs" to "mixins.$modid.json"
         )
     }
@@ -317,7 +321,7 @@ tasks.register<Jar>("buildWobbegongPost") {
         attributes(
             "FMLCorePluginContainsFMLMod" to "true",
             "ForceLoadAsMod" to "true",
-            "TweakClass" to "gg.essential.loader.stage0.EssentialSetupTweaker",
+            "TweakClass" to "cc.polyfrost.oneconfig.loader.stage0.LaunchWrapperTweaker",
             "MixinConfigs" to "mixins.$modid.json"
         )
     }
@@ -351,7 +355,7 @@ tasks.register<Jar>("buildGreatWhitePost") {
         attributes(
             "FMLCorePluginContainsFMLMod" to "true",
             "ForceLoadAsMod" to "true",
-            "TweakClass" to "gg.essential.loader.stage0.EssentialSetupTweaker",
+            "TweakClass" to "cc.polyfrost.oneconfig.loader.stage0.LaunchWrapperTweaker",
             "MixinConfigs" to "mixins.$modid.json"
         )
     }
@@ -385,7 +389,7 @@ tasks.register<Jar>("buildMegalodonPost") {
         attributes(
             "FMLCorePluginContainsFMLMod" to "true",
             "ForceLoadAsMod" to "true",
-            "TweakClass" to "gg.essential.loader.stage0.EssentialSetupTweaker",
+            "TweakClass" to "cc.polyfrost.oneconfig.loader.stage0.LaunchWrapperTweaker",
             "MixinConfigs" to "mixins.$modid.json"
         )
     }
@@ -428,7 +432,7 @@ tasks.register<Copy>("processSource") {
                         .replace("//#if Wobbegong", "/*")
                         .replace("//#endif Wobbegong", "*/")
 
-                        .replace("version = \"\";", "version = \"Hammerhead\";")
+                        .replace("version = \"None\";", "version = \"Hammerhead\";")
                     "Wobbegong" -> text
                         .replace("//#if >=GreatWhite", "/*")
                         .replace("//#endif >=GreatWhite", "*/")
@@ -442,7 +446,7 @@ tasks.register<Copy>("processSource") {
                         .replace("//#if Hammerhead", "/*")
                         .replace("//#endif Hammerhead", "*/")
 
-                        .replace("version = \"\";", "version = \"Wobbegong\";")
+                        .replace("version = \"None\";", "version = \"Wobbegong\";")
                     "GreatWhite" -> text
                         .replace("//#if >=Megalodon", "/*")
                         .replace("//#endif >=Megalodon", "*/")
@@ -454,7 +458,7 @@ tasks.register<Copy>("processSource") {
                         .replace("//#if Hammerhead", "/*")
                         .replace("//#endif Hammerhead", "*/")
 
-                        .replace("version = \"\";", "version = \"GreatWhite\";")
+                        .replace("version = \"None\";", "version = \"GreatWhite\";")
                     "Megalodon" -> text
                         .replace("//#if GreatWhite", "/*")
                         .replace("//#endif GreatWhite", "*/")
@@ -463,10 +467,10 @@ tasks.register<Copy>("processSource") {
                         .replace("//#if Hammerhead", "/*")
                         .replace("//#endif Hammerhead", "*/")
 
-                        .replace("version = \"\";", "version = \"Megalodon\";")
+                        .replace("version = \"None\";", "version = \"Megalodon\";")
                     else -> text
-                        .replace("version = \"\";", "version = \"UnknownVersion\";")
-                }
+                        .replace("version = \"None\";", "version = \"UnknownVersion\";")
+                }.replace("modVersion = \"1.0.0\"", "modVersion = \"$mcVersion\";")
                 file.writeText(modifiedText)
             }
     }

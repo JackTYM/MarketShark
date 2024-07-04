@@ -50,6 +50,7 @@ public class DiscordIntegration {
 
     private static String coflPing = "";
     private static String coflDelay = "";
+    public static boolean activated = false;
 
     public static void connectToWebsocket() {
         try {
@@ -385,6 +386,7 @@ public class DiscordIntegration {
         jsonObject.addProperty("username", Main.mc.getSession().getUsername());
         jsonObject.addProperty("hwid", getHWID());
         jsonObject.addProperty("version", Main.version);
+        jsonObject.addProperty("modVersion", Main.modVersion);
         if (sessionId != null) {
             jsonObject.addProperty("session_id", sessionId);
         }
@@ -464,10 +466,13 @@ public class DiscordIntegration {
             case "Activated": {
                 sessionId = jsonObject.get("session_id").getAsString();
                 ChatUtils.printMarkedChat(jsonObject.get("message").getAsString());
+
+                activated = true;
                 break;
             }
             case "FailedActivation": {
-                Main.mc.shutdown();
+                activated = false;
+                ChatUtils.printMarkedChat(jsonObject.get("message").getAsString());
                 break;
             }
             case "IncorrectSession": {
@@ -475,6 +480,7 @@ public class DiscordIntegration {
                 sessionId = null;
                 websocketClient.close();
                 connectToWebsocket();
+                activated = false;
                 break;
             }
 
@@ -557,7 +563,7 @@ public class DiscordIntegration {
                 } catch (Exception ignored) {
                 }
                 try {
-                    FlipConfig.autoSellTime = settings.get("autoSellTime").getAsString();
+                    FlipConfig.autoSellTime = settings.get("autoSellTime").getAsInt();
                 } catch (Exception ignored) {
                 }
                 try {

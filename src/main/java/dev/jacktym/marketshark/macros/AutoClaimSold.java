@@ -19,7 +19,7 @@ import java.util.List;
 public class AutoClaimSold {
     @SubscribeEvent
     public void clientChatReceivedEvent(ClientChatReceivedEvent event) {
-        if (!FlipConfig.autoClaimSold || Main.paused) {
+        if (!FlipConfig.autoClaimSold || Main.paused || !DiscordIntegration.activated) {
             return;
         }
 
@@ -39,7 +39,7 @@ public class AutoClaimSold {
 
     @SubscribeEvent
     public void checkForSold(GuiScreenEvent event) {
-        if (Main.paused) {
+        if (Main.paused || !DiscordIntegration.activated) {
             return;
         }
         if (!(event instanceof GuiScreenEvent.DrawScreenEvent.Post)) {

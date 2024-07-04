@@ -2,8 +2,9 @@ package dev.jacktym.marketshark.commands;
 
 import dev.jacktym.marketshark.Main;
 import dev.jacktym.marketshark.macros.AutoList;
-import dev.jacktym.marketshark.util.*;
-import gg.essential.api.utils.GuiUtil;
+import dev.jacktym.marketshark.util.ChatUtils;
+import dev.jacktym.marketshark.util.DiscordIntegration;
+import dev.jacktym.marketshark.util.FlipItem;
 import net.minecraft.command.CommandBase;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.util.BlockPos;
@@ -76,12 +77,16 @@ public class MarketShark extends CommandBase {
 
     @Override
     public void processCommand(ICommandSender sender, String[] args) {
+        if (!DiscordIntegration.activated && args.length != 0) {
+            ChatUtils.printMarkedChat("MarketShark is not activated! Please enter your Activation Key in /ms and click Connect!");
+            return;
+        }
         if (Main.paused) {
             ChatUtils.printMarkedChat("MarketShark is Paused! Features will not work until unpaused!");
         }
         switch (args.length) {
             case 0: {
-                GuiUtil.open(Main.flipConfig.gui());
+                Main.flipConfig.openGui();
                 break;
             }
             case 1: {

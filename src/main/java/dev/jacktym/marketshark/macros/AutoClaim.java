@@ -12,7 +12,7 @@ import java.util.TimerTask;
 
 public class AutoClaim {
     public static void claim(FlipItem item) {
-        if (!FlipConfig.autoClaim || Main.paused) {
+        if (!FlipConfig.autoClaim || Main.paused || !DiscordIntegration.activated) {
             return;
         }
 

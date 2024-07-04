@@ -1,98 +1,98 @@
 package dev.jacktym.marketshark.config;
 
-import gg.essential.vigilance.Vigilant;
-import gg.essential.vigilance.data.*;
-import org.jetbrains.annotations.NotNull;
+import cc.polyfrost.oneconfig.config.Config;
+import cc.polyfrost.oneconfig.config.annotations.Number;
+import cc.polyfrost.oneconfig.config.annotations.*;
+import cc.polyfrost.oneconfig.config.data.Mod;
+import cc.polyfrost.oneconfig.config.data.ModType;
+import cc.polyfrost.oneconfig.config.data.OptionSize;
+import dev.jacktym.marketshark.util.DiscordIntegration;
 
-import java.io.File;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
+public class FlipConfig extends Config {
 
-public class FlipConfig extends Vigilant {
-
-    @Property(
-            type = PropertyType.CHECKBOX,
+    @Checkbox(
             category = "Macros",
+            subcategory = "Auto Open",
             name = "Auto Open",
-            description = "Auto Opens all Cofl Relay Flips"
+            description = "Automatically opens the Auction GUI for new Cofl flips"
     )
     public static boolean autoOpen = false;
-    @Property(
-            type = PropertyType.CHECKBOX,
+    @Checkbox(
             category = "Macros",
+            subcategory = "Auto Buy",
             name = "Auto Buy",
-            description = "Auto Buys Cofl Relay Flips"
+            description = "Automatically buys opened Cofl flips",
+            size = OptionSize.DUAL
     )
     public static boolean autoBuy = false;
-    @Property(
-            type = PropertyType.TEXT,
+    @Number(
             category = "Macros",
+            subcategory = "Auto Buy",
             name = "Max Buy Clicks",
-            description = "The max amount of times for the macro to click the Buy button (Default 2)"
+            description = "The max amount of times for the macro to click the Buy button (Default 2)",
+            min = 1, max = 3
     )
-    public static String maxBuyClicks = "2";
+    public static int maxBuyClicks = 2;
     //#if >=Megalodon
-    @Property(
-            type = PropertyType.CHECKBOX,
+    @Checkbox(
             category = "Macros",
+            subcategory = "Auto Buy",
             name = "Confirm Skip",
-            description = "Skips the AutoBuy Confirm Window"
+            description = "Skips the AutoBuy Confirm Window",
+            size = OptionSize.DUAL
     )
     public static boolean confirmSkip = false;
-    @Property(
-            type = PropertyType.TEXT,
+    @Slider(
             category = "Macros",
+            subcategory = "Auto Buy",
             name = "Confirm Skip Delay",
-            description = "Delay to Skips the AutoBuy Confirm Window (Default 10)"
+            description = "Delay to Skips the AutoBuy Confirm Window (Default 10)",
+            min = 0, max = 30
     )
-    public static String confirmSkipDelay = "10";
+    public static int confirmSkipDelay = 2;
     //#endif >=Megalodon
-    @Property(
-            type = PropertyType.TEXT,
+    @Slider(
             category = "Macros",
+            subcategory = "Auto Buy",
             name = "Bed Spam Delay",
-            description = "How many ms to wait between bed buy clicks (Default 50)"
+            description = "How many ms to wait between bed buy clicks (Default 50)",
+            min = 0, max = 100
     )
-    public static String bedSpamDelay = "50";
-    @Property(
-            type = PropertyType.TEXT,
+    public static int bedSpamDelay = 50;
+    @Slider(
             category = "Macros",
-            name = "Bed Buy Repeats",
-            description = "How many times to click bed buys (Default 20)"
-    )
-    public static String bedBuyRepeats = "20";
-    @Property(
-            type = PropertyType.TEXT,
-            category = "Macros",
+            subcategory = "Auto Buy",
             name = "Bed Spam Start Delay",
-            description = "How long to start spamming since start of the auction in ms (Default 20000)"
+            description = "How long to start spamming since start of the auction in ms (Default 19900)",
+            min = 0, max = 30000
     )
-    public static String bedSpamStartDelay = "20000";
-    @Property(
-            type = PropertyType.CHECKBOX,
+    public static int bedSpamStartDelay = 19900;
+    @Checkbox(
             category = "Macros",
+            subcategory = "Auto Claim",
             name = "Auto Claim",
             description = "Auto Claims all Cofl Relay Flip Items"
     )
     public static boolean autoClaim = false;
-    @Property(
-            type = PropertyType.CHECKBOX,
+    @Checkbox(
             category = "Macros",
+            subcategory = "Auto Sell",
             name = "Auto Sell",
-            description = "Auto Sells all Cofl Relay Flips"
+            description = "Auto Sell all Cofl Relay Flip Items",
+            size = OptionSize.DUAL
     )
     public static boolean autoSell = false;
-    @Property(
-            type = PropertyType.TEXT,
+    @Number(
             category = "Macros",
+            subcategory = "Auto Sell",
             name = "Auto Sell Time",
-            description = "How many time in hours to list items for (Default 48)"
+            description = "How many time in hours to list items for (Default 48)",
+            min = 1, max = 168
     )
-    public static String autoSellTime = "48";
-    @Property(
-            type = PropertyType.SELECTOR,
+    public static int autoSellTime = 2;
+    @Dropdown(
             category = "Macros",
+            subcategory = "Auto Sell",
             name = "Auto Sell Price",
             description = "How to base your sell price",
             options = {
@@ -103,18 +103,18 @@ public class FlipConfig extends Vigilant {
                     "Flip Target"
             }
     )
-    public static int autoSellPrice = 1;
-    @Property(
-            type = PropertyType.CHECKBOX,
+    public static int autoSellPrice = 4;
+    @Checkbox(
             category = "Macros",
+            subcategory = "Auto Claim Sold",
             name = "Auto Claim Sold",
             description = "Auto Claims all Sold Auctions"
     )
     public static boolean autoClaimSold = false;
     //#if >=Wobbegong
-    @Property(
-            type = PropertyType.SELECTOR,
+    @Dropdown(
             category = "Macros",
+            subcategory = "Auto Relist",
             name = "Auto Relist",
             description = "Auto Relists Expired Auctions",
             options = {
@@ -126,169 +126,141 @@ public class FlipConfig extends Vigilant {
     public static int autoRelist = 0;
     //#endif >=Wobbegong
 
-    @Property(
-            type = PropertyType.TEXT,
+    @Slider(
             category = "Failsafes",
             name = "Stuck Menu Delay",
             description = "How many MS before auto closing a gui (Default 15000)",
-            options = {
-                    "Disabled",
-                    "Same Price",
-                    "New Value"
-            }
+            min = 0, max = 45000
     )
-    public static String autoCloseMenuDelay = "15000";
-    @Property(
-            type = PropertyType.CHECKBOX,
+    public static int autoCloseMenuDelay = 15000;
+    @Checkbox(
             category = "Failsafes",
             name = "Enable Maximum Item List Cost",
             description = "Enables cancelling listing an item if over a specific price"
     )
     public static boolean enableMaxList = false;
-    @Property(
-            type = PropertyType.TEXT,
+    @Slider(
             category = "Failsafes",
             name = "Maximum Item List Cost",
-            description = "The maximum amount to auto list an item for (Default 1000000000)"
+            description = "The maximum amount to auto list an item for (Default 1000000000)",
+            min = 0, max = 1000000000000f
     )
-    public static String maximumAutoList = "1000000000";
-    @Property(
-            type = PropertyType.CHECKBOX,
+    public static int maximumAutoList = 1000000000;
+    @Checkbox(
             category = "Failsafes",
+            subcategory = "Minimum Profit Percent",
             name = "Enable Minimum Profit Percent",
             description = "Enables skipping listing an item if under x% profit"
     )
     public static boolean enableMinProfitPercent = false;
-    @Property(
-            type = PropertyType.TEXT,
+    @Number(
             category = "Failsafes",
+            subcategory = "Minimum Profit Percent",
             name = "Minimum Profit Percent",
-            description = "The minimum profit percent to auto list an item for (Default 3)"
+            description = "The minimum profit percent to auto list an item for (Default 3)",
+            min = 0, max = 100
     )
-    public static String minimumProfitPercent = "3";
-    @Property(
-            type = PropertyType.CHECKBOX,
+    public static int minimumProfitPercent = 3;
+    @Checkbox(
             category = "Failsafes",
             name = "Anti Limbo",
-            description = "Brings you back to your skyblock island while in limbo (if macro enabled)"
+            description = "Brings you back to your Skyblock Island if sent to Limbo"
     )
-    public static boolean antiLimbo = true;
-    @Property(
-            type = PropertyType.CHECKBOX,
+    public static boolean antiLimbo = false;
+    @Checkbox(
             category = "Failsafes",
             name = "Auto Reconnect",
             description = "Reconnects to Hypixel when kicked (if macro enabled)"
     )
-    public static boolean autoReconnect = true;
-    @Property(
-            type = PropertyType.CHECKBOX,
+    public static boolean autoReconnect = false;
+    @Checkbox(
             category = "Failsafes",
             name = "Auto Island",
-            description = "Reconnects to Island when closed (if macro enabled)"
+            description = "Reconnects to Island when closed"
     )
-    public static boolean autoIsland = true;
+    public static boolean autoIsland = false;
 
-    @Property(
-            type = PropertyType.CHECKBOX,
+
+    @Checkbox(
             category = "Webhooks",
             name = "Flip Bought",
             description = "Webhook whenever a flip is purchased by the macro"
     )
     public static boolean boughtWebhooks = false;
-    @Property(
-            type = PropertyType.CHECKBOX,
+    @Checkbox(
             category = "Webhooks",
             name = "Flip Listed",
             description = "Webhook whenever a flip is listed by the macro"
     )
     public static boolean listedWebhooks = false;
-    @Property(
-            type = PropertyType.CHECKBOX,
+    @Checkbox(
             category = "Webhooks",
             name = "Flip Sold",
-            description = "Webhook whenever a flip is sold"
+            description = "Webhook whenever a flip is sold by the macro"
     )
     public static boolean soldWebhooks = false;
 
-    @Property(
-            type = PropertyType.CHECKBOX,
+
+    @Checkbox(
             category = "Flip Finders",
             name = "Whitelist Flipper",
             description = "Enables AutoSell for the Flipper finder"
     )
     public static boolean flipper = true;
-    @Property(
-            type = PropertyType.CHECKBOX,
+    @Checkbox(
             category = "Flip Finders",
             name = "Whitelist Sniper",
             description = "Enables AutoSell for the Sniper finder"
     )
     public static boolean sniper = true;
-    @Property(
-            type = PropertyType.CHECKBOX,
+    @Checkbox(
             category = "Flip Finders",
             name = "Whitelist Sniper (Median)",
             description = "Enables AutoSell for the Sniper (Median) finder"
     )
     public static boolean sniperMedian = true;
-    @Property(
-            type = PropertyType.CHECKBOX,
+    @Checkbox(
             category = "Flip Finders",
             name = "Whitelist User",
             description = "Enables AutoSell for the User finder"
     )
     public static boolean user = false;
-
-    @Property(
-            type = PropertyType.CHECKBOX,
+    @Checkbox(
             category = "Flip Finders",
             name = "Whitelist TFM",
             description = "Enables AutoSell for the TFM finder"
     )
     public static boolean tfm = false;
-    @Property(
-            type = PropertyType.CHECKBOX,
+    @Checkbox(
             category = "Flip Finders",
             name = "Whitelist Stonks",
             description = "Enables AutoSell for the Stonks finder"
     )
     public static boolean stonks = true;
 
-    @Property(
-            type = PropertyType.CHECKBOX,
-            category = "Developer Menu",
+
+    @Checkbox(
+            category = "Developer",
             name = "Debug Mode",
             description = "Prints Debugging Messages"
     )
     public static boolean debug = false;
-    @Property(
-            type = PropertyType.TEXT,
-            category = "Developer Menu",
+    @Text(
+            category = "Developer",
             name = "Activation Key",
-            description = "Do not change this value unless told to."
+            description = "Paste your Discord Activation Key here!",
+            secure = true
     )
     public static String activationKey = "";
+    @Button(
+            category = "Developer",
+            name = "Connect to Discord Integration",
+            text = "Connect!"
+    )
+    Runnable connectToDiscordIntegration = DiscordIntegration::connectToWebsocket;
 
     public FlipConfig() {
-        super(new File("config/marketshark.toml"), "MarketShark Config", new JVMAnnotationPropertyCollector(), new SortingBehavior() {
-            @NotNull
-            @Override
-            public Comparator<? super Category> getCategoryComparator() {
-                return (Comparator<Category>) (o1, o2) -> 0;
-            }
-
-            @Override
-            public @NotNull Comparator<? super Map.Entry<String, ? extends List<PropertyData>>> getSubcategoryComparator() {
-                return (Comparator<Map.Entry<String, ? extends List<PropertyData>>>) (o1, o2) -> 0;
-            }
-        });
-
-        this.preload();
-        this.writeData();
-        this.initialize();
-    }
-
-    public void save() {
-        this.writeData();
+        super(new Mod("MarketShark", ModType.SKYBLOCK), "marketshark.toml");
+        initialize();
     }
 }
