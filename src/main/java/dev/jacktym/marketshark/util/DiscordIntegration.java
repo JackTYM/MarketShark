@@ -759,17 +759,19 @@ public class DiscordIntegration {
     static TimerTask reconnectTimer;
 
     public static void onClose(int code, String reason, boolean remote) {
-        connected = false;
+        if (activated) {
+            connected = false;
 
-        System.out.println("Disconnected from Discord Integration!");
-        System.out.println("Websocket closed with reason: " + reason + " and code " + code + " Remote? " + remote);
+            System.out.println("Disconnected from Discord Integration!");
+            System.out.println("Websocket closed with reason: " + reason + " and code " + code + " Remote? " + remote);
 
-        // 1006 = Cloudflare Restart
-        if (remote && code != 1006) {
-            ChatUtils.printMarkedChat("Disconnected from Discord Integration! Attempting to Reconnect in 5 seconds!");
-            reconnect();
-        } else {
-            reconnect();
+            // 1006 = Cloudflare Restart
+            if (remote && code != 1006) {
+                ChatUtils.printMarkedChat("Disconnected from Discord Integration! Attempting to Reconnect in 5 seconds!");
+                reconnect();
+            } else {
+                reconnect();
+            }
         }
     }
 
