@@ -747,6 +747,7 @@ public class DiscordIntegration {
         AutoList.finishCurrentListing();
         QueueUtil.queue.clear();
         QueueUtil.finishAction();
+        DelayUtils.resetTimer();
     }
 
     static TimerTask reconnectTimer;

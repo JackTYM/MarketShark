@@ -21,4 +21,9 @@ public class DelayUtils {
             return delayAction(delay, action);
         }
     }
+
+    public static void resetTimer() {
+        timer.cancel();
+        timer = new Timer();
+    }
 }

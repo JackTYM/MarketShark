@@ -265,7 +265,7 @@ public class AutoBuy {
     }
 
     public static void clickBed(String itemName, S2FPacketSetSlot p) {
-        if (item.bedClicking && !item.closed && itemName.equals(item.strippedDisplayName)) {
+        if (QueueUtil.currentAction.equals("AutoBuy") && item.bedClicking && !item.closed && itemName.equals(item.strippedDisplayName)) {
             DelayUtils.delayAction(Integer.parseInt(FlipConfig.bedSpamDelay), () -> {
                 Main.mc.thePlayer.sendQueue.addToSendQueue(
                         new C0EPacketClickWindow(buyWindowId, 31, 2, 3,
