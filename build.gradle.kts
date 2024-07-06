@@ -74,14 +74,16 @@ dependencies {
     mappings("de.oceanlabs.mcp:mcp_stable:22-1.8.9")
     forge("net.minecraftforge:forge:1.8.9-11.15.1.2318-1.8.9")
 
-    modImplementation("org.spongepowered:mixin:0.8.5-SNAPSHOT")
     shadowImpl("org.java-websocket:Java-WebSocket:1.5.2")
     shadowImpl("com.neovisionaries:nv-websocket-client:2.14")
+    shadowImpl("cc.polyfrost:oneconfig-wrapper-launchwrapper:1.0.0-beta+")
+
     modImplementation("gg.essential:essential-1.8.9-forge:2581")
+    modImplementation("gg.essential:loader-launchwrapper:1.1.3")
+    modImplementation("org.spongepowered:mixin:0.8.5-SNAPSHOT")
+    modImplementation("cc.polyfrost:oneconfig-1.8.9-forge:0.2.2-alpha+")
     modImplementation(files("libs/CoflMod-1.5.5-alpha.jar"))
 
-    modImplementation("cc.polyfrost:oneconfig-1.8.9-forge:0.2.2-alpha+")
-    shadowImpl("cc.polyfrost:oneconfig-wrapper-launchwrapper:1.0.0-beta17")
 }
 
 // Tasks:

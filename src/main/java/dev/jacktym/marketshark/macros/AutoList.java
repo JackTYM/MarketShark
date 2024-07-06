@@ -276,21 +276,27 @@ public class AutoList {
             if (chest.getDisplayName().getUnformattedText().equals("Manage Auctions")) {
                 DelayUtils.delayAction(800, () -> {
                     RealtimeEventRegistry.registerEvent("guiScreenEvent", guiScreenEvent -> createAuction((GuiScreenEvent) guiScreenEvent, item), "AutoList");
-                    if (chest.getStackInSlot(24) != null && chest.getStackInSlot(24).getItem().equals(Items.golden_horse_armor)) {
-                        GuiUtil.singleClick(24);
-                    } else {
-                        if (chest.getStackInSlot(33) != null && !chest.getStackInSlot(33).getTagCompound().getCompoundTag("display").getTagList("Lore", 8).get(0).toString().contains("You reached the maximum number of")) {
-                            GuiUtil.singleClick(33);
-                        } else {
-                            if (FlipConfig.debug) {
-                                System.out.println("Auction House Full!");
-                            }
-                            ChatUtils.printMarkedChat("Auction House Full!");
 
-                            Main.mc.thePlayer.closeScreen();
-                            listingInv = false;
-                            finishCurrentListing();
+                    boolean foundSlot = false;
+                    for (int i = 0; i < 5; i++) {
+                        int slotIndex = 24 + (i * 9);
+
+                        if (chest.getStackInSlot(slotIndex) != null && chest.getStackInSlot(slotIndex).getItem().equals(Items.golden_horse_armor)) {
+                            GuiUtil.singleClick(slotIndex);
+                            foundSlot = true;
+                            break;
                         }
+                    }
+
+                    if (!foundSlot) {
+                        if (FlipConfig.debug) {
+                            System.out.println("Auction House Full!");
+                        }
+                        ChatUtils.printMarkedChat("Auction House Full!");
+
+                        Main.mc.thePlayer.closeScreen();
+                        listingInv = false;
+                        finishCurrentListing();
                     }
                 });
                 return true;
@@ -465,7 +471,7 @@ public class AutoList {
             tileEntitySign.signText[0] = new ChatComponentText("" + FlipConfig.autoSellTime);
 
             DelayUtils.delayAction(800, () -> {
-                if (tileEntitySign.signText[0].getUnformattedText().equals(FlipConfig.autoSellTime)) {
+                if (tileEntitySign.signText[0].getUnformattedText().equals("" + FlipConfig.autoSellTime)) {
                     RealtimeEventRegistry.registerEvent("guiScreenEvent", guiScreenEvent -> createBINAuction((GuiScreenEvent) guiScreenEvent, item), "AutoList");
                     Main.mc.currentScreen.onGuiClosed();
                 }

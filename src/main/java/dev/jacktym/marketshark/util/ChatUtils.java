@@ -1,7 +1,7 @@
 package dev.jacktym.marketshark.util;
 
+import cc.polyfrost.oneconfig.libs.universal.ChatColor;
 import dev.jacktym.marketshark.Main;
-import gg.essential.universal.ChatColor;
 import net.minecraft.util.ChatComponentText;
 import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.IChatComponent;

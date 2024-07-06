@@ -109,7 +109,6 @@ public class AutoClaim {
 
     public static boolean waitForClaimMessage(ClientChatReceivedEvent event, Long expiryTime, FlipItem item) {
         if (expiryTime < System.currentTimeMillis()) {
-            
             RealtimeEventRegistry.clearClazzMap("AutoClaim");
             return true;
         }

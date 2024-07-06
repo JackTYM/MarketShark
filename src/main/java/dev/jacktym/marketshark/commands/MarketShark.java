@@ -147,21 +147,20 @@ public class MarketShark extends CommandBase {
                         break;
                     }
                 }
+                break;
             }
             case 2: {
-                switch (args[0]) {
-                    case "list": {
-                        try {
-                            FlipItem flipItem = FlipItem.getFlipItem(Main.mc.thePlayer.inventory.getCurrentItem());
-                            flipItem.sellPrice = ChatUtils.unabbreviateNumber(args[1].replace(",", ""));
-                            AutoList.listItem(flipItem);
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                            ChatUtils.printMarkedChat("Failed to list item. Report this!");
-                        }
-                        break;
+                if (args[0].equals("list")) {
+                    try {
+                        FlipItem flipItem = FlipItem.getFlipItem(Main.mc.thePlayer.inventory.getCurrentItem());
+                        flipItem.sellPrice = ChatUtils.unabbreviateNumber(args[1].replace(",", ""));
+                        AutoList.listItem(flipItem);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                        ChatUtils.printMarkedChat("Failed to list item. Report this!");
                     }
                 }
+                break;
             }
         }
     }

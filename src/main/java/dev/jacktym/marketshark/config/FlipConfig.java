@@ -89,7 +89,7 @@ public class FlipConfig extends Config {
             description = "How many time in hours to list items for (Default 48)",
             min = 1, max = 168
     )
-    public static int autoSellTime = 2;
+    public static int autoSellTime = 48;
     @Dropdown(
             category = "Macros",
             subcategory = "Auto Sell",
@@ -126,7 +126,7 @@ public class FlipConfig extends Config {
     public static int autoRelist = 0;
     //#endif >=Wobbegong
 
-    @Slider(
+    @Number(
             category = "Failsafes",
             name = "Stuck Menu Delay",
             description = "How many MS before auto closing a gui (Default 15000)",
@@ -139,7 +139,7 @@ public class FlipConfig extends Config {
             description = "Enables cancelling listing an item if over a specific price"
     )
     public static boolean enableMaxList = false;
-    @Slider(
+    @Number(
             category = "Failsafes",
             name = "Maximum Item List Cost",
             description = "The maximum amount to auto list an item for (Default 1000000000)",
