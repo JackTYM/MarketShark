@@ -81,7 +81,7 @@ dependencies {
 
     modImplementation("gg.essential:essential-1.8.9-forge:2581")
     modImplementation("gg.essential:loader-launchwrapper:1.1.3")
-    modImplementation("org.spongepowered:mixin:0.7.11-SNAPSHOT")
+    modImplementation("org.spongepowered:mixin:0.8-SNAPSHOT")
     modImplementation("cc.polyfrost:oneconfig-1.8.9-forge:0.2.2-alpha+")
     modImplementation(files("libs/SkyCofl-1.5.6-alpha.jar"))
 

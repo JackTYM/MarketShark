@@ -1,6 +1,6 @@
 {
   "compatibilityLevel": "JAVA_8",
-  "minVersion": "0.7.11",
+  "minVersion": "0.8",
   "package": "dev.jacktym.marketshark.mixins",
   "injectors": {
     "defaultRequire": 1

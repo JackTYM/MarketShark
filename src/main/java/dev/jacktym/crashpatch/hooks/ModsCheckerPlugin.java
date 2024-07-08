@@ -148,7 +148,7 @@ public class ModsCheckerPlugin extends LaunchWrapperTweaker {
                             // if it fails i *think* we can just ignore it
                         }
                         try {
-                            MixinBootstrap.getPlatform().addContainer(location.toURI());
+                            //MixinBootstrap.getPlatform().addContainer(location.toURI());
                         } catch (Exception ignore) {
                             // fuck you essential
                             try {
