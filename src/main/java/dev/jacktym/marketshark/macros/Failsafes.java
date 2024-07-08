@@ -107,32 +107,36 @@ public class Failsafes {
 
     @SubscribeEvent
     public void serverDisconnectGui(GuiOpenEvent event) {
-        if (Main.paused || !DiscordIntegration.activated) {
-            return;
-        }
-        if (event.gui instanceof GuiDisconnected) {
-            GuiDisconnectedAccessor disconnectScreen = (GuiDisconnectedAccessor) event.gui;
+        try {
+            if (Main.paused || !DiscordIntegration.activated) {
+                return;
+            }
+            if (event.gui instanceof GuiDisconnected) {
+                GuiDisconnectedAccessor disconnectScreen = (GuiDisconnectedAccessor) event.gui;
 
-            String disconnectMessage = disconnectScreen.getMessage().getUnformattedText();
-            if (disconnectMessage.contains("Reason: ")) {
-                DiscordIntegration.sendToWebsocket("Banned", disconnectMessage);
-            } else {
-                JsonObject jsonObject = new JsonObject();
-                jsonObject.addProperty("message", disconnectMessage);
-                jsonObject.addProperty("reconnecting", FlipConfig.autoReconnect && FlipConfig.autoOpen);
+                String disconnectMessage = disconnectScreen.getMessage().getUnformattedText();
+                if (disconnectMessage.contains("Reason: ")) {
+                    DiscordIntegration.sendToWebsocket("Banned", disconnectMessage);
+                } else {
+                    JsonObject jsonObject = new JsonObject();
+                    jsonObject.addProperty("message", disconnectMessage);
+                    jsonObject.addProperty("reconnecting", FlipConfig.autoReconnect && FlipConfig.autoOpen);
 
-                DiscordIntegration.sendToWebsocket("Disconnected", jsonObject.toString());
+                    DiscordIntegration.sendToWebsocket("Disconnected", jsonObject.toString());
 
-                if (FlipConfig.autoReconnect && FlipConfig.autoOpen) {
-                    if (lastServerData != null) {
-                        System.out.println("Last Server Data: " + lastServerData.serverIP);
-                        DelayUtils.delayAction(5000, () -> connect = true);
-                    } else {
-                        System.out.println("Last Server Null");
+                    if (FlipConfig.autoReconnect && FlipConfig.autoOpen) {
+                        if (lastServerData != null) {
+                            System.out.println("Last Server Data: " + lastServerData.serverIP);
+                            DelayUtils.delayAction(5000, () -> connect = true);
+                        } else {
+                            System.out.println("Last Server Null");
+                        }
                     }
                 }
-            }
 
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 

@@ -45,6 +45,7 @@ loom {
         pack200Provider.set(dev.architectury.pack200.java.Pack200Adapter())
         // If you don't want mixins, remove these lines
         mixinConfig("mixins.$modid.json")
+        mixinConfig("mixins.mscrashpatch.json")
     }
     // If you don't want mixins, remove these lines
     mixin {
@@ -80,9 +81,9 @@ dependencies {
 
     modImplementation("gg.essential:essential-1.8.9-forge:2581")
     modImplementation("gg.essential:loader-launchwrapper:1.1.3")
-    modImplementation("org.spongepowered:mixin:0.8.5-SNAPSHOT")
+    modImplementation("org.spongepowered:mixin:0.7.11-SNAPSHOT")
     modImplementation("cc.polyfrost:oneconfig-1.8.9-forge:0.2.2-alpha+")
-    modImplementation(files("libs/CoflMod-1.5.5-alpha.jar"))
+    modImplementation(files("libs/SkyCofl-1.5.6-alpha.jar"))
 
 }
 
@@ -97,7 +98,7 @@ tasks.withType(Jar::class) {
         this["FMLCorePluginContainsFMLMod"] = "true"
         this["ForceLoadAsMod"] = "true"
         this["TweakClass"] = "cc.polyfrost.oneconfig.loader.stage0.LaunchWrapperTweaker"
-        this["MixinConfigs"] = "mixins.$modid.json"
+        this["MixinConfigs"] = "mixins.$modid.json,mixins.mscrashpatch.json"
     }
 }
 
@@ -107,7 +108,7 @@ tasks.processResources {
     inputs.property("modid", modid)
     inputs.property("basePackage", baseGroup)
 
-    filesMatching(listOf("mcmod.info", "mixins.$modid.json")) {
+    filesMatching(listOf("mcmod.info", "mixins.$modid.json,mixins.mscrashpatch.json")) {
         expand(inputs.properties)
     }
 
@@ -289,7 +290,7 @@ tasks.register<Jar>("buildHammerheadPost") {
             "FMLCorePluginContainsFMLMod" to "true",
             "ForceLoadAsMod" to "true",
             "TweakClass" to "cc.polyfrost.oneconfig.loader.stage0.LaunchWrapperTweaker",
-            "MixinConfigs" to "mixins.$modid.json"
+            "MixinConfigs" to "mixins.$modid.json,mixins.mscrashpatch.json"
         )
     }
 
@@ -323,7 +324,7 @@ tasks.register<Jar>("buildWobbegongPost") {
             "FMLCorePluginContainsFMLMod" to "true",
             "ForceLoadAsMod" to "true",
             "TweakClass" to "cc.polyfrost.oneconfig.loader.stage0.LaunchWrapperTweaker",
-            "MixinConfigs" to "mixins.$modid.json"
+            "MixinConfigs" to "mixins.$modid.json,mixins.mscrashpatch.json"
         )
     }
 
@@ -357,7 +358,7 @@ tasks.register<Jar>("buildGreatWhitePost") {
             "FMLCorePluginContainsFMLMod" to "true",
             "ForceLoadAsMod" to "true",
             "TweakClass" to "cc.polyfrost.oneconfig.loader.stage0.LaunchWrapperTweaker",
-            "MixinConfigs" to "mixins.$modid.json"
+            "MixinConfigs" to "mixins.$modid.json,mixins.mscrashpatch.json"
         )
     }
 
@@ -391,7 +392,7 @@ tasks.register<Jar>("buildMegalodonPost") {
             "FMLCorePluginContainsFMLMod" to "true",
             "ForceLoadAsMod" to "true",
             "TweakClass" to "cc.polyfrost.oneconfig.loader.stage0.LaunchWrapperTweaker",
-            "MixinConfigs" to "mixins.$modid.json"
+            "MixinConfigs" to "mixins.$modid.json,mixins.mscrashpatch.json"
         )
     }
 

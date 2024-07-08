@@ -395,20 +395,24 @@ public class AutoList {
             return false;
         }
         if (event.gui instanceof GuiEditSign) {
-            TileEntitySign tileEntitySign = ((GuiEditSignAccessor) event.gui).getTileSign();
-            if (tileEntitySign == null) {
-                return false;
-            }
-
-            tileEntitySign.signText[0] = new ChatComponentText("" + item.sellPrice);
-
-            DelayUtils.delayAction(800, () -> {
-                if (tileEntitySign.signText[0].getUnformattedText().equals("" + item.sellPrice)) {
-                    RealtimeEventRegistry.registerEvent("guiScreenEvent", guiScreenEvent -> openTime((GuiScreenEvent) guiScreenEvent, item), "AutoList");
-                    Main.mc.currentScreen.onGuiClosed();
+            try {
+                TileEntitySign tileEntitySign = ((GuiEditSignAccessor) event.gui).getTileSign();
+                if (tileEntitySign == null) {
+                    return false;
                 }
-            });
-            return true;
+
+                tileEntitySign.signText[0] = new ChatComponentText("" + item.sellPrice);
+
+                DelayUtils.delayAction(800, () -> {
+                    if (tileEntitySign.signText[0].getUnformattedText().equals("" + item.sellPrice)) {
+                        RealtimeEventRegistry.registerEvent("guiScreenEvent", guiScreenEvent -> openTime((GuiScreenEvent) guiScreenEvent, item), "AutoList");
+                        Main.mc.currentScreen.onGuiClosed();
+                    }
+                });
+                return true;
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
         return false;
     }

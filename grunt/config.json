@@ -1,137 +1,175 @@
 {
-  "Settings": {
-    "Input": "../build/libs/MarketShark-1.0.0-Megalodon.jar",
-    "Output": "../build/libs/MarketShark-1.0.0-Megalodon-Obf.jar",
-    "Libraries": [],
-    "Exclusions": [
-      "gg",
-      "com",
-      "dev/jacktym/marketshark/mixins"
-    ],
-    "GenerateRemap": true,
-    "RemapOutput": "mappings.json",
-    "ParallelProcessing": true,
-    "CustomDictionary": [],
-    "DictionaryStartIndex": 0,
-    "CorruptOutput": false,
-    "FileRemovePrefix": [],
-    "FileRemoveSuffix": []
-  },
-  "AntiDebug": {
-    "Enabled": true,
-    "SourceDebug": true,
-    "LineDebug": true,
-    "RenameSourceDebug": true,
-    "SourceNames": [
-      "114514.java",
-      "1919810.kt",
-      "69420.java",
-      "????.kt"
-    ]
-  },
-  "Shrinking": {
-    "Enabled": true,
-    "RemoveInnerClass": true,
-    "RemoveUnusedLabel": true,
-    "RemoveNOP": true,
-    "Exclusions": []
-  },
-  "KotlinOptimizer": {
-    "Enabled": true,
-    "RemoveMetadata": true,
-    "RemoveIntrinsics": true,
-    "IntrinsicsRemoval": [
-      "checkExpressionValueIsNotNull",
-      "checkNotNullExpressionValue",
-      "checkReturnedValueIsNotNull",
-      "checkFieldIsNotNull",
-      "checkParameterIsNotNull",
-      "checkNotNullParameter"
-    ],
-    "IntrinsicsExclusions": [],
-    "MetadataExclusions": []
-  },
-  "StringEncrypt": {
-    "Enabled": true,
-    "Intensity": 1,
-    "Exclusions": []
-  },
-  "NumberEncrypt": {
-    "Enabled": true,
-    "FloatingPoint": true,
-    "Intensity": 1,
-    "Exclusions": []
-  },
-  "ScrambleTransformer": {
-    "Enabled": true,
-    "Intensity": 1,
-    "RandomName": true,
-    "RedirectGetStatic": true,
-    "RedirectSetStatic": true,
-    "RedirectGetValue": true,
-    "RedirectSetField": true,
-    "GenerateOuterClass": true,
-    "ExcludedClasses": [],
-    "ExcludedFieldName": [],
-    "NativeDownCalls": true,
-    "NativeUpCalls": true
-  },
-  "NativeCandidate": {
-    "Enabled": true,
-    "NativeAnnotation": "Lnet/spartanb312/example/Native;",
-    "UpCallLimit": 0,
-    "Exclusions": []
-  },
-  "LocalVariableRename": {
-    "Enabled": true,
-    "Dictionary": "Alphabet",
-    "ThisReference": true
-  },
-  "MethodRename": {
-    "Enabled": true,
-    "Dictionary": "Alphabet",
-    "HeavyOverloads": true,
-    "RandomKeywordPrefix": true,
-    "Prefix": "",
-    "Exclusion": [],
-    "ExcludedName": []
-  },
-  "FieldRename": {
-    "Enabled": true,
-    "Dictionary": "Alphabet",
-    "RandomKeywordPrefix": true,
-    "Prefix": "",
-    "Exclusion": [],
-    "ExcludedName": []
-  },
-  "ClassRename": {
-    "Enabled": false,
-    "Dictionary": "Alphabet",
-    "Parent": "net/spartanb312/obf/",
-    "Prefix": "",
-    "CorruptedName": true,
-    "CorruptedNameExclusions": [],
-    "ManifestReplace": [
-      "Main-Class"
-    ],
-    "PluginMainReplace": true,
-    "BungeeMainReplace": true,
-    "Exclusion": [],
-    "MixinSupport": true,
-    "MixinDictionary": "Alphabet",
-    "MixinPackage": "net/spartanb312/client/mixins/",
-    "TargetMixinPackage": "net/spartanb312/obf/mixins/",
-    "MixinFile": "mixins.example.json",
-    "RefmapFile": "mixins.example.refmap.json"
-  },
-  "ShuffleMembers": {
-    "Enabled": true,
-    "Methods": true,
-    "Fields": true,
-    "Annotations": true
-  },
-  "Watermark": {
-    "Enabled": true,
-    "Watermark Message": "ANTI_CRACK_BY_MARKET_SHARK_discord_gg_MarketShark"
-  }
+    "Settings": {
+        "Input": "../build/libs/MarketShark-1.0.0-Megalodon.jar",
+        "Output": "../build/libs/MarketShark-1.0.0-Megalodon-Obf.jar",
+        "Libraries": [
+            
+        ],
+        "Exclusions": [
+            "gg",
+            "com",
+            "org",
+            "dev/jacktym/marketshark/mixins",
+            "dev/jacktym/marketshark/config"
+        ],
+        "GenerateRemap": true,
+        "RemapOutput": "mappings.json",
+        "ParallelProcessing": true,
+        "CustomDictionary": [
+            
+        ],
+        "DictionaryStartIndex": 0,
+        "CorruptOutput": false,
+        "FileRemovePrefix": [
+            
+        ],
+        "FileRemoveSuffix": [
+            
+        ]
+    },
+    "AntiDebug": {
+        "Enabled": true,
+        "SourceDebug": true,
+        "LineDebug": true,
+        "RenameSourceDebug": true,
+        "SourceNames": [
+            "114514.java",
+            "1919810.kt",
+            "69420.java",
+            "????.kt"
+        ]
+    },
+    "Shrinking": {
+        "Enabled": true,
+        "RemoveInnerClass": true,
+        "RemoveUnusedLabel": true,
+        "RemoveNOP": true,
+        "Exclusions": [
+            
+        ]
+    },
+    "KotlinOptimizer": {
+        "Enabled": true,
+        "RemoveMetadata": true,
+        "RemoveIntrinsics": true,
+        "IntrinsicsRemoval": [
+            "checkExpressionValueIsNotNull",
+            "checkNotNullExpressionValue",
+            "checkReturnedValueIsNotNull",
+            "checkFieldIsNotNull",
+            "checkParameterIsNotNull",
+            "checkNotNullParameter"
+        ],
+        "IntrinsicsExclusions": [
+            
+        ],
+        "MetadataExclusions": [
+            
+        ]
+    },
+    "StringEncrypt": {
+        "Enabled": true,
+        "Intensity": 1,
+        "Exclusions": [
+            
+        ]
+    },
+    "NumberEncrypt": {
+        "Enabled": true,
+        "FloatingPoint": true,
+        "Intensity": 1,
+        "Exclusions": [
+            
+        ]
+    },
+    "ScrambleTransformer": {
+        "Enabled": true,
+        "Intensity": 1,
+        "RandomName": true,
+        "RedirectGetStatic": true,
+        "RedirectSetStatic": true,
+        "RedirectGetValue": true,
+        "RedirectSetField": true,
+        "GenerateOuterClass": true,
+        "ExcludedClasses": [
+            
+        ],
+        "ExcludedFieldName": [
+            
+        ],
+        "NativeDownCalls": true,
+        "NativeUpCalls": true
+    },
+    "NativeCandidate": {
+        "Enabled": true,
+        "NativeAnnotation": "Lnet/spartanb312/example/Native;",
+        "UpCallLimit": 0,
+        "Exclusions": [
+            
+        ]
+    },
+    "LocalVariableRename": {
+        "Enabled": true,
+        "Dictionary": "Alphabet",
+        "ThisReference": true
+    },
+    "MethodRename": {
+        "Enabled": true,
+        "Dictionary": "Alphabet",
+        "HeavyOverloads": true,
+        "RandomKeywordPrefix": true,
+        "Prefix": "",
+        "Exclusion": [
+            
+        ],
+        "ExcludedName": [
+            
+        ]
+    },
+    "FieldRename": {
+        "Enabled": true,
+        "Dictionary": "Alphabet",
+        "RandomKeywordPrefix": true,
+        "Prefix": "",
+        "Exclusion": [
+            
+        ],
+        "ExcludedName": [
+            
+        ]
+    },
+    "ClassRename": {
+        "Enabled": false,
+        "Dictionary": "Alphabet",
+        "Parent": "net/spartanb312/obf/",
+        "Prefix": "",
+        "CorruptedName": true,
+        "CorruptedNameExclusions": [
+            
+        ],
+        "ManifestReplace": [
+            "Main-Class"
+        ],
+        "PluginMainReplace": true,
+        "BungeeMainReplace": true,
+        "Exclusion": [
+            
+        ],
+        "MixinSupport": true,
+        "MixinDictionary": "Alphabet",
+        "MixinPackage": "net/spartanb312/client/mixins/",
+        "TargetMixinPackage": "net/spartanb312/obf/mixins/",
+        "MixinFile": "mixins.example.json",
+        "RefmapFile": "mixins.example.refmap.json"
+    },
+    "ShuffleMembers": {
+        "Enabled": true,
+        "Methods": true,
+        "Fields": true,
+        "Annotations": true
+    },
+    "Watermark": {
+        "Enabled": true,
+        "Watermark Message": "ANTI_CRACK_BY_MARKET_SHARK_discord_gg_MarketShark"
+    }
 }

@@ -26,6 +26,7 @@ import java.util.stream.Stream;
 public class ListenerManagerMixin {
     @Inject(at = @At(value = "HEAD"), method = "callOnTextMessage", remap = false)
     private void callOnTextMessage(String message, CallbackInfo ci) {
+        System.out.println("Test Message: " + message);
         try {
             JsonStringCommand cmd = new Gson().fromJson(message, JsonStringCommand.class);
 
