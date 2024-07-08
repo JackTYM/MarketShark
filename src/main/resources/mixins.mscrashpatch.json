@@ -1,6 +1,6 @@
 {
   "compatibilityLevel": "JAVA_8",
-  "minVersion": "0.8",
+  "minVersion": "0.7",
   "package": "dev.jacktym.crashpatch.mixins",
   "injectors": {
     "maxShiftBy": 5
