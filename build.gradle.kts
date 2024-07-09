@@ -276,7 +276,9 @@ tasks.register<Jar>("buildHammerheadPost") {
     buildVersion.set("Hammerhead")
     archiveClassifier.set(buildVersion.get())
     destinationDirectory.set(layout.buildDirectory.dir("badjars"))
-    from(sourceSets.main.get().output)
+    from(sourceSets.main.get().output) {
+        exclude("**/*.java")
+    }
 
     // Ensure dependencies are included
     dependsOn("shadowJar")
@@ -310,7 +312,9 @@ tasks.register<Jar>("buildWobbegongPost") {
     project.extra["buildType"] = buildVersion.get()
     println(project.extra["buildType"])
     destinationDirectory.set(layout.buildDirectory.dir("badjars"))
-    from(sourceSets.main.get().output)
+    from(sourceSets.main.get().output) {
+        exclude("**/*.java")
+    }
 
     // Ensure dependencies are included
     dependsOn("shadowJar")
@@ -344,7 +348,9 @@ tasks.register<Jar>("buildGreatWhitePost") {
     project.extra["buildType"] = buildVersion.get()
     println(project.extra["buildType"])
     destinationDirectory.set(layout.buildDirectory.dir("badjars"))
-    from(sourceSets.main.get().output)
+    from(sourceSets.main.get().output) {
+        exclude("**/*.java")
+    }
 
     // Ensure dependencies are included
     dependsOn("shadowJar")
@@ -378,7 +384,9 @@ tasks.register<Jar>("buildMegalodonPost") {
     project.extra["buildType"] = buildVersion.get()
     println(project.extra["buildType"])
     destinationDirectory.set(layout.buildDirectory.dir("badjars"))
-    from(sourceSets.main.get().output)
+    from(sourceSets.main.get().output) {
+        exclude("**/*.java")
+    }
 
     // Ensure dependencies are included
     dependsOn("shadowJar")

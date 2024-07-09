@@ -46,7 +46,7 @@ public class AutoList {
                             }
                             if (inventory[i] != null) {
                                 try {
-                                FlipItem item = FlipItem.getFlipItem(inventory[i]);
+                                    FlipItem item = FlipItem.getFlipItem(inventory[i]);
 
                                     switch (FlipConfig.autoSellPrice) {
                                         case 0:
@@ -75,7 +75,7 @@ public class AutoList {
                                     waitForListingToFinish();
                                     currentlyListing = true;
                                     if (!listingInv) {
-                                        
+
                                         break;
                                     }
                                 } catch (Exception e) {
@@ -90,7 +90,7 @@ public class AutoList {
                     e.printStackTrace();
                 } finally {
                     finishCurrentListing();
-                    
+
                 }
             }).start();
         });
@@ -208,7 +208,7 @@ public class AutoList {
         }
 
 
-        if (FlipConfig.enableMinProfitPercent && Math.round((flipProfit / item.sellPrice)*100) < FlipConfig.minimumProfitPercent) {
+        if (FlipConfig.enableMinProfitPercent && Math.round((flipProfit / item.sellPrice) * 100) < FlipConfig.minimumProfitPercent) {
             ChatUtils.printMarkedChat("Skipped listing item. Below minimum profit percent!");
             item.skipReason = "Skipped listing item. Below minimum profit percent!";
             RealtimeEventRegistry.clearClazzMap("AutoList");
@@ -404,10 +404,8 @@ public class AutoList {
                 tileEntitySign.signText[0] = new ChatComponentText("" + item.sellPrice);
 
                 DelayUtils.delayAction(800, () -> {
-                    if (tileEntitySign.signText[0].getUnformattedText().equals("" + item.sellPrice)) {
-                        RealtimeEventRegistry.registerEvent("guiScreenEvent", guiScreenEvent -> openTime((GuiScreenEvent) guiScreenEvent, item), "AutoList");
-                        Main.mc.currentScreen.onGuiClosed();
-                    }
+                    RealtimeEventRegistry.registerEvent("guiScreenEvent", guiScreenEvent -> openTime((GuiScreenEvent) guiScreenEvent, item), "AutoList");
+                    Main.mc.currentScreen.onGuiClosed();
                 });
                 return true;
             } catch (Exception e) {
@@ -475,10 +473,8 @@ public class AutoList {
             tileEntitySign.signText[0] = new ChatComponentText("" + FlipConfig.autoSellTime);
 
             DelayUtils.delayAction(800, () -> {
-                if (tileEntitySign.signText[0].getUnformattedText().equals("" + FlipConfig.autoSellTime)) {
-                    RealtimeEventRegistry.registerEvent("guiScreenEvent", guiScreenEvent -> createBINAuction((GuiScreenEvent) guiScreenEvent, item), "AutoList");
-                    Main.mc.currentScreen.onGuiClosed();
-                }
+                RealtimeEventRegistry.registerEvent("guiScreenEvent", guiScreenEvent -> createBINAuction((GuiScreenEvent) guiScreenEvent, item), "AutoList");
+                Main.mc.currentScreen.onGuiClosed();
             });
             return true;
         }

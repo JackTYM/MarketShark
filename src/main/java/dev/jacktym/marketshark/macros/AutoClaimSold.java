@@ -29,8 +29,6 @@ public class AutoClaimSold {
             QueueUtil.addToQueue(() -> {
                 RealtimeEventRegistry.registerEvent("guiScreenEvent", guiScreenEvent -> claimAuction((GuiScreenEvent) guiScreenEvent), "AutoClaimSold");
                 Main.mc.thePlayer.sendChatMessage(event.message.getChatStyle().getChatClickEvent().getValue());
-                
-                
             });
         }
     }

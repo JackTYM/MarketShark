@@ -64,7 +64,7 @@ public class AutoClaim {
                     }
                     if (chest.getStackInSlot(i).getDisplayName().equals(item.displayName)) {
                         int finalI = i;
-                        DelayUtils.delayAction(300, () -> {
+                        DelayUtils.delayAction(500, () -> {
                             RealtimeEventRegistry.registerEvent("guiScreenEvent", guiScreenEvent -> confirmClaim((GuiScreenEvent) guiScreenEvent, item), "AutoClaim");
                             GuiUtil.singleClick(finalI);
                         });
@@ -94,7 +94,7 @@ public class AutoClaim {
 
             if (chest.getDisplayName().getUnformattedText().equals("BIN Auction View")) {
                 if (claimTimer == null) {
-                    claimTimer = DelayUtils.delayAction(300, () -> {
+                    claimTimer = DelayUtils.delayAction(500, () -> {
                         long expiryTime = System.currentTimeMillis() + 10000;
                         RealtimeEventRegistry.registerEvent("clientChatReceivedEvent", clientChatReceivedEvent -> waitForClaimMessage((ClientChatReceivedEvent) clientChatReceivedEvent, expiryTime, item), "AutoClaim");
                         GuiUtil.singleClick(31);
