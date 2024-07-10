@@ -217,7 +217,7 @@ public abstract class MixinMinecraft implements MinecraftHook {
             gameSettings.showDebugInfo = false;
 
             // Display the crash screen
-//            crashpatch$runGUILoop(new GuiCrashScreen(report));
+            //crashpatch$runGUILoop(new GuiCrashScreen(report));
             //displayGuiScreen(new CrashGui(report));
         } catch (Throwable t) {
             // The crash screen has crashed. Report it normally instead.

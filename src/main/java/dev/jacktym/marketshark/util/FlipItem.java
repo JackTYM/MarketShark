@@ -64,11 +64,15 @@ public class FlipItem {
     }
 
     public void setItemStack(ItemStack itemStack) {
-        this.itemStack = itemStack;
-        this.displayName = this.itemStack.getDisplayName();
-        this.strippedDisplayName = ChatUtils.stripColor(this.displayName);
-        this.uuid = getUuid(this.itemStack);
-        flipMap.put(uuid, this);
+        try {
+            this.itemStack = itemStack;
+            this.displayName = this.itemStack.getDisplayName();
+            this.strippedDisplayName = ChatUtils.stripColor(this.displayName);
+            this.uuid = getUuid(this.itemStack);
+            flipMap.put(uuid, this);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     public JsonObject serialize() {
@@ -112,7 +116,11 @@ public class FlipItem {
         JsonArray jsonArray = new JsonArray();
         for (FlipItem item : flipItems) {
             if (item.bought && !item.sold) {
-                jsonArray.add(item.serialize());
+                try {
+                    jsonArray.add(item.serialize());
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
             }
         }
 
@@ -128,50 +136,55 @@ public class FlipItem {
         try (FileReader reader = new FileReader("config/flipitems.json")) {
             JsonArray jsonArray = new JsonParser().parse(reader).getAsJsonArray();
             for (JsonElement element : jsonArray) {
-                JsonObject jsonObject = element.getAsJsonObject();
-                FlipItem item = new FlipItem();
-                item.displayName = !jsonObject.get("displayName").isJsonNull()
-                        ? jsonObject.get("displayName").getAsString() : "";
-                item.strippedDisplayName = !jsonObject.get("strippedDisplayName").isJsonNull()
-                        ? jsonObject.get("strippedDisplayName").getAsString() : "";
-                item.uuid = !jsonObject.get("uuid").isJsonNull()
-                        ? jsonObject.get("uuid").getAsString() : "";
-                item.buyPrice = !jsonObject.get("buyPrice").isJsonNull()
-                        ? jsonObject.get("buyPrice").getAsLong() : 0L;
-                item.sellPrice = !jsonObject.get("sellPrice").isJsonNull()
-                        ? jsonObject.get("sellPrice").getAsLong() : 0L;
-                item.coflWorth = !jsonObject.get("coflWorth").isJsonNull()
-                        ? jsonObject.get("coflWorth").getAsLong() : 0L;
-                item.startTime = !jsonObject.get("startTime").isJsonNull()
-                        ? jsonObject.get("startTime").getAsLong() : 0L;
-                item.buyTime = !jsonObject.get("buyTime").isJsonNull()
-                        ? jsonObject.get("buyTime").getAsLong() : 0L;
-                item.buySpeed = !jsonObject.get("buySpeed").isJsonNull()
-                        ? jsonObject.get("buySpeed").getAsInt() : 0;
-                item.auctionStart = !jsonObject.get("auctionStart").isJsonNull()
-                        ? jsonObject.get("auctionStart").getAsLong() : 0L;
-                item.auctionId = !jsonObject.get("auctionId").isJsonNull()
-                        ? jsonObject.get("auctionId").getAsString() : "";
-                item.username = !jsonObject.get("username").isJsonNull()
-                        ? jsonObject.get("username").getAsString() : "";
-                item.sellerUuid = !jsonObject.get("sellerUuid").isJsonNull()
-                        ? jsonObject.get("sellerUuid").getAsString() : "";
-                item.skyblockId = !jsonObject.get("skyblockId").isJsonNull()
-                        ? jsonObject.get("skyblockId").getAsString() : "";
-                item.bed = !jsonObject.get("bed").isJsonNull() && jsonObject.get("bed").getAsBoolean();
-                item.buyer = !jsonObject.get("buyer").isJsonNull()
-                        ? jsonObject.get("buyer").getAsString() : "";
-                item.sold = !jsonObject.get("sold").isJsonNull() && jsonObject.get("sold").getAsBoolean();
-                item.bought = !jsonObject.get("bought").isJsonNull() && jsonObject.get("bought").getAsBoolean();
-                item.finder = jsonObject.has("finder") && !jsonObject.get("finder").isJsonNull()
-                        ? jsonObject.get("finder").getAsString() : "";
-                if (item.bought && !item.sold) {
-                    if (!item.uuid.isEmpty()) {
-                        flipMap.put(item.uuid, item);
+                try {
+                    JsonObject jsonObject = element.getAsJsonObject();
+                    FlipItem item = new FlipItem();
+                    item.displayName = !jsonObject.get("displayName").isJsonNull()
+                            ? jsonObject.get("displayName").getAsString() : "";
+                    item.strippedDisplayName = !jsonObject.get("strippedDisplayName").isJsonNull()
+                            ? jsonObject.get("strippedDisplayName").getAsString() : "";
+                    item.uuid = !jsonObject.get("uuid").isJsonNull()
+                            ? jsonObject.get("uuid").getAsString() : "";
+                    item.buyPrice = !jsonObject.get("buyPrice").isJsonNull()
+                            ? jsonObject.get("buyPrice").getAsLong() : 0L;
+                    item.sellPrice = !jsonObject.get("sellPrice").isJsonNull()
+                            ? jsonObject.get("sellPrice").getAsLong() : 0L;
+                    item.coflWorth = !jsonObject.get("coflWorth").isJsonNull()
+                            ? jsonObject.get("coflWorth").getAsLong() : 0L;
+                    item.startTime = !jsonObject.get("startTime").isJsonNull()
+                            ? jsonObject.get("startTime").getAsLong() : 0L;
+                    item.buyTime = !jsonObject.get("buyTime").isJsonNull()
+                            ? jsonObject.get("buyTime").getAsLong() : 0L;
+                    item.buySpeed = !jsonObject.get("buySpeed").isJsonNull()
+                            ? jsonObject.get("buySpeed").getAsInt() : 0;
+                    item.auctionStart = !jsonObject.get("auctionStart").isJsonNull()
+                            ? jsonObject.get("auctionStart").getAsLong() : 0L;
+                    item.auctionId = !jsonObject.get("auctionId").isJsonNull()
+                            ? jsonObject.get("auctionId").getAsString() : "";
+                    item.username = !jsonObject.get("username").isJsonNull()
+                            ? jsonObject.get("username").getAsString() : "";
+                    item.sellerUuid = !jsonObject.get("sellerUuid").isJsonNull()
+                            ? jsonObject.get("sellerUuid").getAsString() : "";
+                    item.skyblockId = !jsonObject.get("skyblockId").isJsonNull()
+                            ? jsonObject.get("skyblockId").getAsString() : "";
+                    item.bed = !jsonObject.get("bed").isJsonNull() && jsonObject.get("bed").getAsBoolean();
+                    item.buyer = !jsonObject.get("buyer").isJsonNull()
+                            ? jsonObject.get("buyer").getAsString() : "";
+                    item.sold = !jsonObject.get("sold").isJsonNull() && jsonObject.get("sold").getAsBoolean();
+                    item.bought = !jsonObject.get("bought").isJsonNull() && jsonObject.get("bought").getAsBoolean();
+                    item.finder = jsonObject.has("finder") && !jsonObject.get("finder").isJsonNull()
+                            ? jsonObject.get("finder").getAsString() : "";
+                    if (item.bought && !item.sold) {
+                        if (!item.uuid.isEmpty()) {
+                            flipMap.put(item.uuid, item);
+                        }
+                    } else {
+                        // Flips automatically added when new FlipItem created
+                        flipItems.remove(item);
                     }
-                } else {
-                    // Flips automatically added when new FlipItem created
-                    flipItems.remove(item);
+
+                } catch (Exception e) {
+                    e.printStackTrace();
                 }
             }
         } catch (IOException e) {
