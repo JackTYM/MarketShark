@@ -7,13 +7,13 @@
   },
   "mixins": [
     "NetworkManagerMixin",
-    "ListenerManagerMixin"
+    "ListenerManagerMixin",
+    "ChunkRenderDispatcherMixin"
   ],
   "client": [
     "GuiEditSignAccessor",
     "GuiNewChatAccessor",
     "GuiDisconnectedAccessor",
-    "ChunkRenderWorkerAccessor",
-    "ChunkRenderDispatcherMixin"
+    "ChunkRenderWorkerAccessor"
   ]
 }
