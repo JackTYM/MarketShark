@@ -14,15 +14,19 @@ public class KeybindHandler {
     public static KeyBinding toggleAntiRender;
     @SubscribeEvent
     public void onKeyInput(InputEvent.KeyInputEvent event) {
-        if (!DiscordIntegration.activated) {
-            ChatUtils.printMarkedChat("MarketShark is not activated! Please enter your Activation Key in /ms and click Connect!");
-            return;
-        }
         if (togglePause.isPressed()) {
+            if (!DiscordIntegration.activated) {
+                ChatUtils.printMarkedChat("MarketShark is not activated! Please enter your Activation Key in /ms and click Connect!");
+                return;
+            }
             Main.paused = !Main.paused;
             ChatUtils.printMarkedChat((Main.paused ? "Paused" : "Unpaused") + " MarketShark");
         }
         if (toggleAntiRender.isPressed()) {
+            if (!DiscordIntegration.activated) {
+                ChatUtils.printMarkedChat("MarketShark is not activated! Please enter your Activation Key in /ms and click Connect!");
+                return;
+            }
             if (Main.paused) {
                 ChatUtils.printMarkedChat("MarketShark is Paused! Features will not work until unpaused!");
             } else {
