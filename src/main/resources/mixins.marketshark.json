@@ -12,6 +12,8 @@
   "client": [
     "GuiEditSignAccessor",
     "GuiNewChatAccessor",
-    "GuiDisconnectedAccessor"
+    "GuiDisconnectedAccessor",
+    "ChunkRenderWorkerAccessor",
+    "ChunkRenderDispatcherMixin"
   ]
 }
