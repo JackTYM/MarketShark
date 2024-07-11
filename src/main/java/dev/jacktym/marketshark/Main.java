@@ -6,6 +6,7 @@ import dev.jacktym.marketshark.macros.AutoClaimSold;
 import dev.jacktym.marketshark.macros.Failsafes;
 import dev.jacktym.marketshark.util.DiscordIntegration;
 import dev.jacktym.marketshark.util.FlipItem;
+import dev.jacktym.marketshark.util.KeybindHandler;
 import dev.jacktym.marketshark.util.RealtimeEventRegistry;
 import net.minecraft.client.Minecraft;
 import net.minecraftforge.client.ClientCommandHandler;
@@ -37,7 +38,9 @@ public class Main {
         registry.add(new RealtimeEventRegistry());
         registry.add(new AutoClaimSold());
         registry.add(new Failsafes());
+        registry.add(new KeybindHandler());
         registry.add(this);
+
         registry.forEach(MinecraftForge.EVENT_BUS::register);
 
         Locale.setDefault(new Locale("en", "US"));
@@ -45,6 +48,8 @@ public class Main {
         FlipItem.loadFlipData();
 
         DiscordIntegration.connectToWebsocket();
+
+        KeybindHandler.initializeKeybinds();
     }
 
     String lastFlips = "";

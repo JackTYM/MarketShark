@@ -7,6 +7,7 @@ import cc.polyfrost.oneconfig.config.data.Mod;
 import cc.polyfrost.oneconfig.config.data.ModType;
 import cc.polyfrost.oneconfig.config.data.OptionSize;
 import dev.jacktym.marketshark.util.DiscordIntegration;
+import net.minecraft.client.Minecraft;
 
 public class FlipConfig extends Config {
 
@@ -245,6 +246,12 @@ public class FlipConfig extends Config {
             description = "Prints Debugging Messages"
     )
     public static boolean debug = false;
+    @Checkbox(
+            category = "Developer",
+            name = "Anti Render mode",
+            description = "Stops rendering all chunks for higher FPS"
+    )
+    public static boolean antiRender = false;
     @Text(
             category = "Developer",
             name = "Activation Key",
@@ -262,5 +269,8 @@ public class FlipConfig extends Config {
     public FlipConfig() {
         super(new Mod("MarketShark", ModType.SKYBLOCK), "marketshark.toml");
         initialize();
+
+        Runnable reloadChunks = () -> Minecraft.getMinecraft().renderGlobal.loadRenderers();
+        addListener("antiRender", reloadChunks);
     }
 }
