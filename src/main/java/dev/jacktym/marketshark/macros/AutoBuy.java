@@ -46,7 +46,9 @@ public class AutoBuy {
 
     public static void confirmClosed() {
         item.closed = true;
-        Main.mc.thePlayer.closeScreen();
+        if (Main.mc.currentScreen != null) {
+            Main.mc.thePlayer.closeScreen();
+        }
         System.out.println("Closed GUI");
         try {
             if (closeGuiTimer != null) {
@@ -100,11 +102,11 @@ public class AutoBuy {
                         return false;
                     }
                     //#endif >=Megalodon
-                    /*Main.mc.thePlayer.sendQueue.addToSendQueue(
+                    Main.mc.thePlayer.sendQueue.addToSendQueue(
                             new C0EPacketClickWindow(Main.mc.thePlayer.openContainer.windowId, 31, 2, 3,
                                     buyItem,
                                     Main.mc.thePlayer.openContainer.getNextTransactionID(Main.mc.thePlayer.inventory)));
-                    */
+
                     System.out.println("Attempted Backup Click On Item: " + buyItem.getItem().getUnlocalizedName() + " With name " + ChatUtils.stripColor(buyItem.getDisplayName()));
                 } else if (buyItem.getItem().equals(Item.getItemFromBlock(Blocks.barrier))) {
                     BugLogger.logChat("Auction Cancelled! Leaving Menu", FlipConfig.debug);
@@ -165,6 +167,8 @@ public class AutoBuy {
             if (p.func_149175_c() == buyWindowId) {
                 if (p.func_149173_d() == 13) {
                     AutoBuy.item.setItemStack(p.func_149174_e());
+
+                    DiscordIntegration.sendToWebsocket("FlipLost", item.serialize().toString());
                 } else if (p.func_149173_d() == 31) {
                     if (p.func_149174_e().getItem().equals(Items.bed)) {
                         // Buy bed Here
@@ -178,11 +182,11 @@ public class AutoBuy {
 
                         DelayUtils.delayAction(delay, () -> clickBed(itemName, p));
                     } else if (p.func_149174_e().getItem().equals(Items.gold_nugget) || (ChatUtils.stripColor(p.func_149174_e().getDisplayName()).equals("Buy Item Right Now") && !p.func_149174_e().getItem().equals(Items.poisonous_potato))) {
-                        /*Main.mc.thePlayer.sendQueue.addToSendQueue(
+                        Main.mc.thePlayer.sendQueue.addToSendQueue(
                                 new C0EPacketClickWindow(buyWindowId, 31, 2, 3,
                                         p.func_149174_e(),
                                         Main.mc.thePlayer.openContainer.getNextTransactionID(Main.mc.thePlayer.inventory)));
-*/
+
                         System.out.println("Attempted Click");
 
                         //#if >=Megalodon
@@ -262,10 +266,10 @@ public class AutoBuy {
         if (QueueUtil.currentAction.equals("AutoBuy") && item.bedClicking && !item.closed && itemName.equals(item.strippedDisplayName)) {
             DelayUtils.delayAction(FlipConfig.bedSpamDelay, () -> {
                 Main.mc.thePlayer.sendQueue.addToSendQueue(
-                        /*new C0EPacketClickWindow(buyWindowId, 31, 2, 3,
+                        new C0EPacketClickWindow(buyWindowId, 31, 2, 3,
                                 p.func_149174_e(),
                                 Main.mc.thePlayer.openContainer.getNextTransactionID(Main.mc.thePlayer.inventory)));
-*/
+
                 clickBed(itemName, p);
             });
         }

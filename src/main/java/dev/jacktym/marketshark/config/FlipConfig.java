@@ -6,6 +6,8 @@ import cc.polyfrost.oneconfig.config.annotations.*;
 import cc.polyfrost.oneconfig.config.data.Mod;
 import cc.polyfrost.oneconfig.config.data.ModType;
 import cc.polyfrost.oneconfig.config.data.OptionSize;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import dev.jacktym.marketshark.util.DiscordIntegration;
 import net.minecraft.client.Minecraft;
 
@@ -259,6 +261,20 @@ public class FlipConfig extends Config {
             secure = true
     )
     public static String activationKey = "";
+    @Text(
+            category = "Developer",
+            name = "Last Updated",
+            description = "Dont touch this if you dont want to break config syncing!",
+            secure = true
+    )
+    public static String lastUpdated = "0";
+    @Text(
+            category = "Developer",
+            name = "Config ID",
+            description = "Dont touch this if you dont want to break config syncing!",
+            secure = true
+    )
+    public static String configId = "DEFAULT";
     @Button(
             category = "Developer",
             name = "Connect to Discord Integration",
@@ -272,5 +288,111 @@ public class FlipConfig extends Config {
 
         Runnable reloadChunks = () -> Minecraft.getMinecraft().renderGlobal.loadRenderers();
         addListener("antiRender", reloadChunks);
+
+        Runnable syncConfig = () -> {
+            lastUpdated = "" + System.currentTimeMillis();
+            syncConfig();
+        };
+        addListener("", syncConfig);
+
+        addListener("maxBuyClicks", syncConfig);
+        addListener("bedSpamDelay", syncConfig);
+        addListener("bedSpamStartDelay", syncConfig);
+        addListener("autoSellTime", syncConfig);
+        addListener("autoSellPrice", syncConfig);
+        addListener("autoCloseMenuDelay", syncConfig);
+        addListener("enableMaxList", syncConfig);
+        addListener("maximumAutoList", syncConfig);
+        addListener("enableMinProfitPercent", syncConfig);
+        addListener("minimumProfitPercent", syncConfig);
+        addListener("antiLimbo", syncConfig);
+        addListener("autoReconnect", syncConfig);
+        addListener("autoIsland", syncConfig);
+        addListener("boughtWebhooks", syncConfig);
+        addListener("listedWebhooks", syncConfig);
+        addListener("soldWebhooks", syncConfig);
+        addListener("flipper", syncConfig);
+        addListener("sniper", syncConfig);
+        addListener("sniperMedian", syncConfig);
+        addListener("user", syncConfig);
+        addListener("tfm", syncConfig);
+        addListener("stonks", syncConfig);
+    }
+
+    public static JsonObject serialize() {
+        JsonObject jsonObject = new JsonObject();
+        jsonObject.addProperty("autoOpen", autoOpen);
+
+        jsonObject.addProperty("autoBuy", autoBuy);
+        jsonObject.addProperty("maxBuyClicks", maxBuyClicks);
+        jsonObject.addProperty("bedSpamDelay", bedSpamDelay);
+        jsonObject.addProperty("bedSpamStartDelay", bedSpamStartDelay);
+        jsonObject.addProperty("autoClaim", autoClaim);
+        jsonObject.addProperty("autoSell", autoSell);
+        jsonObject.addProperty("autoSellTime", autoSellTime);
+        jsonObject.addProperty("autoSellPrice", autoSellPrice);
+        jsonObject.addProperty("autoClaimSold", autoClaimSold);
+        jsonObject.addProperty("autoRelist", autoRelist);
+        jsonObject.addProperty("autoCloseMenuDelay", autoCloseMenuDelay);
+        jsonObject.addProperty("enableMaxList", enableMaxList);
+        jsonObject.addProperty("maximumAutoList", maximumAutoList);
+        jsonObject.addProperty("enableMinProfitPercent", enableMinProfitPercent);
+        jsonObject.addProperty("minimumProfitPercent", minimumProfitPercent);
+        jsonObject.addProperty("antiLimbo", antiLimbo);
+        jsonObject.addProperty("autoReconnect", autoReconnect);
+        jsonObject.addProperty("autoIsland", autoIsland);
+        jsonObject.addProperty("boughtWebhooks", boughtWebhooks);
+        jsonObject.addProperty("listedWebhooks", listedWebhooks);
+        jsonObject.addProperty("soldWebhooks", soldWebhooks);
+        jsonObject.addProperty("flipper", flipper);
+        jsonObject.addProperty("sniper", sniper);
+        jsonObject.addProperty("sniperMedian", sniperMedian);
+        jsonObject.addProperty("user", user);
+        jsonObject.addProperty("tfm", tfm);
+        jsonObject.addProperty("stonks", stonks);
+        return jsonObject;
+    }
+
+    public static void load(String config, String configId) {
+        JsonObject jsonObject = new JsonParser().parse(config).getAsJsonObject();
+
+        autoOpen = jsonObject.get("autoOpen").getAsBoolean();
+        autoBuy = jsonObject.get("autoBuy").getAsBoolean();
+        maxBuyClicks = jsonObject.get("maxBuyClicks").getAsInt();
+        bedSpamDelay = jsonObject.get("bedSpamDelay").getAsInt();
+        bedSpamStartDelay = jsonObject.get("bedSpamStartDelay").getAsInt();
+        autoClaim = jsonObject.get("autoClaim").getAsBoolean();
+        autoSell = jsonObject.get("autoSell").getAsBoolean();
+        autoSellTime = jsonObject.get("autoSellTime").getAsInt();
+        autoSellPrice = jsonObject.get("autoSellPrice").getAsInt();
+        autoClaimSold = jsonObject.get("autoClaimSold").getAsBoolean();
+        autoRelist = jsonObject.get("autoRelist").getAsInt();
+        autoCloseMenuDelay = jsonObject.get("autoCloseMenuDelay").getAsInt();
+        enableMaxList = jsonObject.get("enableMaxList").getAsBoolean();
+        maximumAutoList = jsonObject.get("maximumAutoList").getAsInt();
+        enableMinProfitPercent = jsonObject.get("enableMinProfitPercent").getAsBoolean();
+        minimumProfitPercent = jsonObject.get("minimumProfitPercent").getAsInt();
+        antiLimbo = jsonObject.get("antiLimbo").getAsBoolean();
+        autoReconnect = jsonObject.get("autoReconnect").getAsBoolean();
+        autoIsland = jsonObject.get("autoIsland").getAsBoolean();
+        boughtWebhooks = jsonObject.get("boughtWebhooks").getAsBoolean();
+        listedWebhooks = jsonObject.get("listedWebhooks").getAsBoolean();
+        soldWebhooks = jsonObject.get("soldWebhooks").getAsBoolean();
+        flipper = jsonObject.get("flipper").getAsBoolean();
+        sniper = jsonObject.get("sniper").getAsBoolean();
+        sniperMedian = jsonObject.get("sniperMedian").getAsBoolean();
+        user = jsonObject.get("user").getAsBoolean();
+        tfm = jsonObject.get("tfm").getAsBoolean();
+        stonks = jsonObject.get("stonks").getAsBoolean();
+
+        FlipConfig.configId = configId;
+    }
+
+    public static void syncConfig() {
+        JsonObject jsonObject = new JsonObject();
+        jsonObject.addProperty("config", serialize().toString());
+        jsonObject.addProperty("lastUpdated", lastUpdated);
+
+        DiscordIntegration.sendToWebsocket("SyncConfig", jsonObject.toString());
     }
 }

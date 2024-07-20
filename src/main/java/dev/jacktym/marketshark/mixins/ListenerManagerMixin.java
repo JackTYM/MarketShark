@@ -50,12 +50,12 @@ public class ListenerManagerMixin {
                     try {
                         item.auctionStart = OffsetDateTime.parse(flip.auctionData.start, DateTimeFormatter.ISO_OFFSET_DATE_TIME).toInstant().toEpochMilli();
                     } catch (Exception e) {
-                        BugLogger.logError(e);
+                        //BugLogger.logError(e);
                     }
                     try {
                         item.auctionStart = DateTimeFormatter.ISO_INSTANT.parse(flip.auctionData.start, Instant::from).toEpochMilli();
                     } catch (Exception e) {
-                        BugLogger.logError(e);
+                        //BugLogger.logError(e);
                     }
                     AutoOpen.openAuction(item);
                 } catch (Exception e) {

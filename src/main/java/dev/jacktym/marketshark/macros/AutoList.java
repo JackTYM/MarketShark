@@ -31,69 +31,25 @@ public class AutoList {
         if (currentlyListing || Main.paused || !DiscordIntegration.activated) {
             return;
         }
-        QueueUtil.addToQueue(() -> {
-            currentlyListing = true;
-            listingInv = true;
-            new Thread(() -> {
-                try {
-                    ItemStack[] inventory = Main.mc.thePlayer.inventory.mainInventory;
-                    JsonArray coflPrices = CoflAPIUtil.getCoflPrices(inventory);
-                    if (coflPrices != null) {
-                        for (int i = 0; i < inventory.length; i++) {
-                            if (i == 8) {
-                                // Skyblock Menu
-                                continue;
-                            }
-                            if (inventory[i] != null) {
-                                try {
-                                    FlipItem item = FlipItem.getFlipItem(inventory[i]);
 
-                                    switch (FlipConfig.autoSellPrice) {
-                                        case 0:
-                                            item.sellPrice = coflPrices.get(i).getAsJsonObject().get("lbin").getAsLong();
-                                            break;
-                                        case 1:
-                                            item.sellPrice = (long) (coflPrices.get(i).getAsJsonObject().get("lbin").getAsLong() * 0.95);
-                                            break;
-                                        case 4:
-                                            if (item.coflWorth != 0) {
-                                                item.sellPrice = item.coflWorth;
-                                                break;
-                                            }
-                                            BugLogger.logChat("No Cofl Flip to use. Defaulting to Median Price", true);
-                                        case 2:
-                                            item.sellPrice = coflPrices.get(i).getAsJsonObject().get("median").getAsLong();
-                                            break;
-                                        case 3:
-                                            item.sellPrice = (long) (coflPrices.get(i).getAsJsonObject().get("median").getAsLong() * 0.95);
-                                            break;
-                                    }
-
-                                    FlipItem finalItem = item;
-                                    RealtimeEventRegistry.registerEvent("guiScreenEvent", guiScreenEvent -> openManageAuctions((GuiScreenEvent) guiScreenEvent, finalItem), "AutoList");
-                                    Main.mc.thePlayer.sendChatMessage("/ah");
-                                    waitForListingToFinish();
-                                    currentlyListing = true;
-                                    if (!listingInv) {
-
-                                        break;
-                                    }
-                                } catch (Exception e) {
-                                    BugLogger.logError(e);
-                                }
-                            }
-                        }
-                    } else {
-                        BugLogger.logChat("Failed to fetch Cofl API. Rate Limited?", true);
+        BugLogger.logChat("Listing inventory! Use /ms reset to cancel", true);
+        try {
+            ItemStack[] inventory = Main.mc.thePlayer.inventory.mainInventory;
+            JsonArray coflPrices = CoflAPIUtil.getCoflPrices(inventory);
+            if (coflPrices != null) {
+                for (int i = 0; i < inventory.length; i++) {
+                    if (i == 8) {
+                        // Skyblock Menu
+                        continue;
                     }
-                } catch (Exception e) {
-                    BugLogger.logError(e);
-                } finally {
-                    finishCurrentListing();
 
+                    int finalI = i;
+                    QueueUtil.addToQueue(() -> listItem(FlipItem.getFlipItem(inventory[finalI]), true));
                 }
-            }).start();
-        });
+            }
+        } catch (Exception e) {
+            BugLogger.logError(e);
+        }
     }
 
     public static void finishCurrentListing() {
@@ -289,8 +245,9 @@ public class AutoList {
                     }
 
                     if (!foundSlot) {
-                        BugLogger.log("Auction House Full!", FlipConfig.debug);
                         BugLogger.logChat("Auction House Full!", true);
+
+                        DiscordIntegration.sendToWebsocket("AuctionHouseFull", "");
 
                         Main.mc.thePlayer.closeScreen();
                         listingInv = false;

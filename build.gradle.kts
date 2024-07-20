@@ -442,7 +442,7 @@ tasks.register<Copy>("processSource") {
                         .replace("//#if Wobbegong", "/*")
                         .replace("//#endif Wobbegong", "*/")
 
-                        .replace("version = \"None\";", "version = \"Hammerhead\";")
+                        .replace("\$version", "Hammerhead")
                     "Wobbegong" -> text
                         .replace("//#if >=GreatWhite", "/*")
                         .replace("//#endif >=GreatWhite", "*/")
@@ -456,7 +456,7 @@ tasks.register<Copy>("processSource") {
                         .replace("//#if Hammerhead", "/*")
                         .replace("//#endif Hammerhead", "*/")
 
-                        .replace("version = \"None\";", "version = \"Wobbegong\";")
+                        .replace("\$version", "Wobbegong")
                     "GreatWhite" -> text
                         .replace("//#if >=Megalodon", "/*")
                         .replace("//#endif >=Megalodon", "*/")
@@ -468,7 +468,7 @@ tasks.register<Copy>("processSource") {
                         .replace("//#if Hammerhead", "/*")
                         .replace("//#endif Hammerhead", "*/")
 
-                        .replace("version = \"None\";", "version = \"GreatWhite\";")
+                        .replace("\$version", "GreatWhite")
                     "Megalodon" -> text
                         .replace("//#if GreatWhite", "/*")
                         .replace("//#endif GreatWhite", "*/")
@@ -477,10 +477,10 @@ tasks.register<Copy>("processSource") {
                         .replace("//#if Hammerhead", "/*")
                         .replace("//#endif Hammerhead", "*/")
 
-                        .replace("version = \"None\";", "version = \"Megalodon\";")
+                        .replace("\$version", "Megalodon")
                     else -> text
-                        .replace("version = \"None\";", "version = \"UnknownVersion\";")
-                }.replace("modVersion = \"1.0.0\"", "modVersion = \"$mcVersion\";")
+                        .replace("\$version", "UnknownVersion")
+                }.replace("\$modVersion", version)
                 file.writeText(modifiedText)
             }
     }

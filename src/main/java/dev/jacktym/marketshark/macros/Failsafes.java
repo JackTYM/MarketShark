@@ -72,10 +72,10 @@ public class Failsafes {
                             || message.equals("You are AFK. Move around to return from AFK.")
                             || message.startsWith("A kick occurred in your")
             ) && FlipConfig.antiLimbo) {
-                BugLogger.logChat("In Limbo. Rejoining Skyblock!", true);
+                BugLogger.logChat("In Limbo. Rejoining Skyblock in 20 seconds!", true);
                 Main.mc.thePlayer.sendChatMessage("/l");
 
-                DelayUtils.delayAction(5000, () -> {
+                DelayUtils.delayAction(20000, () -> {
                     Main.mc.thePlayer.sendChatMessage("/skyblock");
 
                     DelayUtils.delayAction(5000, () -> {

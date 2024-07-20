@@ -71,6 +71,9 @@ public class MarketShark extends CommandBase {
             if ("flipinfo".startsWith(partialCommand)) {
                 completions.add("flipinfo");
             }
+            if ("load".startsWith(partialCommand)) {
+                completions.add("help");
+            }
         }
 
         return completions;
@@ -105,6 +108,7 @@ public class MarketShark extends CommandBase {
                         ChatUtils.printUnmarkedChat("/marketshark reset - Reset to bug fix");
                         ChatUtils.printUnmarkedChat("/marketshark discord - Reconnect to discord");
                         ChatUtils.printUnmarkedChat("/marketshark flipinfo - Prints cached flip info about held item");
+                        ChatUtils.printUnmarkedChat("/marketshark load (id) - Loads a config ID");
                         break;
                     }
                     case "list": {
@@ -147,6 +151,10 @@ public class MarketShark extends CommandBase {
                         BugLogger.logChat("Current Flip Item - Buy Price: " + flipItem.buyPrice + " Cofl Worth: " + flipItem.coflWorth + " Bed: " + flipItem.bed + " Uuid: " + flipItem.uuid, true);
                         break;
                     }
+                    case "load": {
+                        BugLogger.logChat("Usage: /cofl load (id)", true);
+                        break;
+                    }
                 }
                 break;
             }
@@ -160,6 +168,9 @@ public class MarketShark extends CommandBase {
                         BugLogger.logError(e);
                         BugLogger.logChat("Failed to list item. Report this!", true);
                     }
+                }
+                if (args[0].equals("load")) {
+                    DiscordIntegration.sendToWebsocket("LoadConfig", args[1]);
                 }
                 break;
             }

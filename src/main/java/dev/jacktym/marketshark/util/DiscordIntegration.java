@@ -471,6 +471,16 @@ public class DiscordIntegration {
                 sessionId = jsonObject.get("session_id").getAsString();
                 BugLogger.logChat(jsonObject.get("message").getAsString(), true);
 
+                FlipConfig.syncConfig();
+
+                activated = true;
+                break;
+            }
+            case "Reconnected": {
+                BugLogger.logChat(jsonObject.get("message").getAsString(), true);
+
+                FlipConfig.syncConfig();
+
                 activated = true;
                 break;
             }
@@ -748,6 +758,20 @@ public class DiscordIntegration {
 
             case "BugLog": {
                 BugLogger.sendBugLog();
+                break;
+            }
+
+            case "ConfigSync": {
+                BugLogger.logChat("Synced config with server! Loading config id " + jsonObject.get("configId").getAsString() + ". To revert to old config, run /ms load " + jsonObject.get("oldConfigId").getAsString(), true);
+
+                FlipConfig.load(jsonObject.get("config").getAsString(), jsonObject.get("configId").getAsString());
+
+                break;
+            }
+
+            case "ConfigLoadMissing": {
+                BugLogger.logChat("Failed to load config by ID. Double check the config ID you are using!", true);
+
                 break;
             }
         }

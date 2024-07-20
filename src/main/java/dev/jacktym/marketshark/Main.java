@@ -21,12 +21,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
-@Mod(modid = "skyhud", name = "SharketMark", version = "1.0.0")
+@Mod(modid = "skyhud", name = "SharketMark", version = "$modVersion")
 public class Main {
     public static FlipConfig flipConfig;
     public static Minecraft mc = Minecraft.getMinecraft();
-    public static final String version = "None";
-    public static final String modVersion = "1.0.0";
+    public static final String version = "$version";
+    public static final String modVersion = "$modVersion";
     public static boolean paused = false;
 
     @Mod.EventHandler
