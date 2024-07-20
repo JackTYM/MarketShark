@@ -1,5 +1,7 @@
 package dev.jacktym.crashpatch.hooks;
 
+import dev.jacktym.marketshark.util.BugLogger;
+
 import java.io.File;
 import java.io.FileOutputStream;
 import java.net.HttpURLConnection;
@@ -44,7 +46,7 @@ public class StacktraceDeobfuscator {
                     }
                 }
             } catch (Exception e) {
-                e.printStackTrace();
+                BugLogger.logError(e);
                 return;
             } finally {
                 if (connection != null) {

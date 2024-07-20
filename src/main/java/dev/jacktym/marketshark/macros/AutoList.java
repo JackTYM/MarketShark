@@ -60,7 +60,7 @@ public class AutoList {
                                                 item.sellPrice = item.coflWorth;
                                                 break;
                                             }
-                                            ChatUtils.printMarkedChat("No Cofl Flip to use. Defaulting to Median Price");
+                                            BugLogger.logChat("No Cofl Flip to use. Defaulting to Median Price", true);
                                         case 2:
                                             item.sellPrice = coflPrices.get(i).getAsJsonObject().get("median").getAsLong();
                                             break;
@@ -79,15 +79,15 @@ public class AutoList {
                                         break;
                                     }
                                 } catch (Exception e) {
-                                    e.printStackTrace();
+                                    BugLogger.logError(e);
                                 }
                             }
                         }
                     } else {
-                        ChatUtils.printMarkedChat("Failed to fetch Cofl API. Rate Limited?");
+                        BugLogger.logChat("Failed to fetch Cofl API. Rate Limited?", true);
                     }
                 } catch (Exception e) {
-                    e.printStackTrace();
+                    BugLogger.logError(e);
                 } finally {
                     finishCurrentListing();
 
@@ -138,7 +138,7 @@ public class AutoList {
             }
 
             if (!item.skipReason.isEmpty()) {
-                ChatUtils.printMarkedChat(item.skipReason);
+                BugLogger.logChat(item.skipReason, true);
 
                 RealtimeEventRegistry.clearClazzMap("AutoList");
                 finishCurrentListing();
@@ -163,9 +163,9 @@ public class AutoList {
                         break;
                     case 4:
                         if (item.coflWorth == item.buyPrice) {
-                            ChatUtils.printMarkedChat("Buy Price = Worth. May be User Finder Flip. Defaulting to Median Price");
+                            BugLogger.logChat("Buy Price = Worth. May be User Finder Flip. Defaulting to Median Price", true);
                         } else {
-                            ChatUtils.printMarkedChat("No Cofl Flip to use. Defaulting to Median Price");
+                            BugLogger.logChat("No Cofl Flip to use. Defaulting to Median Price", true);
                         }
                     case 2:
                         item.sellPrice = coflPrice.get("median").getAsLong();
@@ -175,14 +175,14 @@ public class AutoList {
                         break;
                 }
             } else {
-                ChatUtils.printMarkedChat("Failed to fetch Cofl API. Rate Limited?");
+                BugLogger.logChat("Failed to fetch Cofl API. Rate Limited?", true);
             }
         }
 
         float flipProfit = item.sellPrice - item.buyPrice - calculateBINTax(item.buyPrice);
 
         if (item.sellPrice < item.buyPrice) {
-            ChatUtils.printMarkedChat("Skipped listing item. Sell price less than buy price!");
+            BugLogger.logChat("Skipped listing item. Sell price less than buy price!", true);
             item.skipReason = "Skipped listing item. Sell price lower than buy price!";
 
             RealtimeEventRegistry.clearClazzMap("AutoList");
@@ -195,7 +195,7 @@ public class AutoList {
         }
 
         if (FlipConfig.enableMaxList && item.sellPrice > FlipConfig.maximumAutoList) {
-            ChatUtils.printMarkedChat("Skipped listing item. Above maximum list!");
+            BugLogger.logChat("Skipped listing item. Above maximum list!", true);
             item.skipReason = "Skipped listing item. Above maximum list!";
 
             RealtimeEventRegistry.clearClazzMap("AutoList");
@@ -209,7 +209,7 @@ public class AutoList {
 
 
         if (FlipConfig.enableMinProfitPercent && Math.round((flipProfit / item.sellPrice) * 100) < FlipConfig.minimumProfitPercent) {
-            ChatUtils.printMarkedChat("Skipped listing item. Below minimum profit percent!");
+            BugLogger.logChat("Skipped listing item. Below minimum profit percent!", true);
             item.skipReason = "Skipped listing item. Below minimum profit percent!";
             RealtimeEventRegistry.clearClazzMap("AutoList");
             finishCurrentListing();
@@ -220,7 +220,7 @@ public class AutoList {
             return;
         }
 
-        ChatUtils.printMarkedChat("Listing item " + item.strippedDisplayName + " for " + ChatUtils.abbreviateNumber(item.sellPrice) + " coins");
+        BugLogger.logChat("Listing item " + item.strippedDisplayName + " for " + ChatUtils.abbreviateNumber(item.sellPrice) + " coins", true);
 
         QueueUtil.addToQueue(() -> {
             currentlyListing = true;
@@ -232,7 +232,7 @@ public class AutoList {
     }
 
     public static void listItem(FlipItem item) {
-        ChatUtils.printMarkedChat("Listing item " + item.strippedDisplayName + " for " + ChatUtils.abbreviateNumber(item.sellPrice) + " coins");
+        BugLogger.logChat("Listing item " + item.strippedDisplayName + " for " + ChatUtils.abbreviateNumber(item.sellPrice) + " coins", true);
 
         QueueUtil.addToQueue(() -> {
             currentlyListing = true;
@@ -289,10 +289,8 @@ public class AutoList {
                     }
 
                     if (!foundSlot) {
-                        if (FlipConfig.debug) {
-                            System.out.println("Auction House Full!");
-                        }
-                        ChatUtils.printMarkedChat("Auction House Full!");
+                        BugLogger.log("Auction House Full!", FlipConfig.debug);
+                        BugLogger.logChat("Auction House Full!", true);
 
                         Main.mc.thePlayer.closeScreen();
                         listingInv = false;
@@ -327,7 +325,7 @@ public class AutoList {
             } else if (chest.getDisplayName().getUnformattedText().equals("Create BIN Auction")) {
                 if (!chest.getStackInSlot(13).getItem().equals(Item.getItemFromBlock(Blocks.stone_button))) {
                     GuiUtil.singleClick(13);
-                    ChatUtils.printMarkedChat("Item in slot already! Removing");
+                    BugLogger.logChat("Item in slot already! Removing", true);
 
                     DelayUtils.delayAction(800, () -> {
                         RealtimeEventRegistry.registerEvent("guiScreenEvent", guiScreenEvent -> createAuction((GuiScreenEvent) guiScreenEvent, item), "AutoList");
@@ -355,10 +353,8 @@ public class AutoList {
                         }
                     }
                 }
-                if (FlipConfig.debug) {
-                    System.out.println("Item not found in inventory. Leaving Menu");
-                }
-                ChatUtils.printMarkedChat("Item not found in inventory. Leaving Menu");
+                BugLogger.log("Item not found in inventory. Leaving Menu", FlipConfig.debug);
+                BugLogger.logChat("Item not found in inventory. Leaving Menu", true);
                 Main.mc.thePlayer.closeScreen();
                 finishCurrentListing();
                 return true;
@@ -409,7 +405,7 @@ public class AutoList {
                 });
                 return true;
             } catch (Exception e) {
-                e.printStackTrace();
+                BugLogger.logError(e);
             }
         }
         return false;

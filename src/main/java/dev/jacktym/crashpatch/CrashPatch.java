@@ -3,6 +3,7 @@ package dev.jacktym.crashpatch;
 import cc.polyfrost.oneconfig.utils.Multithreading;
 import dev.jacktym.crashpatch.crashes.CrashHelper;
 import dev.jacktym.crashpatch.crashes.DeobfuscatingRewritePolicy;
+import dev.jacktym.marketshark.util.BugLogger;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
@@ -48,7 +49,7 @@ public class CrashPatch {
                 return file;
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            BugLogger.logError(e);
             return file;
         }
     }

@@ -26,7 +26,7 @@ public class Failsafes {
             }
             DelayUtils.delayAction(FlipConfig.autoCloseMenuDelay, () -> {
                 if (Main.mc != null && Main.mc.thePlayer != null && FlipConfig.autoOpen && event.gui == Main.mc.currentScreen && event.gui instanceof GuiChest) {
-                    ChatUtils.printMarkedChat("Stuck GUI Failsafe Triggered!");
+                    BugLogger.logChat("Stuck GUI Failsafe Triggered!", true);
                     if (!QueueUtil.currentAction.isEmpty()) {
                         RealtimeEventRegistry.clearClazzMap(QueueUtil.currentAction);
                     }
@@ -41,13 +41,13 @@ public class Failsafes {
                 }
             });
         } catch (Exception e) {
-            e.printStackTrace();
+            BugLogger.logError(e);
         }
     }
 
     public static boolean stuckEventFailsafe(TickEvent.ClientTickEvent event, long startTime, String clazz) {
         if (startTime + FlipConfig.autoCloseMenuDelay < System.currentTimeMillis() && Main.mc != null && Main.mc.thePlayer != null && FlipConfig.autoOpen) {
-            ChatUtils.printMarkedChat("Stuck Event Failsafe Triggered!");
+            BugLogger.logChat("Stuck Event Failsafe Triggered!", true);
             RealtimeEventRegistry.clearClazzMap(clazz);
             Main.mc.thePlayer.closeScreen();
 
@@ -72,7 +72,7 @@ public class Failsafes {
                             || message.equals("You are AFK. Move around to return from AFK.")
                             || message.startsWith("A kick occurred in your")
             ) && FlipConfig.antiLimbo) {
-                ChatUtils.printMarkedChat("In Limbo. Rejoining Skyblock!");
+                BugLogger.logChat("In Limbo. Rejoining Skyblock!", true);
                 Main.mc.thePlayer.sendChatMessage("/l");
 
                 DelayUtils.delayAction(5000, () -> {
@@ -83,7 +83,7 @@ public class Failsafes {
                     });
                 });
             } else if ((message.startsWith("Evacuating to Hub..") || message.startsWith("You are being transferred to the HUB for being AFK!")) && FlipConfig.autoIsland) {
-                ChatUtils.printMarkedChat("Island closed. Rejoining in 5 Seconds!");
+                BugLogger.logChat("Island closed. Rejoining in 5 Seconds!", true);
                 DelayUtils.delayAction(5000, () -> {
                     Main.mc.thePlayer.sendChatMessage("/is");
                 });
@@ -136,7 +136,7 @@ public class Failsafes {
 
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            BugLogger.logError(e);
         }
     }
 
@@ -154,7 +154,7 @@ public class Failsafes {
             DelayUtils.delayAction(5000, () -> {
                 if (Main.mc.getCurrentServerData() != null) {
                     try {
-                        ChatUtils.printMarkedChat("Reconnected! Going to Skyblock Island!");
+                        BugLogger.logChat("Reconnected! Going to Skyblock Island!", true);
                         DelayUtils.delayAction(5000, () -> {
                             Main.mc.thePlayer.sendChatMessage("/skyblock");
 
@@ -163,7 +163,7 @@ public class Failsafes {
                             });
                         });
                     } catch (Exception e) {
-                        e.printStackTrace();
+                        BugLogger.logError(e);
                     }
                 }
             });

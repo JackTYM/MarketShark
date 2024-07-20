@@ -2,6 +2,7 @@ package dev.jacktym.marketshark.macros;
 
 import dev.jacktym.marketshark.Main;
 import dev.jacktym.marketshark.config.FlipConfig;
+import dev.jacktym.marketshark.util.BugLogger;
 import dev.jacktym.marketshark.util.DiscordIntegration;
 import dev.jacktym.marketshark.util.FlipItem;
 import dev.jacktym.marketshark.util.QueueUtil;
@@ -12,9 +13,7 @@ public class AutoOpen {
             return;
         }
         QueueUtil.addToStartOfQueue(() -> {
-            if (FlipConfig.debug) {
-                System.out.println("Attempting Open: " + item.auctionId);
-            }
+            BugLogger.log("Attempting Open: " + item.auctionId, FlipConfig.debug);
             if (Main.mc.thePlayer != null) {
                 Main.mc.thePlayer.closeScreen();
                 AutoBuy.autoBuy(item);

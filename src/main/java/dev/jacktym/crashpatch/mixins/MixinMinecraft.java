@@ -4,6 +4,7 @@ import cc.polyfrost.oneconfig.utils.gui.GuiUtils;
 import dev.jacktym.crashpatch.crashes.StateManager;
 import dev.jacktym.crashpatch.hooks.MinecraftHook;
 import dev.jacktym.crashpatch.utils.GuiDisconnectedHook;
+import dev.jacktym.marketshark.util.BugLogger;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.audio.SoundHandler;
 import net.minecraft.client.gui.FontRenderer;
@@ -310,7 +311,7 @@ public abstract class MixinMinecraft implements MinecraftHook {
                 //EventManager.INSTANCE.register(Notifications.INSTANCE);
                 GuiUtils.getDeltaTime(); // make sure static initialization is called
             } catch (Exception e) {
-                e.printStackTrace();
+                BugLogger.logError(e);
             }
 
             running = true;

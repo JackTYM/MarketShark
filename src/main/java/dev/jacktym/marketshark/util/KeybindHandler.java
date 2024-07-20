@@ -16,22 +16,22 @@ public class KeybindHandler {
     public void onKeyInput(InputEvent.KeyInputEvent event) {
         if (togglePause.isPressed()) {
             if (!DiscordIntegration.activated) {
-                ChatUtils.printMarkedChat("MarketShark is not activated! Please enter your Activation Key in /ms and click Connect!");
+                BugLogger.logChat("MarketShark is not activated! Please enter your Activation Key in /ms and click Connect!", true);
                 return;
             }
             Main.paused = !Main.paused;
-            ChatUtils.printMarkedChat((Main.paused ? "Paused" : "Unpaused") + " MarketShark");
+            BugLogger.logChat((Main.paused ? "Paused" : "Unpaused") + " MarketShark", true);
         }
         if (toggleAntiRender.isPressed()) {
             if (!DiscordIntegration.activated) {
-                ChatUtils.printMarkedChat("MarketShark is not activated! Please enter your Activation Key in /ms and click Connect!");
+                BugLogger.logChat("MarketShark is not activated! Please enter your Activation Key in /ms and click Connect!", true);
                 return;
             }
             if (Main.paused) {
-                ChatUtils.printMarkedChat("MarketShark is Paused! Features will not work until unpaused!");
+                BugLogger.logChat("MarketShark is Paused! Features will not work until unpaused!", true);
             } else {
                 FlipConfig.antiRender = !FlipConfig.antiRender;
-                ChatUtils.printMarkedChat((FlipConfig.antiRender ? "Enabled" : "Disabled") + " AntiRender!");
+                BugLogger.logChat((FlipConfig.antiRender ? "Enabled" : "Disabled") + " AntiRender!", true);
                 // Reload chunks
                 Minecraft.getMinecraft().renderGlobal.loadRenderers();
             }

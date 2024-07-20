@@ -26,7 +26,7 @@ public class QueueUtil {
                 finishFailsafe = null;
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            BugLogger.logError(e);
         }
         if (!queue.isEmpty()) {
             Runnable r = queue.remove(0);

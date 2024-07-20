@@ -49,9 +49,7 @@ public class RealtimeEventRegistry {
 
     public static void handleEvent(String eventString, Event event, int i) {
         if (i > 10) {
-            if (FlipConfig.debug) {
-                System.out.println("ConcurrentModification StackOverflow. Clearing events!");
-            }
+            BugLogger.log("ConcurrentModification StackOverflow. Clearing events!", FlipConfig.debug);
             eventMap.clear();
             return;
         }
@@ -64,9 +62,7 @@ public class RealtimeEventRegistry {
 
     public static void handlePacket(Packet packet, int i) {
         if (i > 10) {
-            if (FlipConfig.debug) {
-                System.out.println("ConcurrentModification StackOverflow. Clearing events!");
-            }
+            BugLogger.log("ConcurrentModification StackOverflow. Clearing events!", FlipConfig.debug);
             packetArray.clear();
             return;
         }
@@ -79,9 +75,7 @@ public class RealtimeEventRegistry {
 
     public static void handleMessage(String messageString, String message, int i) {
         if (i > 10) {
-            if (FlipConfig.debug) {
-                System.out.println("ConcurrentModification StackOverflow. Clearing events!");
-            }
+            BugLogger.log("ConcurrentModification StackOverflow. Clearing events!", FlipConfig.debug);
             eventMap.clear();
             return;
         }

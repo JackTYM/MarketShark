@@ -54,7 +54,7 @@ public class AutoBuy {
                 closeGuiTimer = null;
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            BugLogger.logError(e);
         }
         closeGuiTimer = DelayUtils.delayAction(500, () -> {
             if (Main.mc.currentScreen == null) {
@@ -80,19 +80,18 @@ public class AutoBuy {
                     return false;
                 }
                 if (buyItem.getItem().equals(Items.poisonous_potato)) {
-                    if (FlipConfig.debug) {
-                        ChatUtils.printMarkedChat("Not enough coins for flip! Leaving Menu");
-                    }
+                    BugLogger.logChat("Not enough coins for flip! Leaving Menu", FlipConfig.debug);
                     FlipItem.flipItems.remove(AutoBuy.item);
                     FlipItem.flipMap.remove(AutoBuy.item.uuid);
                     confirmClosed();
                 } else if (buyItem.getItem().equals(Items.potato) || ChatUtils.stripColor(buyItem.getDisplayName()).equals("Collect Auction")) {
-                    if (FlipConfig.debug) {
-                        System.out.println("Lost Flip Potato! " + buyItem.getDisplayName());
-                    }
-                    ChatUtils.printMarkedChat("Lost Flip! Leaving Menu");
+                    BugLogger.log("Lost Flip Potato! " + buyItem.getDisplayName(), FlipConfig.debug);
+                    BugLogger.logChat("Lost Flip! Leaving Menu", true);
                     FlipItem.flipItems.remove(AutoBuy.item);
                     FlipItem.flipMap.remove(AutoBuy.item.uuid);
+
+                    DiscordIntegration.sendToWebsocket("FlipLost", item.serialize().toString());
+
                     confirmClosed();
                 } else if ((buyItem.getItem().equals(Items.gold_nugget)
                         || (ChatUtils.stripColor(buyItem.getDisplayName()).equals("Buy Item Right Now") && !buyItem.getItem().equals(Items.bed)))) {
@@ -101,30 +100,25 @@ public class AutoBuy {
                         return false;
                     }
                     //#endif >=Megalodon
-                    Main.mc.thePlayer.sendQueue.addToSendQueue(
+                    /*Main.mc.thePlayer.sendQueue.addToSendQueue(
                             new C0EPacketClickWindow(Main.mc.thePlayer.openContainer.windowId, 31, 2, 3,
                                     buyItem,
                                     Main.mc.thePlayer.openContainer.getNextTransactionID(Main.mc.thePlayer.inventory)));
+                    */
                     System.out.println("Attempted Backup Click On Item: " + buyItem.getItem().getUnlocalizedName() + " With name " + ChatUtils.stripColor(buyItem.getDisplayName()));
                 } else if (buyItem.getItem().equals(Item.getItemFromBlock(Blocks.barrier))) {
-                    if (FlipConfig.debug) {
-                        ChatUtils.printMarkedChat("Auction Cancelled! Leaving Menu");
-                    }
+                    BugLogger.logChat("Auction Cancelled! Leaving Menu", FlipConfig.debug);
                     FlipItem.flipItems.remove(AutoBuy.item);
                     FlipItem.flipMap.remove(AutoBuy.item.uuid);
                     confirmClosed();
                 } else if (!buyItem.getItem().equals(Items.bed) && !ChatUtils.stripColor(buyItem.getDisplayName()).contains("Loading")) {
-                    if (FlipConfig.debug) {
-                        ChatUtils.printMarkedChat("Unknown Buy Item! May be users own auction! Leaving Menu | " + buyItem.getDisplayName() + " " + buyItem.getItem().getUnlocalizedName());
-                    }
+                    BugLogger.logChat("Unknown Buy Item! May be users own auction! Leaving Menu | " + buyItem.getDisplayName() + " " + buyItem.getItem().getUnlocalizedName(), FlipConfig.debug);
                     FlipItem.flipItems.remove(AutoBuy.item);
                     FlipItem.flipMap.remove(AutoBuy.item.uuid);
                     confirmClosed();
                 }
             } else if (chest.getDisplayName().getUnformattedText().equals("Auction View")) {
-                if (FlipConfig.debug) {
-                    ChatUtils.printMarkedChat("BID Auction! Leaving Menu");
-                }
+                BugLogger.logChat("BID Auction! Leaving Menu", FlipConfig.debug);
                 FlipItem.flipItems.remove(AutoBuy.item);
                 FlipItem.flipMap.remove(AutoBuy.item.uuid);
                 confirmClosed();
@@ -184,11 +178,11 @@ public class AutoBuy {
 
                         DelayUtils.delayAction(delay, () -> clickBed(itemName, p));
                     } else if (p.func_149174_e().getItem().equals(Items.gold_nugget) || (ChatUtils.stripColor(p.func_149174_e().getDisplayName()).equals("Buy Item Right Now") && !p.func_149174_e().getItem().equals(Items.poisonous_potato))) {
-                        Main.mc.thePlayer.sendQueue.addToSendQueue(
+                        /*Main.mc.thePlayer.sendQueue.addToSendQueue(
                                 new C0EPacketClickWindow(buyWindowId, 31, 2, 3,
                                         p.func_149174_e(),
                                         Main.mc.thePlayer.openContainer.getNextTransactionID(Main.mc.thePlayer.inventory)));
-
+*/
                         System.out.println("Attempted Click");
 
                         //#if >=Megalodon
@@ -217,7 +211,7 @@ public class AutoBuy {
                                                 fakeConfirm,
                                                 Main.mc.thePlayer.openContainer.getNextTransactionID(Main.mc.thePlayer.inventory)));
 
-                                ChatUtils.printMarkedChat("Attempted Confirm Skip with " + FlipConfig.confirmSkipDelay + "ms Delay!");
+                                BugLogger.logChat("Attempted Confirm Skip with " + FlipConfig.confirmSkipDelay + "ms Delay!", true);
 
                                 AutoBuy.item.buyPrice = Long.parseLong(ChatUtils.stripColor(p.func_149174_e().getTagCompound().getCompoundTag("display").getTagList("Lore", 8).getStringTagAt(1).split("Price: ")[1].split(" ")[0].replace(",", "")));
                                 long expiryTime = System.currentTimeMillis() + 10000;
@@ -268,10 +262,10 @@ public class AutoBuy {
         if (QueueUtil.currentAction.equals("AutoBuy") && item.bedClicking && !item.closed && itemName.equals(item.strippedDisplayName)) {
             DelayUtils.delayAction(FlipConfig.bedSpamDelay, () -> {
                 Main.mc.thePlayer.sendQueue.addToSendQueue(
-                        new C0EPacketClickWindow(buyWindowId, 31, 2, 3,
+                        /*new C0EPacketClickWindow(buyWindowId, 31, 2, 3,
                                 p.func_149174_e(),
                                 Main.mc.thePlayer.openContainer.getNextTransactionID(Main.mc.thePlayer.inventory)));
-
+*/
                 clickBed(itemName, p);
             });
         }
@@ -291,7 +285,7 @@ public class AutoBuy {
             Main.mc.thePlayer.closeScreen();
             return false;
         } else if (message.startsWith("You purchased") && message.contains(item.strippedDisplayName)) {
-            ChatUtils.printMarkedChat("Purchased " + EnumChatFormatting.LIGHT_PURPLE + item.strippedDisplayName + EnumChatFormatting.RESET + " for " + EnumChatFormatting.GOLD + ChatUtils.abbreviateNumber(item.buyPrice) + EnumChatFormatting.RESET + " coins in " + EnumChatFormatting.GREEN + item.buySpeed + "ms" + EnumChatFormatting.RESET + " worth " + EnumChatFormatting.GOLD + ChatUtils.abbreviateNumber(item.coflWorth) + EnumChatFormatting.RESET + " coins for a " + EnumChatFormatting.GOLD + ChatUtils.abbreviateNumber(item.coflWorth - item.buyPrice) + EnumChatFormatting.RESET + " coin profit!");
+            BugLogger.logChat("Purchased " + EnumChatFormatting.LIGHT_PURPLE + item.strippedDisplayName + EnumChatFormatting.RESET + " for " + EnumChatFormatting.GOLD + ChatUtils.abbreviateNumber(item.buyPrice) + EnumChatFormatting.RESET + " coins in " + EnumChatFormatting.GREEN + item.buySpeed + "ms" + EnumChatFormatting.RESET + " worth " + EnumChatFormatting.GOLD + ChatUtils.abbreviateNumber(item.coflWorth) + EnumChatFormatting.RESET + " coins for a " + EnumChatFormatting.GOLD + ChatUtils.abbreviateNumber(item.coflWorth - item.buyPrice) + EnumChatFormatting.RESET + " coin profit!", true);
             AutoClaim.claim(item);
             item.bought = true;
             RealtimeEventRegistry.clearClazzMap("AutoBuy");

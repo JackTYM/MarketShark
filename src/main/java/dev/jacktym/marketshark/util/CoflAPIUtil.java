@@ -69,7 +69,7 @@ public class CoflAPIUtil {
             }
 
         } catch (Exception e) {
-            e.printStackTrace();
+            BugLogger.logError(e);
         }
         return null;
     }
@@ -131,7 +131,7 @@ public class CoflAPIUtil {
             }
 
         } catch (Exception e) {
-            e.printStackTrace();
+            BugLogger.logError(e);
         }
         return null;
     }

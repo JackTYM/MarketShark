@@ -4,6 +4,7 @@ import dev.jacktym.marketshark.commands.MarketShark;
 import dev.jacktym.marketshark.config.FlipConfig;
 import dev.jacktym.marketshark.macros.AutoClaimSold;
 import dev.jacktym.marketshark.macros.Failsafes;
+import dev.jacktym.marketshark.util.BugLogger;
 import dev.jacktym.marketshark.util.DiscordIntegration;
 import dev.jacktym.marketshark.util.FlipItem;
 import dev.jacktym.marketshark.util.KeybindHandler;
@@ -30,6 +31,8 @@ public class Main {
 
     @Mod.EventHandler
     public void init(FMLInitializationEvent event) {
+        BugLogger.log("MarketShark Init", true);
+
         ClientCommandHandler.instance.registerCommand(new MarketShark());
 
         flipConfig = new FlipConfig();

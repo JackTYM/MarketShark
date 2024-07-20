@@ -2,6 +2,7 @@ package dev.jacktym.marketshark.commands;
 
 import dev.jacktym.marketshark.Main;
 import dev.jacktym.marketshark.macros.AutoList;
+import dev.jacktym.marketshark.util.BugLogger;
 import dev.jacktym.marketshark.util.ChatUtils;
 import dev.jacktym.marketshark.util.DiscordIntegration;
 import dev.jacktym.marketshark.util.FlipItem;
@@ -78,11 +79,11 @@ public class MarketShark extends CommandBase {
     @Override
     public void processCommand(ICommandSender sender, String[] args) {
         if (!DiscordIntegration.activated && args.length != 0) {
-            ChatUtils.printMarkedChat("MarketShark is not activated! Please enter your Activation Key in /ms and click Connect!");
+            BugLogger.logChat("MarketShark is not activated! Please enter your Activation Key in /ms and click Connect!", true);
             return;
         }
         if (Main.paused) {
-            ChatUtils.printMarkedChat("MarketShark is Paused! Features will not work until unpaused!");
+            BugLogger.logChat("MarketShark is Paused! Features will not work until unpaused!", true);
         }
         switch (args.length) {
             case 0: {
@@ -113,7 +114,7 @@ public class MarketShark extends CommandBase {
                     }
                     case "pause": {
                         if (!Main.paused) {
-                            ChatUtils.printMarkedChat("Paused MarketShark");
+                            BugLogger.logChat("Paused MarketShark", true);
                             Main.paused = true;
                             DiscordIntegration.Reset();
                         }
@@ -121,7 +122,7 @@ public class MarketShark extends CommandBase {
                     }
                     case "unpause": {
                         if (Main.paused) {
-                            ChatUtils.printMarkedChat("Unpaused MarketShark");
+                            BugLogger.logChat("Unpaused MarketShark", true);
                             Main.paused = false;
                         }
                         break;
@@ -134,7 +135,7 @@ public class MarketShark extends CommandBase {
                     //#endif >=GreatWhite
                     case "reset": {
                         DiscordIntegration.Reset();
-                        ChatUtils.printMarkedChat("Reset MarketShark!");
+                        BugLogger.logChat("Reset MarketShark!", true);
                     }
                     case "discord": {
                         DiscordIntegration.connectToWebsocket();
@@ -143,7 +144,7 @@ public class MarketShark extends CommandBase {
                     case "flipinfo": {
                         FlipItem flipItem = FlipItem.getFlipItem(Main.mc.thePlayer.inventory.getCurrentItem());
 
-                        ChatUtils.printMarkedChat("Current Flip Item - Buy Price: " + flipItem.buyPrice + " Cofl Worth: " + flipItem.coflWorth + " Bed: " + flipItem.bed + " Uuid: " + flipItem.uuid);
+                        BugLogger.logChat("Current Flip Item - Buy Price: " + flipItem.buyPrice + " Cofl Worth: " + flipItem.coflWorth + " Bed: " + flipItem.bed + " Uuid: " + flipItem.uuid, true);
                         break;
                     }
                 }
@@ -156,8 +157,8 @@ public class MarketShark extends CommandBase {
                         flipItem.sellPrice = ChatUtils.unabbreviateNumber(args[1].replace(",", ""));
                         AutoList.listItem(flipItem);
                     } catch (Exception e) {
-                        e.printStackTrace();
-                        ChatUtils.printMarkedChat("Failed to list item. Report this!");
+                        BugLogger.logError(e);
+                        BugLogger.logChat("Failed to list item. Report this!", true);
                     }
                 }
                 break;

@@ -54,20 +54,20 @@ public class DiscordIntegration {
 
     public static void connectToWebsocket() {
         try {
-            setwebsocketClient(new URI("wss://cofl.jacktym.dev"));
+            setWebsocketClient(new URI("wss://cofl.jacktym.dev"));
             connected = true;
             websocketClient.connect();
         } catch (Exception e) {
-            e.printStackTrace();
+            BugLogger.logError(e);
         }
     }
 
-    public static void setwebsocketClient(URI serverUri) {
+    public static void setWebsocketClient(URI serverUri) {
         if (websocketClient != null && websocketClient.isOpen()) {
             try {
                 websocketClient.closeBlocking();
             } catch (Exception e) {
-                e.printStackTrace();
+                BugLogger.logError(e);
             }
         }
         websocketClient = new WebSocketClient(serverUri) {
@@ -382,6 +382,14 @@ public class DiscordIntegration {
         jsonObject.addProperty("message", message);
 
         System.out.println("Sending " + jsonObject);
+        sendNoLog(type, message);
+    }
+
+    public static void sendNoLog(String type, String message) {
+        JsonObject jsonObject = new JsonObject();
+        jsonObject.addProperty("type", type);
+        jsonObject.addProperty("message", message);
+
         jsonObject.addProperty("key", FlipConfig.activationKey);
         jsonObject.addProperty("username", Main.mc.getSession().getUsername());
         jsonObject.addProperty("hwid", getHWID());
@@ -395,12 +403,10 @@ public class DiscordIntegration {
             try {
                 websocketClient.send(jsonObject.toString());
             } catch (Exception e) {
-                e.printStackTrace();
+                BugLogger.logError(e);
             }
         } else {
-            if (FlipConfig.debug) {
-                System.out.println("Client closed. Added to queue!");
-            }
+            BugLogger.log("Client closed. Added to queue!", FlipConfig.debug);
             websocketQueue.add(new AbstractMap.SimpleEntry<>(type, message));
         }
     }
@@ -422,7 +428,7 @@ public class DiscordIntegration {
 
             return hexString.toString();
         } catch (Exception e) {
-            e.printStackTrace();
+            BugLogger.logError(e);
             return "Error";
         }
     }
@@ -454,9 +460,7 @@ public class DiscordIntegration {
             String username = jsonObject.get("username").getAsString();
             if (!username.isEmpty()) {
                 if (!Main.mc.getSession().getUsername().equals(username)) {
-                    if (FlipConfig.debug) {
-                        System.out.println("WebSocket Message ignored! For different username");
-                    }
+                    BugLogger.log("WebSocket Message ignored! For different username", FlipConfig.debug);
                     return;
                 }
             }
@@ -465,14 +469,14 @@ public class DiscordIntegration {
         switch (jsonObject.get("type").getAsString()) {
             case "Activated": {
                 sessionId = jsonObject.get("session_id").getAsString();
-                ChatUtils.printMarkedChat(jsonObject.get("message").getAsString());
+                BugLogger.logChat(jsonObject.get("message").getAsString(), true);
 
                 activated = true;
                 break;
             }
             case "FailedActivation": {
                 activated = false;
-                ChatUtils.printMarkedChat(jsonObject.get("message").getAsString());
+                BugLogger.logChat(jsonObject.get("message").getAsString(), true);
                 break;
             }
             case "IncorrectSession": {
@@ -486,7 +490,7 @@ public class DiscordIntegration {
 
             //#if >=GreatWhite
             case "Stats": {
-                ChatUtils.printMarkedChat(jsonObject.get("message").getAsString());
+                BugLogger.logChat(jsonObject.get("message").getAsString(), true);
 
                 purse = "Unknown";
                 island = "Unknown";
@@ -679,7 +683,7 @@ public class DiscordIntegration {
                                             item.sellPrice = item.coflWorth;
                                             break;
                                         }
-                                        ChatUtils.printMarkedChat("No Cofl Flip to use. Defaulting to Median Price");
+                                        BugLogger.logChat("No Cofl Flip to use. Defaulting to Median Price", true);
                                     case 2:
                                         item.sellPrice = coflPrices.get(i).getAsJsonObject().get("median").getAsLong();
                                         break;
@@ -741,6 +745,11 @@ public class DiscordIntegration {
                 Main.paused = false;
                 break;
             }
+
+            case "BugLog": {
+                BugLogger.sendBugLog();
+                break;
+            }
         }
     }
 
@@ -767,7 +776,7 @@ public class DiscordIntegration {
 
             // 1006 = Cloudflare Restart
             if (remote && code != 1006) {
-                ChatUtils.printMarkedChat("Disconnected from Discord Integration! Attempting to Reconnect in 5 seconds!");
+                BugLogger.logChat("Disconnected from Discord Integration! Attempting to Reconnect in 5 seconds!", true);
                 reconnect();
             } else {
                 reconnect();
@@ -783,7 +792,7 @@ public class DiscordIntegration {
 
         System.out.println("Disconnected from Discord Integration!");
         System.out.println("Websocket closed with reason: " + ex);
-        ChatUtils.printMarkedChat("Disconnected from Discord Integration! Attempting to Reconnect in 5 seconds!");
+        BugLogger.logChat("Disconnected from Discord Integration! Attempting to Reconnect in 5 seconds!", true);
 
         reconnect();
     }

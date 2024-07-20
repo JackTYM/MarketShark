@@ -5,6 +5,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import dev.jacktym.crashpatch.CrashPatch;
+import dev.jacktym.marketshark.util.BugLogger;
 import net.minecraft.util.EnumChatFormatting;
 
 import java.io.File;
@@ -22,7 +23,7 @@ public class CrashHelper {
             skyclientJson = NetworkUtils.getJsonElement("https://raw.githubusercontent.com/SkyblockClient/CrashData/main/crashes.json").getAsJsonObject();
             return true;
         } catch (Exception e) {
-            e.printStackTrace();
+            BugLogger.logError(e);
             return false;
         }
     }
@@ -56,7 +57,7 @@ public class CrashHelper {
             simpleCache.put(report, crashScan);
             return crashScan;
         } catch (Throwable e) {
-            e.printStackTrace();
+            BugLogger.logError(e);
             return null;
         }
     }

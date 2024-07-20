@@ -5,6 +5,7 @@ import com.google.common.collect.Lists;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.stream.MalformedJsonException;
+import dev.jacktym.marketshark.util.BugLogger;
 import net.minecraft.launchwrapper.ITweaker;
 import net.minecraft.launchwrapper.Launch;
 import net.minecraft.launchwrapper.LaunchClassLoader;
@@ -71,7 +72,7 @@ public class ModsCheckerPlugin extends LaunchWrapperTweaker {
                         }
                     } catch (MalformedJsonException | IllegalStateException ignored) {
                     } catch (Exception e) {
-                        e.printStackTrace();
+                        BugLogger.logError(e);
                     }
                 }
             }
@@ -88,7 +89,7 @@ public class ModsCheckerPlugin extends LaunchWrapperTweaker {
                                 int value = new DefaultArtifactVersion(substringBeforeAny(a.second, "-beta", "-alpha", "-pre", "+beta", "+alpha", "+pre")).compareTo(new DefaultArtifactVersion(substringBeforeAny(b.second, "-beta", "-alpha", "-pre", "+beta", "+alpha", "+pre")));
                                 return -value;
                             } catch (Exception e) {
-                                e.printStackTrace();
+                                BugLogger.logError(e);
                                 return Long.compare(a.first.lastModified(), b.first.lastModified()) * -1;
                             }
                         }
@@ -114,7 +115,7 @@ public class ModsCheckerPlugin extends LaunchWrapperTweaker {
                         iterator.remove();
                     }
                 } catch (Exception e) {
-                    e.printStackTrace();
+                    BugLogger.logError(e);
                 }
             }
 
@@ -124,7 +125,7 @@ public class ModsCheckerPlugin extends LaunchWrapperTweaker {
                         getStringOf(dupeMap.values()) + "\nPlease removes these mods from your mod folder, which is opened." + (isSkyClient ? " GO TO https://inv.wtf/skyclient FOR MORE INFORMATION." : ""));
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            BugLogger.logError(e);
         }
 
         CodeSource codeSource = this.getClass().getProtectionDomain().getCodeSource();
@@ -157,7 +158,7 @@ public class ModsCheckerPlugin extends LaunchWrapperTweaker {
                                 Object container = urlContainerClass.getConstructor(URI.class).newInstance(location.toURI());
                                 MixinBootstrap.getPlatform().getClass().getDeclaredMethod("addContainer", containerClass).invoke(MixinBootstrap.getPlatform(), container);
                             } catch (Exception e) {
-                                e.printStackTrace();
+                                BugLogger.logError(e);
                                 throw new RuntimeException("OneConfig's Mixin loading failed. Please contact https://polyfrost.cc/discord to resolve this issue!");
                             }
                         }
@@ -178,7 +179,7 @@ public class ModsCheckerPlugin extends LaunchWrapperTweaker {
         try {
             UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
         } catch (Exception e) {
-            e.printStackTrace();
+            BugLogger.logError(e);
         }
 
         JFrame frame = new JFrame();
@@ -196,7 +197,7 @@ public class ModsCheckerPlugin extends LaunchWrapperTweaker {
             exit.invoke(null, 0);
         } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException |
                  InvocationTargetException e) {
-            e.printStackTrace();
+            BugLogger.logError(e);
         }
     }
 

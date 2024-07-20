@@ -71,7 +71,7 @@ public class FlipItem {
             this.uuid = getUuid(this.itemStack);
             flipMap.put(uuid, this);
         } catch (Exception e) {
-            e.printStackTrace();
+            BugLogger.logError(e);
         }
     }
 
@@ -119,7 +119,7 @@ public class FlipItem {
                 try {
                     jsonArray.add(item.serialize());
                 } catch (Exception e) {
-                    e.printStackTrace();
+                    BugLogger.logError(e);
                 }
             }
         }
@@ -128,7 +128,7 @@ public class FlipItem {
             file.write(jsonArray.toString());
             file.flush();
         } catch (IOException e) {
-            e.printStackTrace();
+            BugLogger.logError(e);
         }
     }
 
@@ -184,11 +184,11 @@ public class FlipItem {
                     }
 
                 } catch (Exception e) {
-                    e.printStackTrace();
+                    BugLogger.logError(e);
                 }
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            BugLogger.logError(e);
         }
     }
 
