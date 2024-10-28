@@ -1,6 +1,6 @@
 # MarketShark
 
-MarketShark is a Java-based Forge mod designed to automate interactions within the Minecraft Hypixel Skyblock Auction House. Built upon the [Forge1.8.9Template](https://github.com/nea89o/Forge1.8.9Template), this mod includes automatic purchasing and other remote-controlled functionalities for users connected to Hypixel, leveraging a backend for additional features.
+MarketShark is a Java-based Forge mod designed to automate interactions within the Minecraft Hypixel server. Built upon the [Forge1.8.9Template](https://github.com/nea89o/Forge1.8.9Template), this mod includes automated purchasing and other remote-controlled functionalities for users connected to Hypixel, leveraging a backend for additional features.
 
 ## Credits
 
@@ -17,7 +17,7 @@ Special thanks to nea89o for providing a streamlined template for legacy Minecra
 
 ## Features
 
-- Automated item purchasing on Hypixel Skyblock using the CoflNet websocket
+- Automated item purchasing on Hypixel using the CoflNet websocket
 - Backend server integration for remote control
 - Remote Start/Stop functionality
 - Discord bot integration for command and control
@@ -43,17 +43,34 @@ Download the required JDKs from [Adoptium](https://adoptium.net/temurin/releases
    cd MarketShark
    ```
 
-2. **Configure IntelliJ IDEA**
+2. **Run `build.sh` Script**
+   ```bash
+   chmod +x build.sh
+   ./build.sh
+   ```
+   This script executes Gradle tasks for building different MarketShark versions:
+   - `buildHammerhead`
+   - `buildWobbegong`
+   - `buildGreatWhite`
+   - `buildMegalodon`
+
+3. **Automatic Obfuscation**
+   - During the build, each version automatically passes through **Grunt** for minor obfuscation, ensuring code security and reducing readability for external users.
+
+4. **Single Codebase with Version-Specific Features**
+   - MarketShark is designed to maintain a single codebase that supports multiple feature sets, which are customized per build type (e.g., Hammerhead, Wobbegong, GreatWhite, Megalodon). This emulates C++ preprocessor directives by using **Regex patterns** to include or exclude specific code sections based on the build type.
+
+5. **Configure IntelliJ IDEA**
    - Set the Gradle JVM to the Java 17 JDK.
    - Set the Project SDK to the Java 1.8 JDK.
    - Synchronize Gradle and ensure the `Minecraft Client` run task appears.
 
-3. **Exporting the Mod**
-   - Run the `gradle build` task.
-   - The compiled mod can be found at `build/libs/<modid>-<version>.jar`.
+6. **Exporting the Mod**
+   - Run the `gradle build` task, or execute `build.sh`.
+   - The compiled mod files can be found at `build/libs/<modid>-<version>-<BuildType>.jar`.
    - Ignore the jars in the `build/badjars` folder, as these are intermediary files.
 
-4. **Optional Configuration for Mac Users**
+7. **Optional Configuration for Mac Users**
    - Remove the `-XStartOnFirstThread` VM argument in your run configuration if you encounter issues running the client.
 
 ## Missing Features
@@ -73,7 +90,7 @@ Download the required JDKs from [Adoptium](https://adoptium.net/temurin/releases
 Contributions are welcome! To contribute:
 
 1. **Fork** the repository.
-2. **Clone** your fork: `git clone https://github.com/YOUR_USERNAME/MarketShark.git`
+2. **Clone** your fork: `git clone https://github.com/JackTYM/MarketShark.git`
 3. **Create a new branch** for your feature or bug fix: `git checkout -b feature-name`
 4. **Commit** your changes: `git commit -m "Add new feature"`
 5. **Push** to your fork: `git push origin feature-name`
