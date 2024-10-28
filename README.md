@@ -84,6 +84,7 @@ Download the required JDKs from [Adoptium](https://adoptium.net/temurin/releases
 ## Known Bugs
 
 - Error when rejoining island after limbo.
+- CrashPatch does not work properly
 
 ## Contributing
 
