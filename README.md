@@ -1,39 +1,86 @@
-# Architectury Loom based template for 1.8.9 forge mods
+# MarketShark
 
-**For other templates, do check out the [other branches of this repository](https://github.com/romangraef/Forge1.8.9Template/branches/all)**
+MarketShark is a Java-based Forge mod designed to automate interactions within the Minecraft Hypixel Skyblock Auction House. Built upon the [Forge1.8.9Template](https://github.com/nea89o/Forge1.8.9Template), this mod includes automatic purchasing and other remote-controlled functionalities for users connected to Hypixel, leveraging a backend for additional features.
 
-## Usage
+## Credits
 
-Check out https://moddev.nea.moe/ for a full tutorial on legacy modding.
+MarketShark was built using [Forge1.8.9Template](https://github.com/nea89o/Forge1.8.9Template), a template repository by nea89o. This template provides the foundational setup for Forge mods targeting Minecraft version 1.8.9. 
 
-Alternatively, read here for a basic overview on how to use this repository.
+Original template features:
+- Architectury Loom integration for Forge modding
+- DevAuth for Minecraft account authentication
+- Customizable Mod ID on template usage
+- JDK 1.8 and JDK 17 compatibility for development
+- Gradle build system with support for mixins
 
-To get started, [Use this template](https://github.com/new?template_name=Forge1.8.9Template&template_owner=nea89o).
+Special thanks to nea89o for providing a streamlined template for legacy Minecraft modding.
 
-> [!WARNING]
-> Do not Fork or Clone or Download ZIP this template. If you "use" this template a custom mod id will be generated. You can do that manually using the `make-my-own` script, if you are on linux. If not, just click the use this template button. If you want to use kotlin or make a 1.12 mod check the "Include all branches" and change the default branch in https://github.com/yourname/yourreponame/branches
+## Features
 
-This project uses [DevAuth](https://github.com/DJtheRedstoner/DevAuth) per default, so you can log in using your real
-minecraft account. If you don't need that, you can remove it from the buildscript.
+- Automated item purchasing on Hypixel Skyblock using the CoflNet websocket
+- Backend server integration for remote control
+- Remote Start/Stop functionality
+- Discord bot integration for command and control
+- CLI tool for easy configuration (optional)
+- AutoList feature for managing in-game listings
 
-To run the mod you will need two JDKs, one Java 17 jdk and one Java 1.8 jdk. You can download those
-from [here](https://adoptium.net/temurin/releases) (or use your own downloads).
+## Building MarketShark
 
-When you import your project into IntelliJ, you need to set the gradle jvm to the Java 17 JDK in the gradle tab, and the
-Project SDK to the Java 1.8 JDK. Then click on the sync button in IntelliJ, and it should create a run task
-called `Minecraft Client`. If it doesn't then try relaunching your IntelliJ. **Warning for Mac users**: You might have to remove the `-XStartOnFirstThread` vm argument from your run configuration. In the future, that should be handled by the plugin, but for now you'll probably have to do that manually.
+### Requirements
 
-To export your project, run the `gradle build` task, and give other people the
-file `build/libs/<modid>-<version>.jar`. Ignore the jars in the `build/badjars` folder. Those are intermediary jars that
-are used by the build system but *do not work* in a normal forge installation.
+To build and run MarketShark, you will need:
+- Java 1.8 JDK for the project SDK
+- Java 17 JDK for Gradle JVM
+- IntelliJ IDEA for development
 
-If you don't want mixins (which allow for modifying vanilla code), then you can remove the references to mixins from
-the `build.gradle.kts` at the lines specified with comments and the `com.example.mixin` package.
+Download the required JDKs from [Adoptium](https://adoptium.net/temurin/releases).
 
-### For those who have not an attention span
+### Building Instructions
 
-[![Youtube Tutorial](https://i.ytimg.com/vi/nWzHlomdCgc/maxresdefault.jpg)](https://www.youtube.com/watch?v=nWzHlomdCgc)
+1. **Clone the Repository**
+   ```bash
+   git clone https://github.com/JackTYM/MarketShark
+   cd MarketShark
+   ```
 
-## Licensing
+2. **Configure IntelliJ IDEA**
+   - Set the Gradle JVM to the Java 17 JDK.
+   - Set the Project SDK to the Java 1.8 JDK.
+   - Synchronize Gradle and ensure the `Minecraft Client` run task appears.
 
-This template is licensed under the Unlicense (license copy present in this repository), or alternatively under [Creative Commons 1.0 Universal (CC0 1.0)](https://creativecommons.org/publicdomain/zero/1.0/), and all contributions and PR to this template are expected to follow this. This means your mod, based on this template can be licensed whatever way you want, and does not need to reference back to this template in any way.
+3. **Exporting the Mod**
+   - Run the `gradle build` task.
+   - The compiled mod can be found at `build/libs/<modid>-<version>.jar`.
+   - Ignore the jars in the `build/badjars` folder, as these are intermediary files.
+
+4. **Optional Configuration for Mac Users**
+   - Remove the `-XStartOnFirstThread` VM argument in your run configuration if you encounter issues running the client.
+
+## Missing Features
+
+- None
+
+## Known Vulnerabilities
+
+- None reported
+
+## Known Bugs
+
+- Error when rejoining island after limbo.
+
+## Contributing
+
+Contributions are welcome! To contribute:
+
+1. **Fork** the repository.
+2. **Clone** your fork: `git clone https://github.com/YOUR_USERNAME/MarketShark.git`
+3. **Create a new branch** for your feature or bug fix: `git checkout -b feature-name`
+4. **Commit** your changes: `git commit -m "Add new feature"`
+5. **Push** to your fork: `git push origin feature-name`
+6. **Submit a pull request** with a description of your changes.
+
+Pull requests will be reviewed and accepted if applicable to the project goals.
+
+---
+
+Thank you for your interest in MarketShark!
