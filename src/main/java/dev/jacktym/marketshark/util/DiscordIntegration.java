@@ -54,7 +54,7 @@ public class DiscordIntegration {
 
     public static void connectToWebsocket() {
         try {
-            setWebsocketClient(new URI("wss://cofl.jacktym.dev"));
+            setWebsocketClient(new URI("wss://wss.$DOMAIN"));
             connected = true;
             websocketClient.connect();
         } catch (Exception e) {

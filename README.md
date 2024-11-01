@@ -35,6 +35,16 @@ To build and run MarketShark, you will need:
 
 Download the required JDKs from [Adoptium](https://adoptium.net/temurin/releases).
 
+### Configuring MarketShark
+1. **Configuring env variables**
+   - Open gradle.properties
+   - Edit the basegroup, modid if appliciable
+   - Set your domain for your [MarketSharkServer](https://github.com/JackTYM/MarketSharkServer) host
+
+2. **Switching to Unsecure (Not Reccomended)**
+   - Only required if using an IP or Domain that has no SSL Certifciates Served
+   - Replace "wss" in DiscordIntegration.java with "ws"
+
 ### Building Instructions
 
 1. **Clone the Repository**

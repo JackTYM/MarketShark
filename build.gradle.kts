@@ -16,6 +16,7 @@ val mcVersion: String by project
 val version: String by project
 val mixinGroup = "$baseGroup.mixin"
 val modid: String by project
+val domain: String by project
 
 // Toolchains:
 java {
@@ -481,6 +482,7 @@ tasks.register<Copy>("processSource") {
                     else -> text
                         .replace("\$version", "UnknownVersion")
                 }.replace("\$modVersion", version)
+                    .replace("\$DOMAIN", domain)
                 file.writeText(modifiedText)
             }
     }
